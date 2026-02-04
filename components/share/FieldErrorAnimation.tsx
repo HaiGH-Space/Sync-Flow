@@ -3,8 +3,8 @@ import { AnimatePresence, motion } from "motion/react"
 import { FieldError } from "../ui/field"
 
 type FieldErrorAnimationProps = {
-  isInvalid: boolean;
-  errors?: Array<{ message?: string } | undefined>; 
+    isInvalid: boolean;
+    errors?: Array<{ message?: string } | undefined>;
 }
 
 const FieldErrorAnimation = ({ isInvalid, errors }: FieldErrorAnimationProps) => {
@@ -17,4 +17,4 @@ const FieldErrorAnimation = ({ isInvalid, errors }: FieldErrorAnimationProps) =>
     </AnimatePresence>
 }
 
-export default FieldErrorAnimation
+export default FieldErrorAnimation;

@@ -5,11 +5,9 @@ import { useState } from "react";
 import LightBeam from "./LightBeam";
 import z from "zod";
 import { toast } from "sonner";
-import { Field, FieldLabel } from "../ui/field";
-import { Input } from "../ui/input";
 import { useForm } from "@tanstack/react-form";
-import { Button } from "../ui/button";
-import FieldErrorAnimation from "../share/FieldErrorAnimation";
+import { LockIcon, MailIcon, UserIcon } from "lucide-react";
+import AuthField from "./AuthField";
 
 type AuthMode = "login" | "register";
 type AuthState = "idle" | "loading" | "error" | "success";
@@ -26,21 +24,18 @@ const itemVariants: Variants = {
   }
 }
 
-const containerVariants = (mode: AuthMode): Variants => {
-  return {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.15,
-      }
-    },
-    exit: {
-      opacity: 0,
-      x: mode === "login" ? -20 : 20,
-      transition: { duration: 0.2 }
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.15,
     }
+  },
+  exit: {
+    opacity: 0,
+    transition: { duration: 0.2 }
   }
 }
 
@@ -71,7 +66,7 @@ const AuthCard = () => {
   const currentSchema = (mode === "login" ? loginSchema : registerSchema) as z.ZodType<any, any, any>;
   const switchMode = (newMode: AuthMode) => {
     setMode(newMode);
-    form.reset(); 
+    form.reset();
   };
   const form = useForm({
     defaultValues,
@@ -115,7 +110,7 @@ const AuthCard = () => {
         animate="visible"
         exit="exit"
         key={mode}
-        variants={containerVariants(mode)}
+        variants={containerVariants}
       >
         <motion.div
           variants={itemVariants}
@@ -150,93 +145,47 @@ const AuthCard = () => {
             key={'form'}
           >
             {mode === "register" && (
-              <motion.div
-                variants={itemVariants}
+              <AuthField
+                form={form}
+                name="fullName"
                 key="fullName"
-                initial="hidden"
-                animate="visible"
-                exit="hidden"
-              >
-                <form.Field name="fullName">
-                  {(field) => {
-                    const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid
-                    return (
-                      <Field data-invalid={isInvalid}>
-                        <FieldLabel htmlFor={field.name}>Full Name</FieldLabel>
-                        <Input
-                          id={field.name}
-                          name={field.name}
-                          value={field.state.value}
-                          onChange={(e) => field.handleChange(e.target.value)}
-                          aria-invalid={isInvalid}
-                          placeholder="Enter your full name"
-                          autoComplete="off"
-                        />
-                        <FieldErrorAnimation isInvalid={isInvalid} errors={field.state.meta.errors} />
-                      </Field>
-                    )
-                  }}
-                </form.Field>
-              </motion.div>
+                variants={itemVariants}
+                placeholder="Enter your full name"
+                icon={UserIcon}
+              />
             )}
-            <motion.div key={'email'} variants={itemVariants} className="mt-4">
-              <form.Field name="email">
-                {
-                  (field) => {
-                    const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid
-                    return (
-                      <Field>
-                        <FieldLabel htmlFor={field.name}>Email</FieldLabel>
-                        <Input
-                          id={field.name}
-                          name={field.name}
-                          type="email"
-                          value={field.state.value}
-                          onChange={(e) => field.handleChange(e.target.value)}
-                          placeholder="Enter your email"
-                        />
-                        <FieldErrorAnimation isInvalid={isInvalid} errors={field.state.meta.errors} />
-                      </Field>
-                    )
-                  }}
-              </form.Field>
-            </motion.div>
-            <motion.div key={'password'} variants={itemVariants} className="mt-4">
-              <form.Field name="password">
-                {
-                  (field) => {
-                    const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid
-                    return (
-                      <Field>
-                        <FieldLabel htmlFor={field.name}>Password</FieldLabel>
-                        <Input
-                          id={field.name}
-                          name={field.name}
-                          type="password"
-                          value={field.state.value}
-                          onChange={(e) => field.handleChange(e.target.value)}
-                          placeholder="Enter your password"
-                        />
-                        <FieldErrorAnimation isInvalid={isInvalid} errors={field.state.meta.errors} />
-                      </Field>
-                    )
-                  }}
-              </form.Field>
-            </motion.div>
           </AnimatePresence>
-          <motion.div
+          <AuthField
+            form={form}
+            name="email"
+            key="email"
             variants={itemVariants}
-            className="mt-4"
-            onClick={() => switchMode(mode === "login" ? "register" : "login")}
-          >
-            <span className="cursor-pointer text-sm text-primary hover:underline">{mode === "register" ? "Already have an account? Log in" : "Don't have an account? Register"}</span>
-          </motion.div>
-          <motion.div
-            className="flex justify-center"
+            placeholder="Enter your email"
+            icon={MailIcon}
+          />
+          <AuthField
+            form={form}
+            name="password"
+            key="password"
             variants={itemVariants}
+            placeholder="Enter your password"
+            icon={LockIcon}
+          />
+          <motion.p
+            variants={itemVariants}
+            className="mt-4 text-sm text-center text-muted-foreground"
           >
-            <Button disabled={authState==="loading"} className="cursor-pointer mt-4" type="submit">Submit</Button>
-          </motion.div>
+            {mode === "login" ? (
+              <>
+                Dont have an account?{" "}
+                <span onClick={() => switchMode("register")} className="text-primary hover:text-primary/80 cursor-pointer mt-4" >Sign up</span>
+              </>
+            ) : (
+              <>
+                Already have an account?{" "}
+                <span onClick={() => switchMode("login")} className="text-primary hover:text-primary/80 cursor-pointer mt-4">Sign in</span>
+              </>)}
+          </motion.p>
         </form>
       </motion.div>
     </AnimatePresence >
