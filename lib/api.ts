@@ -1,10 +1,19 @@
-export interface ApiResponse<T> {
-    code: number,
+interface BaseResponse {
+    statusCode: number,
     message: string,
-    data: T,
 }
 
-const BASE_URL = process.env.API_BASE_URL || 'http://localhost:3000';
+export interface ApiResponse<T> extends BaseResponse {
+    data: T,
+    error?: never
+}
+
+export interface ApiError extends BaseResponse {
+    error: string,
+    data?: never
+}
+
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 async function request<T>(endpoint: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
     const option: RequestInit = {
@@ -15,17 +24,12 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
             ...options.headers,
         },
     };
-    try {
-        const response = await fetch(`${BASE_URL}${endpoint}`, option);
-        if (!response.ok) {
-            console.error(`HTTP error! status: ${response.status}, statusText: ${await response.json()}`);
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data: ApiResponse<T> = await response.json();
-        return data;
-    } catch (error) {
-        throw new Error(`Network error: ${error}`);
+    const response = await fetch(`${BASE_URL}${endpoint}`, option);
+    const data = await response.json();
+    if (!response.ok) {
+        throw Error((data as ApiError).error);
     }
+    return data as ApiResponse<T>;
 }
 
 export const api = {

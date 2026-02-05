@@ -10,6 +10,8 @@ import { LockIcon, MailIcon, UserIcon } from "lucide-react";
 import AuthField from "./AuthField";
 import { Button } from "../ui/button";
 import LogoAppAnimation from "../share/LogoAppAnimation";
+import { login } from "@/lib/services/auth";
+import { ApiError } from "@/lib/api";
 
 type AuthMode = "login" | "register";
 type AuthState = "idle" | "loading" | "error" | "success";
@@ -62,7 +64,7 @@ const defaultValues = {
 };
 
 const AuthCard = () => {
-  const [mode, setMode] = useState<AuthMode>("register");
+  const [mode, setMode] = useState<AuthMode>("login");
   const [authState, setAuthState] = useState<AuthState>("idle");
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const currentSchema = (mode === "login" ? loginSchema : registerSchema) as z.ZodType<any, any, any>;
@@ -77,25 +79,23 @@ const AuthCard = () => {
       onChange: currentSchema,
     },
     onSubmit: async ({ value }) => {
-      const submitAction = new Promise((resolve, reject) => {
-        setTimeout(() => {
-          // Giả lập logic: 80% thành công, 20% thất bại để test
-          if (Math.random() > 0.2) resolve({ name: "User" });
-          else reject(new Error("Mạng lag quá!"));
-        }, 2000);
-      });
+      const toastId = "auth-action";
       setAuthState("loading");
-      toast.promise(submitAction, {
-        loading: mode === "login" ? "Đang đăng nhập..." : "Đang đăng ký...",
-        success: () => {
-          setAuthState("success");
-          return mode === "login" ? "Đăng nhập thành công!" : "Đăng ký thành công!";
-        },
-        error: (err) => {
-          setAuthState("error");
-          return "Có lỗi xảy ra: " + err.message;
-        },
-      });
+      toast.loading(mode === "login" ? "Đang đăng nhập..." : "Đang đăng ký...", { id: toastId });
+      try {
+        if (mode === "login") {
+          await login({ email: value.email, password: value.password });
+          toast.success("Đăng nhập thành công!", { id: toastId });
+        } else {
+          
+        }
+        setAuthState("success");
+      } catch (error) {
+        toast.error((error as Error).message, {
+          id: toastId,
+        });
+        setAuthState("error");
+      }
     }
   });
 
