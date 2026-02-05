@@ -8,6 +8,8 @@ import { toast } from "sonner";
 import { useForm } from "@tanstack/react-form";
 import { LockIcon, MailIcon, UserIcon } from "lucide-react";
 import AuthField from "./AuthField";
+import { Button } from "../ui/button";
+import LogoAppAnimation from "../share/LogoAppAnimation";
 
 type AuthMode = "login" | "register";
 type AuthState = "idle" | "loading" | "error" | "success";
@@ -100,80 +102,42 @@ const AuthCard = () => {
   return <motion.div
     layout
     transition={{ type: "spring", stiffness: 300, damping: 30 }}
-    className="shadow-primary/20 relative w-full max-w-xs sm:max-w-md md:max-w-lg bg-card/80 backdrop-blur-xl border border-border rounded-2xl p-8 shadow-md"
+    className="shadow-primary/20 relative w-full max-w-xs sm:max-w-md bg-card/80 backdrop-blur-xl border border-border rounded-2xl p-8 shadow-md"
   >
     <LightBeam />
 
     <AnimatePresence mode="wait">
-      <motion.div
-        initial="hidden"
-        animate="visible"
-        exit="exit"
-        key={mode}
-        variants={containerVariants}
-      >
-        <motion.div
-          variants={itemVariants}
-          className="text-center mb-6"
-        >
-          <motion.h1 className="bg-clip-text text-3xl font-bold bg-linear-to-r from-foreground via-primary to-foreground text-transparent"
-            style={{
-              backgroundSize: "200% 100%",
-            }}
-            animate={{
-              backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
-            }}
-            transition={{
-              duration: 5,
-              repeat: Infinity,
-              ease: "linear"
-            }}
-          >
-            Sync Flow
-          </motion.h1>
+      <motion.div initial="hidden" animate="visible" exit="exit" key={mode} variants={containerVariants} >
+        <motion.div variants={itemVariants} className="text-center mb-6">
+          <LogoAppAnimation />
           <p className="mt-2 text-sm text-muted-foreground">
             {mode === "login" ? "Welcome back! Please sign in to your account." : "Create a new account to get started."}
           </p>
         </motion.div>
-        <form id="auth-form"
-          onSubmit={(e) => {
-            e.preventDefault();
-            form.handleSubmit();
-          }}
+        <form id="auth-form" onSubmit={(e) => {
+          e.preventDefault();
+          form.handleSubmit();
+        }}
         >
-          <AnimatePresence
-            key={'form'}
-          >
+          <AnimatePresence key={'form'}>
             {mode === "register" && (
-              <AuthField
-                form={form}
-                name="fullName"
-                key="fullName"
-                variants={itemVariants}
-                placeholder="Enter your full name"
-                icon={UserIcon}
-              />
+              <AuthField form={form} name="fullName" key="fullName" variants={itemVariants} placeholder="Enter your full name" icon={UserIcon} />
             )}
           </AnimatePresence>
-          <AuthField
-            form={form}
-            name="email"
-            key="email"
-            variants={itemVariants}
-            placeholder="Enter your email"
-            icon={MailIcon}
-          />
-          <AuthField
-            form={form}
-            name="password"
-            key="password"
-            variants={itemVariants}
-            placeholder="Enter your password"
-            icon={LockIcon}
-          />
-          <motion.p
-            variants={itemVariants}
-            className="mt-4 text-sm text-center text-muted-foreground"
+          <AuthField form={form} name="email" key="email" variants={itemVariants} placeholder="Enter your email" icon={MailIcon} />
+          <AuthField form={form} name="password" key="password" variants={itemVariants} placeholder="Enter your password" icon={LockIcon} />
+          <motion.div variants={itemVariants} className="mt-4">
+            <Button className="w-full h-10" type="submit">{mode === "login" ? "Sign In" : "Create Account"}</Button>
+          </motion.div>
+
+          {/* Divider */}
+          <motion.div variants={itemVariants} className=" flex items-center gap-4 py-2">
+            <div className="flex-1 h-px bg-border" />
+            <span className="uppercase text-xs text-muted-foreground tracking-wider">or continue with</span>
+            <div className="flex-1 h-px bg-border" />
+          </motion.div>
+
+          <motion.p variants={itemVariants} className="mt-4 text-sm text-center text-muted-foreground"
           >
             {mode === "login" ? (
               <>
@@ -191,5 +155,4 @@ const AuthCard = () => {
     </AnimatePresence >
   </motion.div >
 }
-
 export default AuthCard;
