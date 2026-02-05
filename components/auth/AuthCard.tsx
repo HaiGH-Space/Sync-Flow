@@ -11,7 +11,7 @@ import AuthField from "./AuthField";
 import { Button } from "../ui/button";
 import LogoAppAnimation from "../share/LogoAppAnimation";
 import { login } from "@/lib/services/auth";
-import { ApiError } from "@/lib/api";
+import { useUserStore } from "@/lib/hooks/use-user-profile";
 
 type AuthMode = "login" | "register";
 type AuthState = "idle" | "loading" | "error" | "success";
@@ -66,6 +66,10 @@ const defaultValues = {
 const AuthCard = () => {
   const [mode, setMode] = useState<AuthMode>("login");
   const [authState, setAuthState] = useState<AuthState>("idle");
+  const {
+    setUserProfile,
+    userProfile
+  } = useUserStore()
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const currentSchema = (mode === "login" ? loginSchema : registerSchema) as z.ZodType<any, any, any>;
   const switchMode = (newMode: AuthMode) => {
@@ -84,12 +88,14 @@ const AuthCard = () => {
       toast.loading(mode === "login" ? "Đang đăng nhập..." : "Đang đăng ký...", { id: toastId });
       try {
         if (mode === "login") {
-          await login({ email: value.email, password: value.password });
+          const response = await login({ email: value.email, password: value.password });
+          setUserProfile(response.data);
           toast.success("Đăng nhập thành công!", { id: toastId });
         } else {
           
         }
         setAuthState("success");
+        console.log(userProfile);
       } catch (error) {
         toast.error((error as Error).message, {
           id: toastId,
