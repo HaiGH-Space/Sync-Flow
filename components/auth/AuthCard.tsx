@@ -10,7 +10,6 @@ import { LockIcon, MailIcon, UserIcon } from "lucide-react";
 import AuthField from "./AuthField";
 import { Button } from "../ui/button";
 import LogoAppAnimation from "../share/LogoAppAnimation";
-import { useRouter } from "next/navigation";
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useUserStore } from "@/lib/store/use-user-profile";
 import { authService } from "@/lib/services/auth";
@@ -74,7 +73,7 @@ const AuthCard = () => {
   const queryClient = useQueryClient();
   const [mode, setMode] = useState<AuthMode>("login");
   const [authState, setAuthState] = useState<AuthState>("idle");
-  const router = useRouter();
+
   const {
     setUserProfile,
     userProfile
@@ -91,8 +90,8 @@ const AuthCard = () => {
     onSuccess: (response) => {
       queryClient.setQueryData(['userProfile'], response.data);
       setUserProfile(response.data);
-      toast.dismiss(toastId);
       setAuthState("success");
+      toast.dismiss(toastId);
     },
     onError: (error: Error) => {
       toast.error(error.message, { id: toastId });
@@ -104,7 +103,11 @@ const AuthCard = () => {
     mutationFn: (data: RegisterValues) => authService.register(data),
     onSuccess: () => {
       toast.success("Đăng ký thành công! Bây giờ bạn có thể đăng nhập.", { id: toastId });
-      switchMode("login");
+      setAuthState("success");
+      setTimeout(() => {
+        setAuthState("idle");
+        switchMode("login");
+      }, 3 * 1000);
     },
     onError: (error: Error) => {
       toast.error(error.message, { id: toastId });
@@ -138,7 +141,7 @@ const AuthCard = () => {
     <AnimatePresence mode="wait">
       {
         authState === "success" ? (<>
-          <motion.div key="success" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ type: "spring", stiffness: 300, damping: 30 }} className="text-center">
+          <motion.div key="success" initial={{ opacity: 0, scale: 0.6 }} animate={{ opacity: 1, scale: 1 }} transition={{ type: "spring", stiffness: 300, damping: 30 }} className="text-center">
             <SuccessState isLogin={mode === "login"} userName={userProfile?.name} />
           </motion.div>
         </>) : (
@@ -166,7 +169,7 @@ const AuthCard = () => {
               </motion.div>
 
               {/* Divider */}
-              <motion.div variants={itemVariants} className=" flex items-center gap-4 py-2">
+              <motion.div variants={itemVariants} className="flex items-center gap-4 py-2">
                 <div className="flex-1 h-px bg-border" />
                 <span className="uppercase text-xs text-muted-foreground tracking-wider">or continue with</span>
                 <div className="flex-1 h-px bg-border" />
