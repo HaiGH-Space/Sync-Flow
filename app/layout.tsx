@@ -3,8 +3,9 @@ import { Geist, Geist_Mono, Outfit } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ui/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
+import QueryProvider from "@/components/ui/query-provider";
 
-const outfit = Outfit({subsets:['latin'],variable:'--font-sans'});
+const outfit = Outfit({ subsets: ['latin'], variable: '--font-sans' });
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,14 +33,16 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <QueryProvider>
             {children}
             <Toaster />
-          </ThemeProvider>
+          </QueryProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

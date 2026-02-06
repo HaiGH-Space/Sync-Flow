@@ -6,6 +6,21 @@ interface LoginRequest {
     password: string
 }
 
-export const login = async ({ email, password }: LoginRequest) => {
-    return api.post<UserProfile>("/auth/login", { email, password })
+interface RegisterRequest {
+    email: string
+    password: string
+    name: string
+    image: string | null
+}
+
+async function login({ email, password }: LoginRequest) {
+    return await api.post<UserProfile>("/auth/login", { email, password })
+}
+
+async function register({ email, password, name, image }: RegisterRequest) {
+    return await api.post<UserProfile>("/auth/register", { email, password, name, image })
+}
+
+export const authService = {
+    login, register
 }

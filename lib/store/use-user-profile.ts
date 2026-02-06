@@ -11,7 +11,6 @@ type UserProfileStore = {
 } & UserProfileActions
 
 export const useUserStore = create<UserProfileStore>((set) => ({
-    userProfile: undefined,
     logout: async () => {
         // call logout endpoint, need implement
         set({ userProfile: undefined })
