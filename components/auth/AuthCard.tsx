@@ -14,6 +14,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useUserStore } from "@/lib/store/use-user-profile";
 import { authService } from "@/lib/services/auth";
 import SuccessState from "./SuccessState";
+import { useTranslations } from "next-intl";
 
 type AuthMode = "login" | "register";
 type AuthState = "idle" | "loading" | "error" | "success";
@@ -45,22 +46,35 @@ const containerVariants = {
   }
 }
 
-const loginSchema = z.object({
-  email: z.email("Email không hợp lệ"),
-  password: z.string().min(1, "Vui lòng nhập mật khẩu"),
-});
+const createLoginSchema = (tValidation: ReturnType<typeof useTranslations<"validation">>) =>
+  z.object({
+    email: z.email(tValidation("auth.email_invalid")),
+    password: z.string().min(1, tValidation("auth.password_required")),
+  });
 
-const registerSchema = z.object({
-  email: z.email("Email không hợp lệ"),
-  password: z.string().min(8, "Mật khẩu phải có ít nhất 8 ký tự"),
-  name: z.string().min(2, "Tên phải có ít nhất 2 ký tự"),
-  image: z.string().nullable(),
-});
+const createRegisterSchema = (tValidation: ReturnType<typeof useTranslations<"validation">>) =>
+  z.object({
+    email: z.email(tValidation("auth.email_invalid")),
+    password: z
+      .string()
+      .min(8, tValidation("auth.password_min")),
+    name: z.string().min(2, tValidation("auth.name_min")),
+    image: z.string().nullable(),
+  });
 
 const toastId = "auth-toast";
 
-type LoginValues = z.infer<typeof loginSchema>;
-type RegisterValues = z.infer<typeof registerSchema>;
+type LoginValues = {
+  email: string;
+  password: string;
+};
+
+type RegisterValues = {
+  email: string;
+  password: string;
+  name: string;
+  image: string | null;
+};
 
 const defaultValues = {
   email: "",
@@ -73,13 +87,14 @@ const AuthCard = () => {
   const queryClient = useQueryClient();
   const [mode, setMode] = useState<AuthMode>("login");
   const [authState, setAuthState] = useState<AuthState>("idle");
-
+  const tAuth = useTranslations<'auth'>();
+  const tValidation = useTranslations<'validation'>();
   const {
     setUserProfile,
     userProfile
   } = useUserStore()
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const currentSchema = (mode === "login" ? loginSchema : registerSchema) as z.ZodType<any, any, any>;
+  const currentSchema = (mode === "login" ? createLoginSchema(tValidation) : createRegisterSchema(tValidation)) as z.ZodType<any, any, any>;
   const switchMode = (newMode: AuthMode) => {
     setMode(newMode);
     form.reset();
@@ -102,7 +117,7 @@ const AuthCard = () => {
   const registerMutation = useMutation({
     mutationFn: (data: RegisterValues) => authService.register(data),
     onSuccess: () => {
-      toast.success("Đăng ký thành công! Bây giờ bạn có thể đăng nhập.", { id: toastId });
+      toast.success(tAuth('toast.register_success'), { id: toastId });
       setAuthState("success");
       setTimeout(() => {
         setAuthState("idle");
@@ -123,7 +138,12 @@ const AuthCard = () => {
     },
     onSubmit: async ({ value }) => {
       setAuthState("loading");
-      toast.loading(mode === "login" ? "Đang đăng nhập..." : "Đang đăng ký...", { id: toastId });
+      toast.loading(
+        mode === "login"
+          ? tAuth('toast.logging_in')
+          : tAuth('toast.registering'),
+        { id: toastId }
+      );
       if (mode === "login") {
         loginMutation.mutate({ email: value.email, password: value.password });
       } else {
@@ -149,7 +169,9 @@ const AuthCard = () => {
             <motion.div variants={itemVariants} className="text-center mb-6">
               <LogoAppAnimation />
               <p className="mt-2 text-sm text-muted-foreground">
-                {mode === "login" ? "Welcome back! Please sign in to your account." : "Create a new account to get started."}
+                {mode === "login"
+                  ? tAuth('login.subtitle')
+                  : tAuth('register.subtitle')}
               </p>
             </motion.div>
             <form id="auth-form" onSubmit={(e) => {
@@ -159,19 +181,45 @@ const AuthCard = () => {
             >
               <AnimatePresence key={'form'}>
                 {mode === "register" && (
-                  <AuthField form={form} name="name" key="name" variants={itemVariants} placeholder="Enter your full name" icon={UserIcon} />
+                  <AuthField
+                    form={form}
+                    name="name"
+                    key="name"
+                    variants={itemVariants}
+                    placeholder={tAuth('register.name_placeholder')}
+                    icon={UserIcon}
+                  />
                 )}
               </AnimatePresence>
-              <AuthField form={form} name="email" key="email" variants={itemVariants} placeholder="Enter your email" icon={MailIcon} />
-              <AuthField form={form} name="password" type="password" key="password" variants={itemVariants} placeholder="Enter your password" icon={LockIcon} />
+              <AuthField
+                form={form}
+                name="email"
+                key="email"
+                variants={itemVariants}
+                placeholder={mode === "login" ? tAuth('login.email_placeholder') : tAuth('register.email_placeholder')}
+                icon={MailIcon}
+              />
+              <AuthField
+                form={form}
+                name="password"
+                type="password"
+                key="password"
+                variants={itemVariants}
+                placeholder={mode === "login" ? tAuth('login.password_placeholder') : tAuth('register.password_placeholder')}
+                icon={LockIcon}
+              />
               <motion.div variants={itemVariants} className="mt-4">
-                <Button className="w-full h-10 cursor-pointer" type="submit">{mode === "login" ? "Sign In" : "Create Account"}</Button>
+                <Button className="w-full h-10 cursor-pointer" type="submit">
+                  {mode === "login" ? tAuth('login.submit') : tAuth('register.submit')}
+                </Button>
               </motion.div>
 
               {/* Divider */}
               <motion.div variants={itemVariants} className="flex items-center gap-4 py-2">
                 <div className="flex-1 h-px bg-border" />
-                <span className="uppercase text-xs text-muted-foreground tracking-wider">or continue with</span>
+                <span className="uppercase text-xs text-muted-foreground tracking-wider">
+                  {tAuth('login.divider_text')}
+                </span>
                 <div className="flex-1 h-px bg-border" />
               </motion.div>
 
@@ -179,14 +227,25 @@ const AuthCard = () => {
               >
                 {mode === "login" ? (
                   <>
-                    Dont have an account?{" "}
-                    <span onClick={() => switchMode("register")} className="text-primary hover:text-primary/80 cursor-pointer mt-4" >Sign up</span>
+                    {tAuth('login.no_account')}{" "}
+                    <span
+                      onClick={() => switchMode("register")}
+                      className="text-primary hover:text-primary/80 cursor-pointer mt-4"
+                    >
+                      {tAuth('login.go_to_register')}
+                    </span>
                   </>
                 ) : (
                   <>
-                    Already have an account?{" "}
-                    <span onClick={() => switchMode("login")} className="text-primary hover:text-primary/80 cursor-pointer mt-4">Sign in</span>
-                  </>)}
+                    {tAuth('login.have_account')}{" "}
+                    <span
+                      onClick={() => switchMode("login")}
+                      className="text-primary hover:text-primary/80 cursor-pointer mt-4"
+                    >
+                      {tAuth('login.go_to_login')}
+                    </span>
+                  </>
+                )}
               </motion.p>
             </form>
           </motion.div>
