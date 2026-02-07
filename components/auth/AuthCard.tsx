@@ -87,8 +87,8 @@ const AuthCard = () => {
   const queryClient = useQueryClient();
   const [mode, setMode] = useState<AuthMode>("login");
   const [authState, setAuthState] = useState<AuthState>("idle");
-  const tAuth = useTranslations<'auth'>();
-  const tValidation = useTranslations<'validation'>();
+  const tAuth = useTranslations("auth");
+  const tValidation = useTranslations("validation");
   const {
     setUserProfile,
     userProfile
