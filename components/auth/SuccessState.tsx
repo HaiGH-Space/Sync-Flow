@@ -15,10 +15,10 @@ const SuccessState = ({ isLogin, userName }: SuccessStateProps) => {
     const searchParams = useSearchParams();
     const redirectTo = searchParams.get("redirectTo") || "/dashboard";
     useEffect(() => {
-        console.log("State check:", { isLogin, redirectTo });
         if (isLogin) {
             const timer = setTimeout(() => {
-                router.push(redirectTo);
+                window.location.href = redirectTo;
+                // router.push(redirectTo);
             }, 3000);
             return () => clearTimeout(timer);
         }
