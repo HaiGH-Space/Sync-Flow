@@ -17,8 +17,7 @@ const SuccessState = ({ isLogin, userName }: SuccessStateProps) => {
     useEffect(() => {
         if (isLogin) {
             const timer = setTimeout(() => {
-                window.location.href = redirectTo;
-                // router.push(redirectTo);
+                router.push(redirectTo);
             }, 3000);
             return () => clearTimeout(timer);
         }
