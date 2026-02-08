@@ -1,3 +1,5 @@
-export default function HomeLayout() {
-    return <>This is home layout</>;
+
+
+export default async function HomeLayout({ children }: { children: React.ReactNode }) {
+    return <>{children}</>;
 }

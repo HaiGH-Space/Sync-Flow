@@ -12,7 +12,7 @@ export function proxy(request: NextRequest) {
     const { pathname } = request.nextUrl;
     if (!token && PROTECTED_ROUTES.some(route => pathname.startsWith(route))) {
         const loginUrl = new URL('/auth', request.url);
-        loginUrl.searchParams.set('from', pathname);
+        loginUrl.searchParams.set('redirectTo', pathname);
         return NextResponse.redirect(loginUrl);
     }
     if (token && AUTH_ROUTES.some(route => pathname.startsWith(route))) {
