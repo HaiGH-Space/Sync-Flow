@@ -1,7 +1,9 @@
 'use client'
+import { useRouter } from "@/i18n/navigation";
 import { Check } from "lucide-react";
 import { motion } from "motion/react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+
 interface SuccessStateProps {
     isLogin: boolean;
     userName?: string;

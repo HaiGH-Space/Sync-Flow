@@ -8,15 +8,28 @@ const AUTH_ROUTES = ['/auth'];
 const i18nMiddleware = createMiddleware(routing);
 
 export function proxy(request: NextRequest) {
-    const token = request.cookies.get('session_token')?.value;
     const { pathname } = request.nextUrl;
-    if (!token && PROTECTED_ROUTES.some(route => pathname.startsWith(route))) {
-        const loginUrl = new URL('/auth', request.url);
-        loginUrl.searchParams.set('redirectTo', pathname);
+    const token = request.cookies.get('session_token')?.value;
+
+    const localeMatch = pathname.match(new RegExp(`^/(${routing.locales.join('|')})`));
+    const locale = localeMatch ? localeMatch[1] : routing.defaultLocale;
+    
+    let pathnameWithoutLocale = pathname.replace(new RegExp(`^/${locale}`), '');
+    if (pathnameWithoutLocale === '') pathnameWithoutLocale = '/';
+    const isProtectedRoute = PROTECTED_ROUTES.some(route => pathnameWithoutLocale.startsWith(route));
+
+    if (!token && isProtectedRoute) {
+        const loginUrl = new URL(`/${locale}/auth`, request.url);
+
+        loginUrl.searchParams.set('redirectTo', pathnameWithoutLocale);
+        
         return NextResponse.redirect(loginUrl);
     }
-    if (token && AUTH_ROUTES.some(route => pathname.startsWith(route))) {
-        return NextResponse.redirect(new URL('/dashboard', request.url));
+
+    const isAuthRoute = AUTH_ROUTES.some(route => pathnameWithoutLocale.startsWith(route));
+
+    if (token && isAuthRoute) {
+        return NextResponse.redirect(new URL(`/${locale}/dashboard`, request.url));
     }
     return i18nMiddleware(request);
 }
