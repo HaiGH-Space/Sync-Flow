@@ -3,6 +3,7 @@ import { useRouter } from "@/i18n/navigation";
 import { Check } from "lucide-react";
 import { motion } from "motion/react";
 import { useSearchParams } from "next/navigation";
+import { useEffect } from "react";
 
 interface SuccessStateProps {
     isLogin: boolean;
@@ -12,12 +13,15 @@ interface SuccessStateProps {
 const SuccessState = ({ isLogin, userName }: SuccessStateProps) => {
     const router = useRouter();
     const searchParams = useSearchParams();
-    if (isLogin) {
-        const redirectTo = searchParams.get("redirectTo") || "/dashboard";
-        setTimeout(() => {
-            router.push(redirectTo);
-        }, 3 * 1000);
-    }
+    const redirectTo = searchParams.get("redirectTo") || "/dashboard";
+    useEffect(() => {
+        if (isLogin) {
+            const timer = setTimeout(() => {
+                router.push(redirectTo);
+            }, 3000);
+            return () => clearTimeout(timer);
+        }
+    }, [isLogin, router, redirectTo]);
     return (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col py-8 items-center justify-center text-center">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ type: "spring", stiffness: 300, damping: 20 }} className="relative w-20 h-20 mb-6">
