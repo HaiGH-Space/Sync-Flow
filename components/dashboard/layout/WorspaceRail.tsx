@@ -1,14 +1,17 @@
 'use client'
 
 import { Skeleton } from "@/components/ui/skeleton"
+import { useRouter } from "@/i18n/navigation"
 import { workspaceService } from "@/lib/services/workspace"
 import { cn, getFirstLetters } from "@/lib/utils"
 import { useQuery } from "@tanstack/react-query"
-import { useEffect, useState } from "react"
+import { useParams } from "next/navigation"
+import { useEffect } from "react"
 import { toast } from "sonner"
 
 export function WorkspaceRail() {
-    const [userSelectedId, setUserSelectedId] = useState<string | null>(null);
+    const params = useParams()
+    const router = useRouter()
     const { isPending, error, data } = useQuery({
         queryKey: ['workspace-list'],
         staleTime: Infinity,
@@ -19,7 +22,6 @@ export function WorkspaceRail() {
             toast.error('Không thể tải danh sách workspace')
         }
     }, [error])
-    const activeId = userSelectedId ?? data?.data?.[0]?.id;
     return (
         <div className="w-20 h-full bg-card flex flex-col items-center gap-4 p-4">
             {isPending ? <>
@@ -31,8 +33,8 @@ export function WorkspaceRail() {
                     <WorkspaceItem
                         key={ws.id}
                         name={ws.name}
-                        isActive={activeId === ws.id}
-                        actionActive={() => setUserSelectedId(ws.id)}
+                        isActive={params.workspaceId === ws.id}
+                        actionActive={() => router.push(`/dashboard/${ws.id}`)}
                     />
                 ))
             )}
