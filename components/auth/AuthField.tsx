@@ -3,7 +3,7 @@ import { Variants } from "motion";
 import { motion } from "motion/react"
 import { Field } from "../ui/field";
 import { Input } from "../ui/input";
-import FieldErrorAnimation from "../share/FieldErrorAnimation";
+import FieldErrorAnimation from "../shared/FieldErrorAnimation";
 
 type FieldApiMock = {
     name: string;

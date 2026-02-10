@@ -1,7 +1,5 @@
-import { DashBoardLayout } from "@/components/dashboard/layout/DashBoardLayout";
-
-export default function HomePage() {
+export default function DashboardPage() {
     return <>
-        <DashBoardLayout/>
+        Home Page
     </>
 }

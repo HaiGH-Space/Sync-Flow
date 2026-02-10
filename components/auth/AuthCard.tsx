@@ -9,7 +9,7 @@ import { useForm } from "@tanstack/react-form";
 import { LockIcon, MailIcon, UserIcon } from "lucide-react";
 import AuthField from "./AuthField";
 import { Button } from "../ui/button";
-import LogoAppAnimation from "../share/LogoAppAnimation";
+import LogoAppAnimation from "../shared/LogoAppAnimation";
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useUserStore } from "@/lib/store/use-user-profile";
 import { authService } from "@/lib/services/auth";
