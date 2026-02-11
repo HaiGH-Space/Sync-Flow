@@ -1,5 +1,7 @@
 'use client'
 import { Separator } from "@/components/ui/separator";
+import { Workspace } from "@/lib/services/workspace";
+import { useDashboard } from "@/lib/store/use-dashboard";
 import { AnimatePresence, motion, Variants } from "motion/react"
 
 const sidebarVariants: Variants = {
@@ -9,7 +11,7 @@ const sidebarVariants: Variants = {
         transition: { type: 'spring', stiffness: 300, damping: 30 }
     },
     collapsed: {
-        width: '0px',
+        width: '250px',
         opacity: 0,
         transition: { type: 'spring', stiffness: 300, damping: 30 }
     }
@@ -20,15 +22,16 @@ const contentVariants = {
     collapsed: { opacity: 0, x: -20 },
 };
 
-export function NavigationSidebar({ workspaceId}: { workspaceId: string }) {
+export function NavigationSidebar({ workspaceDetail}: { workspaceDetail?: Workspace }) {
+    const isOpenSidebarLeft = useDashboard((state) => state.isOpenSidebarLeft)
     return (
         <AnimatePresence initial={false}>
-            {true && (
+            {isOpenSidebarLeft && (
                 <motion.aside
                     className="bg-card text-card-foreground h-full overflow-hidden"
                     variants={sidebarVariants}
                     initial="collapsed"
-                    animate="expanded"
+                    animate={"expanded"}
                     exit="collapsed"
                 >
                     <motion.div
@@ -39,8 +42,8 @@ export function NavigationSidebar({ workspaceId}: { workspaceId: string }) {
                         transition={{ duration: 0.2 }}
                     >
                         {/* Header */}
-                        <div className="p-4 border-b border-border">
-                            <h2 className="text-lg font-semibold">{workspaceId ? workspaceId : "No Workspace Selected"}</h2>
+                        <div className="p-4 border-b border-border overflow-hidden">
+                            <h2 className="text-lg font-semibold">{workspaceDetail ? workspaceDetail.name : "No Workspace Selected"}</h2>
                         </div>
                         <Separator />
                         {/* Search */}
