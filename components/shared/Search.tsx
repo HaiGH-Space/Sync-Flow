@@ -1,5 +1,5 @@
 'use client'
-import { KeyboardEvent, useState } from "react"
+import { KeyboardEvent, memo, useState } from "react"
 import { Field } from "../ui/field"
 import { Input } from "../ui/input"
 import { Button } from "../ui/button"
@@ -10,7 +10,7 @@ type SearchProps = React.ComponentProps<typeof Field> & {
     onSearch: (query: string) => Promise<void>,
 }
 
-export function Search({ placeholder = "Search...", onSearch, ...props }: SearchProps) {
+export const Search = memo(function Search({ placeholder = "Search...", onSearch, ...props }: SearchProps) {
     const [query, setQuery] = useState("")
     const [isLoading, setIsLoading] = useState(false)
     const handleSearch = async () => {
@@ -44,4 +44,4 @@ export function Search({ placeholder = "Search...", onSearch, ...props }: Search
             </Button>
         </Field>
     )
-}
+})

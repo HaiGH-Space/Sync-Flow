@@ -4,6 +4,10 @@ import { useDashboard } from "@/lib/store/use-dashboard";
 import { AnimatePresence, motion, Variants } from "motion/react"
 import { AvatarWithBadge } from "@/components/shared/AvatarWithBadge";
 import { Search } from "@/components/shared/Search";
+import { useQuery } from "@tanstack/react-query";
+import { projectService } from "@/lib/services/project";
+import { memo, useCallback, useEffect } from "react";
+import { toast } from "sonner";
 
 const sidebarContainerVariants: Variants = {
     hidden: {
@@ -26,11 +30,23 @@ const sidebarContainerVariants: Variants = {
     }
 }
 
-export function NavigationSidebar({ workspaceDetail }: { workspaceDetail?: Workspace }) {
+export const NavigationSidebar = memo(function NavigationSidebar({ workspaceDetail }: { workspaceDetail?: Workspace }) {
     const isOpenSidebarLeft = useDashboard((state) => state.isOpenSidebarLeft)
-    const searchHandle = async (query: string) => {
+    const { data: projects, error, isPending } = useQuery({ 
+        queryKey: ['projects', workspaceDetail?.id], 
+        queryFn: () => projectService.getProjectsByWorkspaceId({ workspaceId: workspaceDetail!.id }),
+        enabled: !!workspaceDetail?.id && isOpenSidebarLeft,
+        staleTime: 5 * 60 * 1000,
+    })
+    useEffect(() => {
+        if (error) {
+            toast.error("Failed to load projects. Please try again.")
+        }
+    }, [error])
+    const searchHandle = useCallback(async (query: string) => {
         console.log("Searching for:", query);
-    }
+        // Logic search ở đây
+    }, []);
     return (
         <AnimatePresence mode="wait">
             {isOpenSidebarLeft && (
@@ -56,12 +72,14 @@ export function NavigationSidebar({ workspaceDetail }: { workspaceDetail?: Works
                             </div>
                             <div className="flex-1 overflow-y-auto">
                                 <nav className="space-y-1">
-                                    {Array.from({ length: 30 }).map((_, index) => (
+                                    {isPending && <p>Loading projects...</p>}
+                                    {error && <p className="text-red-500">Error loading projects</p>}
+                                    {projects?.data.map((project) => (
                                         <div
-                                            key={index}
-                                            className="px-2 py-1.5 text-sm hover:bg-accent rounded"
+                                            key={project.id}
+                                            className="px-3 py-2 rounded-md hover:bg-accent hover:text-accent-foreground cursor-pointer"
                                         >
-                                            Menu Item {index + 1}
+                                            {project.name}
                                         </div>
                                     ))}
                                 </nav>
@@ -77,4 +95,4 @@ export function NavigationSidebar({ workspaceDetail }: { workspaceDetail?: Works
             )}
         </AnimatePresence>
     )
-}
+})

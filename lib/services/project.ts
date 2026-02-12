@@ -15,3 +15,7 @@ export interface Project {
 async function getProjectsByWorkspaceId({workspaceId}: {workspaceId: string}) {
     return api.get<Project[]>(`/workspaces/${workspaceId}/projects`);
 }
+
+export const projectService = {
+    getProjectsByWorkspaceId
+}
