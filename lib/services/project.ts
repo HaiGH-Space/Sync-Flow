@@ -1,3 +1,6 @@
+import { api } from "../api"
+import { Column } from "./column";
+
 export interface Project {
     id: string;
     name: string;
@@ -6,5 +9,9 @@ export interface Project {
     workspaceId: string;
     createdAt: string;
     updatedAt: string;
-    columns: undefined 
+    columns?: Column[] 
+}
+
+async function getProjectsByWorkspaceId({workspaceId}: {workspaceId: string}) {
+    return api.get<Project[]>(`/workspaces/${workspaceId}/projects`);
 }
