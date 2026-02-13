@@ -4,7 +4,7 @@ import { useDashboard } from "@/lib/store/use-dashboard";
 import { AnimatePresence, motion, Variants } from "motion/react"
 import { AvatarWithBadge } from "@/components/shared/AvatarWithBadge";
 import { Search } from "@/components/shared/Search";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { projectService } from "@/lib/services/project";
 import { memo, useCallback, useEffect } from "react";
 import { toast } from "sonner";
@@ -32,15 +32,25 @@ const sidebarContainerVariants: Variants = {
 
 export const NavigationSidebar = memo(function NavigationSidebar({ workspaceDetail }: { workspaceDetail?: Workspace }) {
     const isOpenSidebarLeft = useDashboard((state) => state.isOpenSidebarLeft)
+    const queryClient = useQueryClient()
     const { data: projects, error, isPending } = useQuery({ 
         queryKey: ['projects', workspaceDetail?.id], 
         queryFn: () => projectService.getProjectsByWorkspaceId({ workspaceId: workspaceDetail!.id }),
         enabled: !!workspaceDetail?.id && isOpenSidebarLeft,
         staleTime: 5 * 60 * 1000,
     })
+
+    const createMutation = useMutation({
+        mutationFn: projectService.createProject,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['projects', workspaceDetail?.id] });
+            toast.success("Project created successfully");
+        }
+    })
+
     useEffect(() => {
         if (error) {
-            toast.error("Failed to load projects. Please try again.")
+            toast.error(error.message)
         }
     }, [error])
     const searchHandle = useCallback(async (query: string) => {

@@ -13,6 +13,18 @@ export interface ApiError extends BaseResponse {
     data?: never
 }
 
+export class ApiRequestError extends Error implements ApiError {
+    statusCode: number;
+    error: string;
+
+    constructor(data: ApiError) {
+        super(data.message);
+        this.name = 'ApiRequestError';
+        this.statusCode = data.statusCode;
+        this.error = data.error;
+    }
+}
+
 // const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 const API_PREFIX = '/api-proxy';
 const getBaseUrl = () => {
@@ -40,11 +52,22 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
         },
     };
     const response = await fetch(fullUrl, option);
-    const data = await response.json();
-    if (!response.ok) {
-        throw Error((data as ApiError).error);
+    const responseText = await response.text();
+let responseData;
+    try {
+        responseData = responseText ? JSON.parse(responseText) : {};
+    } catch {
+        responseData = null;
     }
-    return data as ApiResponse<T>;
+    if (!response.ok) {
+        const errorDetail: ApiError = {
+            statusCode: response.status,
+            message: responseData?.message || "Request failed",
+            error: responseData?.error || responseText || response.statusText || "Internal Server Error",
+        };
+        throw new ApiRequestError(errorDetail);
+    }
+    return responseData as ApiResponse<T>;
 }
 
 export const api = {
