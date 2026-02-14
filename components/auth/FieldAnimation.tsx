@@ -4,6 +4,7 @@ import { motion } from "motion/react"
 import { Field } from "../ui/field";
 import { Input } from "../ui/input";
 import FieldErrorAnimation from "../shared/FieldErrorAnimation";
+import { cn } from "@/lib/utils";
 
 type FieldApiMock = {
     name: string;
@@ -20,7 +21,7 @@ type FieldApiMock = {
     handleChange: (value: any) => void;
     handleBlur: () => void;
 };
-interface AuthFieldProps {
+interface FieldAnimationProps {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     form: any;
     name: string;
@@ -30,7 +31,7 @@ interface AuthFieldProps {
     variants?: Variants;
 }
 
-const AuthField = ({ form, name, icon: Icon, type = "text", placeholder = "", variants }: AuthFieldProps) => {
+const FieldAnimation = ({ form, name, icon: Icon, type = "text", placeholder = "", variants }: FieldAnimationProps) => {
     return <motion.div
         className="mt-4"
         variants={variants}
@@ -49,7 +50,7 @@ const AuthField = ({ form, name, icon: Icon, type = "text", placeholder = "", va
                             {Icon && <Icon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />}
                             <Input
                                 type={type}
-                                className="pl-10 h-10 md:text-md"
+                                className={cn(Icon ? "pl-10": "", "h-10 md:text-md")}
                                 id={field.name}
                                 name={field.name}
                                 value={field.state.value}
@@ -67,4 +68,4 @@ const AuthField = ({ form, name, icon: Icon, type = "text", placeholder = "", va
     </motion.div>
 }
 
-export default AuthField;
+export default FieldAnimation;

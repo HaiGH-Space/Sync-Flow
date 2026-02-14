@@ -4,10 +4,11 @@ import { useDashboard } from "@/lib/store/use-dashboard";
 import { AnimatePresence, motion, Variants } from "motion/react"
 import { AvatarWithBadge } from "@/components/shared/AvatarWithBadge";
 import { Search } from "@/components/shared/Search";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { projectService } from "@/lib/services/project";
 import { memo, useCallback, useEffect } from "react";
 import { toast } from "sonner";
+import CreateProjectModal from "../comp/CreateProjectModal";
 
 const sidebarContainerVariants: Variants = {
     hidden: {
@@ -32,22 +33,13 @@ const sidebarContainerVariants: Variants = {
 
 export const NavigationSidebar = memo(function NavigationSidebar({ workspaceDetail }: { workspaceDetail?: Workspace }) {
     const isOpenSidebarLeft = useDashboard((state) => state.isOpenSidebarLeft)
-    const queryClient = useQueryClient()
-    const { data: projects, error, isPending } = useQuery({ 
-        queryKey: ['projects', workspaceDetail?.id], 
+    const { data: projects, error, isFetching } = useQuery({
+        queryKey: ['projects', workspaceDetail?.id],
         queryFn: () => projectService.getProjectsByWorkspaceId({ workspaceId: workspaceDetail!.id }),
         enabled: !!workspaceDetail?.id && isOpenSidebarLeft,
         staleTime: 5 * 60 * 1000,
     })
-
-    const createMutation = useMutation({
-        mutationFn: projectService.createProject,
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['projects', workspaceDetail?.id] });
-            toast.success("Project created successfully");
-        }
-    })
-
+    
     useEffect(() => {
         if (error) {
             toast.error(error.message)
@@ -69,10 +61,19 @@ export const NavigationSidebar = memo(function NavigationSidebar({ workspaceDeta
                 >
                     <div className="h-full flex flex-col w-62.5">
                         {/* Header */}
-                        <div className="h-14 px-4 flex flex-row justify-between items-center gap-2 pb-4 border-b border-border overflow-hidden min-w-0">
-                            <h2 className="text-lg font-semibold truncate">
-                                {workspaceDetail ? workspaceDetail.name : "No Workspace Selected"}
-                            </h2>
+                        <div className="h-14 px-4 flex flex-row justify-between items-center gap-2 border-b border-border overflow-hidden min-w-0">
+                            {workspaceDetail ? (
+                                <>
+                                    <h2 className="text-lg font-semibold truncate">
+                                        {workspaceDetail.name}
+                                    </h2>
+                                    <CreateProjectModal workspaceDetail={workspaceDetail}/>
+                                </>
+                            ) : (
+                                <h2 className="text-lg font-semibold truncate">
+                                    No Workspace Selected
+                                </h2>
+                            )}
                         </div>
 
                         {/* Scrollable Content */}
@@ -82,7 +83,7 @@ export const NavigationSidebar = memo(function NavigationSidebar({ workspaceDeta
                             </div>
                             <div className="flex-1 overflow-y-auto">
                                 <nav className="space-y-1">
-                                    {isPending && <p>Loading projects...</p>}
+                                    {isFetching && <p>Loading projects...</p>}
                                     {error && <p className="text-red-500">Error loading projects</p>}
                                     {projects?.data.map((project) => (
                                         <div

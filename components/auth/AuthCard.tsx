@@ -7,7 +7,7 @@ import z from "zod";
 import { toast } from "sonner";
 import { useForm } from "@tanstack/react-form";
 import { LockIcon, MailIcon, UserIcon } from "lucide-react";
-import AuthField from "./AuthField";
+import AuthField from "./FieldAnimation";
 import { Button } from "../ui/button";
 import LogoAppAnimation from "../shared/LogoAppAnimation";
 import { useMutation, useQueryClient } from '@tanstack/react-query';

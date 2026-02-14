@@ -31,15 +31,17 @@ export const Search = memo(function Search({ placeholder = "Search...", onSearch
     return (
         <Field {...props} orientation="horizontal">
             <Input aria-label={placeholder} type="search" placeholder={placeholder} value={query} onChange={e => setQuery(e.target.value)} onKeyDown={handleKeyDown} disabled={isLoading}/>
-            <Button 
+            <Button
+                className="cursor-pointer"
+                size={'icon-lg'}
                 onClick={handleSearch} 
                 disabled={isLoading}
                 aria-label="Submit search" 
             >
                 {isLoading ? (
-                    <Loader2Icon className="h-5 w-5" /> 
+                    <Loader2Icon/> 
                 ) : (
-                    <SearchIcon className="h-5 w-5" /> 
+                    <SearchIcon/> 
                 )}
             </Button>
         </Field>
