@@ -9,6 +9,9 @@ import { projectService } from "@/lib/services/project";
 import { memo, useCallback, useEffect } from "react";
 import { toast } from "sonner";
 import CreateProjectModal from "../comp/CreateProjectModal";
+import { useRouter } from "@/i18n/navigation";
+import { useParams } from "next/navigation";
+import { cn } from "@/lib/utils";
 
 const sidebarContainerVariants: Variants = {
     hidden: {
@@ -33,13 +36,15 @@ const sidebarContainerVariants: Variants = {
 
 export const NavigationSidebar = memo(function NavigationSidebar({ workspaceDetail }: { workspaceDetail?: Workspace }) {
     const isOpenSidebarLeft = useDashboard((state) => state.isOpenSidebarLeft)
+    const router = useRouter()
+    const { projectId } : { projectId: string | undefined } = useParams();
     const { data: projects, error, isFetching } = useQuery({
         queryKey: ['projects', workspaceDetail?.id],
         queryFn: () => projectService.getProjectsByWorkspaceId({ workspaceId: workspaceDetail!.id }),
         enabled: !!workspaceDetail?.id && isOpenSidebarLeft,
         staleTime: 5 * 60 * 1000,
     })
-    
+
     useEffect(() => {
         if (error) {
             toast.error(error.message)
@@ -67,7 +72,7 @@ export const NavigationSidebar = memo(function NavigationSidebar({ workspaceDeta
                                     <h2 className="text-lg font-semibold truncate">
                                         {workspaceDetail.name}
                                     </h2>
-                                    <CreateProjectModal workspaceDetail={workspaceDetail}/>
+                                    <CreateProjectModal workspaceDetail={workspaceDetail} />
                                 </>
                             ) : (
                                 <h2 className="text-lg font-semibold truncate">
@@ -87,8 +92,16 @@ export const NavigationSidebar = memo(function NavigationSidebar({ workspaceDeta
                                     {error && <p className="text-red-500">Error loading projects</p>}
                                     {projects?.data.map((project) => (
                                         <div
+                                            onClick={() => {
+                                                router.push(`/dashboard/${workspaceDetail?.id}/${project.id}`)
+                                            }}
                                             key={project.id}
-                                            className="px-3 py-2 rounded-md hover:bg-accent hover:text-accent-foreground cursor-pointer"
+                                            className={cn(
+                                                "px-3 py-2 rounded-md cursor-pointer transition-colors",
+                                                projectId === project.id
+                                                    ? "bg-primary/10 text-primary font-medium"
+                                                    : "hover:bg-accent hover:text-accent-foreground text-muted-foreground"
+                                            )}
                                         >
                                             {project.name}
                                         </div>

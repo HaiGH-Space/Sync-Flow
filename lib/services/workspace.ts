@@ -17,6 +17,11 @@ async function getMyWorkspace(): Promise<ApiResponse<Workspace[]>> {
     return api.get<Workspace[]>(`${WORKSPACE_BASE_URL}/me`)
 }
 
+async function getWorkspaceById(workspaceId: string): Promise<ApiResponse<Workspace>> {
+    return api.get<Workspace>(`${WORKSPACE_BASE_URL}/${workspaceId}`)
+}
+
 export const workspaceService = {
-    getMyWorkspace
+    getMyWorkspace,
+    getWorkspaceById
 }
