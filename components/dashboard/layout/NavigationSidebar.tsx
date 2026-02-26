@@ -6,12 +6,14 @@ import { AvatarWithBadge } from "@/components/shared/AvatarWithBadge";
 import { Search } from "@/components/shared/Search";
 import { useQuery } from "@tanstack/react-query";
 import { projectService } from "@/lib/services/project";
-import { memo, useCallback, useEffect } from "react";
+import { memo, useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import CreateProjectModal from "../comp/CreateProjectModal";
-import { useRouter } from "@/i18n/navigation";
+import { Link } from "@/i18n/navigation";
 import { useParams } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { sprintService } from "@/lib/services/sprint";
+import { ChevronRight } from "lucide-react";
 
 const sidebarContainerVariants: Variants = {
     hidden: {
@@ -36,12 +38,18 @@ const sidebarContainerVariants: Variants = {
 
 export const NavigationSidebar = memo(function NavigationSidebar({ workspaceDetail }: { workspaceDetail?: Workspace }) {
     const isOpenSidebarLeft = useDashboard((state) => state.isOpenSidebarLeft)
-    const router = useRouter()
-    const { projectId } : { projectId: string | undefined } = useParams();
+    const { projectId }: { projectId: string | undefined } = useParams();
+    const [expandedProjectId, setExpandedProjectId] = useState<string | null>(() => projectId ?? null)
     const { data: projects, error, isFetching } = useQuery({
         queryKey: ['projects', workspaceDetail?.id],
         queryFn: () => projectService.getProjectsByWorkspaceId({ workspaceId: workspaceDetail!.id }),
         enabled: !!workspaceDetail?.id && isOpenSidebarLeft,
+        staleTime: 5 * 60 * 1000,
+    })
+    const { data: sprints, error: sprintsError, isFetching: isSprintsFetching } = useQuery({
+        queryKey: ['sprints', expandedProjectId],
+        queryFn: () => sprintService.getSprint({ projectId: expandedProjectId as string }),
+        enabled: !!expandedProjectId && isOpenSidebarLeft,
         staleTime: 5 * 60 * 1000,
     })
 
@@ -49,11 +57,15 @@ export const NavigationSidebar = memo(function NavigationSidebar({ workspaceDeta
         if (error) {
             toast.error(error.message)
         }
-    }, [error])
+        if (sprintsError) {
+            toast.error(sprintsError.message)
+        }
+    }, [error, sprintsError])
     const searchHandle = useCallback(async (query: string) => {
         console.log("Searching for:", query);
         // Logic search ở đây
     }, []);
+
     return (
         <AnimatePresence mode="wait">
             {isOpenSidebarLeft && (
@@ -88,24 +100,95 @@ export const NavigationSidebar = memo(function NavigationSidebar({ workspaceDeta
                             </div>
                             <div className="flex-1 overflow-y-auto">
                                 <nav className="space-y-1">
-                                    {isFetching && <p>Loading projects...</p>}
-                                    {error && <p className="text-red-500">Error loading projects</p>}
-                                    {projects?.data.map((project) => (
-                                        <div
-                                            onClick={() => {
-                                                router.push(`/dashboard/${workspaceDetail?.id}/${project.id}`)
-                                            }}
-                                            key={project.id}
-                                            className={cn(
-                                                "px-3 py-2 rounded-md cursor-pointer transition-colors",
-                                                projectId === project.id
-                                                    ? "bg-primary/10 text-primary font-medium"
-                                                    : "hover:bg-accent hover:text-accent-foreground text-muted-foreground"
-                                            )}
-                                        >
-                                            {project.name}
+                                    {isFetching && (
+                                        <div className="px-3 py-2 text-sm text-muted-foreground">
+                                            Loading projects...
                                         </div>
-                                    ))}
+                                    )}
+
+                                    {!isFetching && (projects?.data?.length ?? 0) === 0 && (
+                                        <div className="px-3 py-2 text-sm text-muted-foreground">
+                                            No projects yet
+                                        </div>
+                                    )}
+                                    {projects?.data.map((project) => {
+                                        const isActive = projectId === project.id
+                                        const isExpanded = expandedProjectId === project.id
+                                        return (
+                                            <div key={project.id} className="rounded-md my-2">
+                                                <Link
+                                                    href={`/dashboard/${workspaceDetail?.id}/${project.id}`}
+                                                    aria-label={`Switch to ${project.name}`}
+                                                    aria-current={isActive ? "page" : undefined}
+                                                    onClick={(e) => {
+                                                        // Toggle when clicking the currently active project (collapse/expand)
+                                                        // but still navigate when selecting a different project.
+                                                        if (isActive) {
+                                                            e.preventDefault()
+                                                            setExpandedProjectId((prev) => (prev === project.id ? null : project.id))
+                                                            return
+                                                        }
+
+                                                        setExpandedProjectId(project.id)
+                                                    }}
+                                                    className={cn(
+                                                        "w-full flex items-center justify-between gap-2 px-3 py-2 rounded-md text-sm font-medium overflow-hidden",
+                                                        isActive
+                                                            ? "bg-primary text-primary-foreground"
+                                                            : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
+                                                    )}
+                                                >
+                                                    <span className="truncate text-left">{project.name}</span>
+                                                    <ChevronRight
+                                                        className={cn(
+                                                            "size-4 shrink-0 transition-transform duration-200",
+                                                            isExpanded ? "rotate-90" : "rotate-0"
+                                                        )}
+                                                    />
+                                                </Link>
+                                                <AnimatePresence initial={false}>
+                                                    {isExpanded && (
+                                                        <motion.div
+                                                            key={`sprints-${project.id}`}
+                                                            initial={{ height: 0, opacity: 0 }}
+                                                            animate={{ height: "auto", opacity: 1 }}
+                                                            exit={{ height: 0, opacity: 0 }}
+                                                            transition={{ duration: 0.2, ease: "easeOut" }}
+                                                            className="overflow-hidden"
+                                                        >
+                                                            <div className="mt-2 pl-3">
+                                                                <div className="border-l border-border pl-3 space-y-1">
+                                                                    {isSprintsFetching && (
+                                                                        <div className="text-xs text-muted-foreground">
+                                                                            Loading sprints...
+                                                                        </div>
+                                                                    )}
+                                                                    {sprintsError && (
+                                                                        <div className="text-xs text-destructive">
+                                                                            Error loading sprints
+                                                                        </div>
+                                                                    )}
+                                                                    {!isSprintsFetching && !sprintsError && (sprints?.data?.length ?? 0) === 0 && (
+                                                                        <div className="cursor-default text-sm text-muted-foreground">
+                                                                            No sprints yet
+                                                                        </div>
+                                                                    )}
+                                                                    {sprints?.data.map((sprint) => (
+                                                                        <div
+                                                                            key={sprint.id}
+                                                                            className="px-2 py-1 rounded-md text-sm text-muted-foreground hover:bg-accent/60 cursor-pointer"
+                                                                        >
+                                                                            {sprint.name}
+                                                                        </div>
+                                                                    ))}
+                                                                </div>
+                                                            </div>
+                                                        </motion.div>
+                                                    )}
+                                                </AnimatePresence>
+                                            </div>
+                                        )
+                                    })}
                                 </nav>
                             </div>
                         </div>
