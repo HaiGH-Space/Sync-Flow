@@ -112,18 +112,17 @@ export const NavigationSidebar = memo(function NavigationSidebar({ workspaceDeta
                                         </div>
                                     )}
                                     {projects?.data.map((project) => {
-                                        const isActive = projectId === project.id
                                         const isExpanded = expandedProjectId === project.id
                                         return (
                                             <div key={project.id} className="rounded-md my-2">
                                                 <Link
                                                     href={`/dashboard/${workspaceDetail?.id}/${project.id}`}
                                                     aria-label={`Switch to ${project.name}`}
-                                                    aria-current={isActive ? "page" : undefined}
+                                                    aria-current={isExpanded ? "page" : undefined}
                                                     onClick={(e) => {
                                                         // Toggle when clicking the currently active project (collapse/expand)
                                                         // but still navigate when selecting a different project.
-                                                        if (isActive) {
+                                                        if (isExpanded) {
                                                             e.preventDefault()
                                                             setExpandedProjectId((prev) => (prev === project.id ? null : project.id))
                                                             return
@@ -133,7 +132,7 @@ export const NavigationSidebar = memo(function NavigationSidebar({ workspaceDeta
                                                     }}
                                                     className={cn(
                                                         "w-full flex items-center justify-between gap-2 px-3 py-2 rounded-md text-sm font-medium overflow-hidden",
-                                                        isActive
+                                                        isExpanded
                                                             ? "bg-primary text-primary-foreground"
                                                             : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
                                                     )}

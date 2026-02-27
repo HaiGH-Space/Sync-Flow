@@ -1,7 +1,8 @@
 'use client'
 
 import { Button } from "@/components/ui/button"
-import { useDashboard } from "@/lib/store/use-dashboard"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { navigateItems, NavigateType, useDashboard } from "@/lib/store/use-dashboard"
 import { PanelLeftClose, PanelLeftOpen } from "lucide-react"
 import React from "react"
 
@@ -9,13 +10,14 @@ export default function DashboardContentLayout({ children }: { children: React.R
     // 1. Lấy state từ store
     const isOpenSidebarLeft = useDashboard((state) => state.isOpenSidebarLeft)
     const toggleSidebarLeft = useDashboard((state) => state.toggleSidebarLeft)
-
+    const activeNavigate = useDashboard((state) => state.activeNavigate)
+    const setActiveNavigate = useDashboard((state) => state.setActiveNavigate)
     return (
         <div className="flex flex-col flex-1 h-full overflow-hidden bg-background">
             <header className="text-lg flex items-center h-14 border-b border-border">
-                <Button 
-                    variant="ghost" 
-                    size="icon" 
+                <Button
+                    variant="ghost"
+                    size="icon"
                     onClick={toggleSidebarLeft}
                     className="text-muted-foreground hover:text-foreground"
                 >
@@ -27,10 +29,21 @@ export default function DashboardContentLayout({ children }: { children: React.R
                 </Button>
 
                 {/* Breadcrumb or Title of the page */}
-                <div className="font-medium">Dashboard</div>
-                
+                <div>
+                    <Tabs defaultValue={activeNavigate.value} onValueChange={(v) => setActiveNavigate(v as NavigateType)}>
+                        <TabsList className="py-5">
+                            {Object.values(navigateItems).map((navigate) => (
+                                <TabsTrigger className="capitalize gap-x-2 py-4" key={navigate.value} value={navigate.value}>
+                                    <navigate.icon className="w-4 h-4" />
+                                    {navigate.value.toLowerCase()}
+                                </TabsTrigger>
+                            ))}
+                        </TabsList>
+        
+                    </Tabs>
+                </div>
                 <div className="ml-auto">
-                    {/* ... actions */}
+
                 </div>
             </header>
             <main className="flex-1 p-6 overflow-y-auto">
