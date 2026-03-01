@@ -30,7 +30,7 @@ export default function KanbanColumn(props: ColumnProps) {
             <ScrollArea className="flex-1 min-h-0 px-3">
                 <div>
                     {Array.from({ length: 10 }).map((_, index) => (
-                       <KanbanCard key={index} title={`Task ${index + 1}`} priority="high" storyPoint={3} description="This is a task description." />
+                       <KanbanCard key={index} title={`Task ${index + 1}`} priority={index % 3 === 0 ? "high" : index % 3 === 1 ? "medium" : "low"} storyPoint={3} description="This is a task description." />
                     ))}
                 </div>
             </ScrollArea>

@@ -1,5 +1,8 @@
 import { MoreHorizontal } from "lucide-react"
 import { Button } from "../ui/button"
+import { Avatar, AvatarImage } from "../ui/avatar"
+import { Badge } from "../ui/badge"
+import { cn } from "@/lib/utils"
 
 type KanbanCardProps = {
     title: string
@@ -19,8 +22,20 @@ export default function KanbanCard(props: KanbanCardProps) {
             </div>
             {props.description && <p className="text-sm text-muted-foreground">{props.description}</p>}
             <div className="flex justify-between mt-2">
-                {props.storyPoint && <span className="text-sm text-muted-foreground">SP: {props.storyPoint}</span>}
-                {props.priority && <span className={`text-sm ${props.priority === 'high' ? 'text-red-500' : props.priority === 'medium' ? 'text-yellow-500' : 'text-green-500'}`}>Priority: {props.priority}</span>}
+                <div>
+
+                    {props.priority &&
+                        <Badge className={cn('mr-2' ,props.priority === 'high' ? 'bg-red-900 text-red-300' : props.priority === 'medium' ? 'bg-yellow-900 text-yellow-300' : 'bg-green-900 text-green-300')}>
+                            {props.priority.charAt(0).toUpperCase() + props.priority.slice(1)}
+                        </Badge>
+                    }
+                    {props.storyPoint && <span className="text-sm text-muted-foreground">SP: {props.storyPoint}</span>}
+                </div>
+                <div>
+                    <Avatar className="w-6 h-6">
+                        <AvatarImage src="https://github.com/shadcn.png" />
+                    </Avatar>
+                </div>
             </div>
         </div>
     )
