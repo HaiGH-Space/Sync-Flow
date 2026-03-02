@@ -2,16 +2,19 @@
 
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useStore } from "@/lib/hooks/useStore"
 import { navigateItems, NavigateType, useDashboard } from "@/lib/store/use-dashboard"
 import { PanelLeftClose, PanelLeftOpen } from "lucide-react"
 import React from "react"
 
 export default function DashboardContentLayout({ children }: { children: React.ReactNode }) {
     // 1. Lấy state từ store
-    const isOpenSidebarLeft = useDashboard((state) => state.isOpenSidebarLeft)
+    const isOpenSidebarLeft = useStore(useDashboard, (state) => state.isOpenSidebarLeft)
+    const activeNavigate = useStore(useDashboard, (state) => state.activeNavigate)
     const toggleSidebarLeft = useDashboard((state) => state.toggleSidebarLeft)
-    const activeNavigate = useDashboard((state) => state.activeNavigate)
     const setActiveNavigate = useDashboard((state) => state.setActiveNavigate)
+
+    if (isOpenSidebarLeft === undefined || !activeNavigate) return null
     return (
         <div className="flex flex-col flex-1 h-full overflow-hidden bg-background">
             <header className="text-lg flex items-center h-14 border-b border-border">
