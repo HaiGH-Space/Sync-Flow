@@ -1,10 +1,13 @@
+'use client'
 import { MoreHorizontal } from "lucide-react"
 import { Button } from "../ui/button"
 import { Avatar, AvatarImage } from "../ui/avatar"
 import { Badge } from "../ui/badge"
 import { cn } from "@/lib/utils"
+import {useDraggable} from '@dnd-kit/react';
 
 type KanbanCardProps = {
+    id: string
     title: string
     description?: string
     storyPoint?: number
@@ -12,8 +15,12 @@ type KanbanCardProps = {
 }
 
 export default function KanbanCard(props: KanbanCardProps) {
+    const { ref, isDragging } = useDraggable({
+        id: props.id,
+        data: { ...props }
+    })
     return (
-        <div className="duration-200 hover:border-primary cursor-grab w-full min-w-48 p-3 mb-2 flex flex-col bg-card border rounded-lg">
+        <div ref={ref} className={cn("duration-200 hover:border-primary cursor-grab w-full min-w-48 p-3 mb-2 flex flex-col bg-card border rounded-lg", isDragging && "opacity-90 border-dashed")}>
             <div className="flex justify-between">
                 <h4 className="font-medium">{props.title}</h4>
                 <Button variant="ghost" size="icon" className="cursor-pointer">

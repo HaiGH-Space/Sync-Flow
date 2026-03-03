@@ -3,18 +3,33 @@ import { MoreHorizontal, Plus } from "lucide-react";
 import { Button } from "../ui/button";
 import { ScrollArea } from "../ui/scroll-area";
 import KanbanCard from "./KanbanCard";
+import { useDroppable } from "@dnd-kit/react";
+import { cn } from "@/lib/utils";
 
 type ColumnProps = {
+    id: string
     title: string
     columnId: string
+    tasks: Task[]
     actionCreateTask: (columnId: string) => void
     actionDeleteColumn: (columnId: string) => void
     actionEditColumn: (columnId: string) => void
 }
 
+type Task = {
+    id: string;
+    title: string;
+    priority?: 'low' | 'medium' | 'high';
+    storyPoint?: number;
+    description?: string;
+}
+
 export default function KanbanColumn(props: ColumnProps) {
+    const { ref, isDropTarget } = useDroppable({
+        id: props.id,
+    });
     return (
-        <div className="min-w-52 flex flex-col flex-1 bg-muted/50 rounded-lg">
+        <div ref={ref} className={cn("min-w-52 flex flex-col flex-1 bg-muted/50 rounded-lg", isDropTarget ? "bg-muted/80 ring-2 ring-primary/50" : "bg-muted/50")}>
             {/* Header */}
             <div className="flex items-center justify-between p-3">
                 <h3 className="text-lg font-medium">{props.title}</h3>
@@ -30,18 +45,16 @@ export default function KanbanColumn(props: ColumnProps) {
             {/* Task List */}
             <ScrollArea className="flex-1 min-h-0 px-3">
                 <div>
-                    {Array.from({ length: 10 }).map((_, index) => {
-                        const id = `task-${props.columnId}-${index}`;
-                        return (
-                            <KanbanCard
-                                key={id}
-                                title={`Task ${index + 1}`}
-                                priority={index % 3 === 0 ? "high" : index % 3 === 1 ? "medium" : "low"}
-                                storyPoint={3}
-                                description="This is a task description."
-                            />
-                        );
-                    })}
+                    {props.tasks.map((task) => (
+                        <KanbanCard
+                            key={task.id}
+                            id={task.id}
+                            title={task.title}
+                            priority={task.priority}
+                            storyPoint={task.storyPoint}
+                            description={task.description}
+                        />
+                    ))}
                 </div>
             </ScrollArea>
         </div >
