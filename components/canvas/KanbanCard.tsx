@@ -17,7 +17,7 @@ type KanbanCardProps = {
 export default function KanbanCard(props: KanbanCardProps) {
     const { ref, isDragging } = useDraggable({
         id: props.id,
-        data: { ...props }
+        data: { type: 'task', ...props }
     })
     return (
         <div ref={ref} className={cn("duration-200 hover:border-primary cursor-grab w-full min-w-48 p-3 mb-2 flex flex-col bg-card border rounded-lg", isDragging && "opacity-90 border-dashed")}>

@@ -3,7 +3,7 @@ import { MoreHorizontal, Plus } from "lucide-react";
 import { Button } from "../ui/button";
 import { ScrollArea } from "../ui/scroll-area";
 import KanbanCard from "./KanbanCard";
-import { useDroppable } from "@dnd-kit/react";
+import { useDraggable, useDroppable } from "@dnd-kit/react";
 import { cn } from "@/lib/utils";
 
 type ColumnProps = {
@@ -25,13 +25,19 @@ type Task = {
 }
 
 export default function KanbanColumn(props: ColumnProps) {
-    const { ref, isDropTarget } = useDroppable({
+    const { ref: dropRef, isDropTarget } = useDroppable({
         id: props.id,
+        data: { type: 'column' }
+    });
+
+    const { ref: dragRef, isDragging } = useDraggable({
+        id: props.id,
+        data: { type: 'column' }
     });
     return (
-        <div ref={ref} className={cn("min-w-52 flex flex-col flex-1 bg-muted/50 rounded-lg", isDropTarget ? "bg-muted/80 ring-2 ring-primary/50" : "bg-muted/50")}>
+        <div ref={dropRef} className={cn("min-w-52 flex flex-col flex-1 bg-muted/50 rounded-lg duration-200", isDropTarget ? "bg-muted/80 ring-2 ring-primary/50" : "bg-muted/50", isDragging && "opacity-50 border-dashed border-2 border-primary")}>
             {/* Header */}
-            <div className="flex items-center justify-between p-3">
+            <div ref={dragRef} className="flex items-center justify-between p-3">
                 <h3 className="text-lg font-medium">{props.title}</h3>
                 <div className="flex gap-2">
                     <Button className="cursor-pointer" variant="ghost" size="icon" onClick={() => props.actionEditColumn(props.columnId)}>
