@@ -1,7 +1,7 @@
 import { api } from "../api"
 import { Column } from "./column";
 import { WORKSPACE_BASE_URL } from "./workspace";
-const PROJECT_BASE_URL = '/projects';
+export const PROJECT_BASE_URL = '/projects';
 
 export interface Project {
     id: string;
