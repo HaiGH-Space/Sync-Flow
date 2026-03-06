@@ -1,11 +1,13 @@
+'use client'
 import { useState } from "react";
-import KanbanColumn from "./KanbanColumn"
+import KanbanColumn, { TaskProps } from "./KanbanColumn"
 import { DragDropProvider } from "@dnd-kit/react";
+import { Priority } from "@/lib/services/issue";
 
-const INITIAL_TASKS = [
-    { id: "task-1", columnId: "todo", title: "Khởi tạo dnd-kit mới", priority: "high" as const, storyPoint: 3 },
-    { id: "task-2", columnId: "todo", title: "Chỉnh style cột", priority: "medium" as const, storyPoint: 2 },
-    { id: "task-3", columnId: "in-progress", title: "Kéo thả Kanban", priority: "high" as const, storyPoint: 5 },
+const INITIAL_TASKS: TaskProps[] = [
+    { id: "task-1", columnId: "todo", title: "Khởi tạo dnd-kit mới", priority: Priority.HIGH, description: "Tạo một board Kanban đơn giản sử dụng dnd-kit để quản lý trạng thái của các task."},
+    { id: "task-2", columnId: "todo", title: "Chỉnh style cột", priority: Priority.MEDIUM, description: "Chỉnh sửa style của cột để cải thiện trải nghiệm người dùng."},
+    { id: "task-3", columnId: "in-progress", title: "Kéo thả Kanban", priority: Priority.HIGH, description: "Cho phép kéo thả task giữa các cột và sắp xếp lại thứ tự trong cùng một cột."},
 ];
 
 const INITIAL_COLUMNS = [
@@ -65,8 +67,7 @@ export default function BoardCanvas() {
                             id={col.id} 
                             columnId={col.id} 
                             title={col.title} 
-                            tasks={tasks.filter(t => t.columnId === col.id)} 
-                            actionCreateTask={() => { }} 
+                            tasks={tasks.filter(t => t.columnId === col.id)}
                             actionDeleteColumn={() => { }} 
                             actionEditColumn={() => { }} 
                         />

@@ -18,31 +18,39 @@ export interface Issue {
     createdAt: string;
     updatedAt: string;
 }
+export const Priority = {
+  LOW: "LOW",
+  MEDIUM: "MEDIUM",
+  HIGH: "HIGH",
+} as const;
 
-export type Priority = "LOW" | "MEDIUM" | "HIGH";
+export type Priority = typeof Priority[keyof typeof Priority];
 
 type CreateIssue = {
     columnId: string
-    order: number
     title: string
     priority: Priority
     assigneeId?: string
     description?: string
 }
 
+type UpdateIssue = Partial<CreateIssue> & {
+    order?: number
+}
+
 async function getIssuesByProjectId(projectId: string) {
     return api.get<Issue[]>(`${PROJECT_BASE_URL}/${projectId}${ISSUE_BASE_URL}`);
 }
 
-async function createIssue(projectId: string, issueData: CreateIssue) {
+async function createIssue({ projectId, issueData }: { projectId: string; issueData: CreateIssue }) {
     return api.post<Issue>(`${PROJECT_BASE_URL}/${projectId}${ISSUE_BASE_URL}`, issueData);
 }
 
-async function updateIssue(projectId: string, issueId: string, issueData: Partial<CreateIssue>) {
+async function updateIssue({ projectId, issueId, issueData }: { projectId: string; issueId: string; issueData: UpdateIssue }) {
     return api.patch<Issue>(`${PROJECT_BASE_URL}/${projectId}${ISSUE_BASE_URL}/${issueId}`, issueData);
 }
 
-async function deleteIssue(projectId: string, issueId: string) {
+async function deleteIssue({ projectId, issueId }: { projectId: string; issueId: string }) {
     return api.delete(`${PROJECT_BASE_URL}/${projectId}${ISSUE_BASE_URL}/${issueId}`);
 }
 

@@ -1,28 +1,23 @@
 'use client'
-import { MoreHorizontal, Plus } from "lucide-react";
+import { MoreHorizontal } from "lucide-react";
 import { Button } from "../ui/button";
 import { ScrollArea } from "../ui/scroll-area";
 import KanbanCard from "./KanbanCard";
 import { useDraggable, useDroppable } from "@dnd-kit/react";
 import { cn } from "@/lib/utils";
+import CreateIssueModal from "../dashboard/comp/CreateIssueModal";
+import { Issue } from "@/lib/services/issue";
 
 type ColumnProps = {
     id: string
     title: string
     columnId: string
-    tasks: Task[]
-    actionCreateTask: (columnId: string) => void
+    tasks: TaskProps[]
     actionDeleteColumn: (columnId: string) => void
     actionEditColumn: (columnId: string) => void
 }
 
-type Task = {
-    id: string;
-    title: string;
-    priority?: 'low' | 'medium' | 'high';
-    storyPoint?: number;
-    description?: string;
-}
+export type TaskProps = Pick<Issue, "id" | "columnId" |"title" | "priority" | "description">
 
 export default function KanbanColumn(props: ColumnProps) {
     const { ref: dropRef, isDropTarget } = useDroppable({
@@ -40,9 +35,7 @@ export default function KanbanColumn(props: ColumnProps) {
             <div ref={dragRef} className="flex items-center justify-between p-3">
                 <h3 className="text-lg font-medium">{props.title}</h3>
                 <div className="flex gap-2">
-                    <Button className="cursor-pointer" variant="ghost" size="icon" onClick={() => props.actionEditColumn(props.columnId)}>
-                        <Plus className="w-4 h-4" />
-                    </Button>
+                    <CreateIssueModal />
                     <Button className="cursor-pointer" variant="ghost" size="icon" onClick={() => props.actionDeleteColumn(props.columnId)}>
                         <MoreHorizontal className="w-4 h-4" />
                     </Button>
@@ -57,7 +50,7 @@ export default function KanbanColumn(props: ColumnProps) {
                             id={task.id}
                             title={task.title}
                             priority={task.priority}
-                            storyPoint={task.storyPoint}
+                            storyPoint={undefined}
                             description={task.description}
                         />
                     ))}

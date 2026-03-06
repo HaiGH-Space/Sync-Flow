@@ -5,13 +5,14 @@ import { Avatar, AvatarImage } from "../ui/avatar"
 import { Badge } from "../ui/badge"
 import { cn } from "@/lib/utils"
 import {useDraggable} from '@dnd-kit/react';
+import { Priority } from "@/lib/services/issue"
 
 type KanbanCardProps = {
     id: string
     title: string
     description?: string
     storyPoint?: number
-    priority?: 'low' | 'medium' | 'high'
+    priority?: Priority
 }
 
 export default function KanbanCard(props: KanbanCardProps) {
@@ -32,7 +33,7 @@ export default function KanbanCard(props: KanbanCardProps) {
                 <div>
 
                     {props.priority &&
-                        <Badge className={cn('mr-2' ,props.priority === 'high' ? 'bg-red-900 text-red-300' : props.priority === 'medium' ? 'bg-yellow-900 text-yellow-300' : 'bg-green-900 text-green-300')}>
+                        <Badge className={cn('mr-2' ,props.priority === Priority.HIGH ? 'bg-red-900 text-red-300' : props.priority === Priority.MEDIUM ? 'bg-yellow-900 text-yellow-300' : 'bg-green-900 text-green-300')}>
                             {props.priority.charAt(0).toUpperCase() + props.priority.slice(1)}
                         </Badge>
                     }
