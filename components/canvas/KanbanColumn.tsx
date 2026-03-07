@@ -7,6 +7,7 @@ import { useDraggable, useDroppable } from "@dnd-kit/react";
 import { cn } from "@/lib/utils";
 import CreateIssueModal from "../dashboard/comp/CreateIssueModal";
 import { Issue } from "@/lib/services/issue";
+import { useParams } from "next/navigation";
 
 type ColumnProps = {
     id: string
@@ -20,6 +21,7 @@ type ColumnProps = {
 export type TaskProps = Pick<Issue, "id" | "columnId" |"title" | "priority" | "description">
 
 export default function KanbanColumn(props: ColumnProps) {
+    const { projectId } : { projectId: string } = useParams()
     const { ref: dropRef, isDropTarget } = useDroppable({
         id: props.id,
         data: { type: 'column' }
@@ -35,7 +37,7 @@ export default function KanbanColumn(props: ColumnProps) {
             <div ref={dragRef} className="flex items-center justify-between p-3">
                 <h3 className="text-lg font-medium">{props.title}</h3>
                 <div className="flex gap-2">
-                    <CreateIssueModal />
+                    <CreateIssueModal columnId={props.columnId} projectId={projectId} />
                     <Button className="cursor-pointer" variant="ghost" size="icon" onClick={() => props.actionDeleteColumn(props.columnId)}>
                         <MoreHorizontal className="w-4 h-4" />
                     </Button>

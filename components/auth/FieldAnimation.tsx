@@ -1,10 +1,11 @@
 import { LucideIcon } from "lucide-react";
 import { Variants } from "motion";
 import { motion } from "motion/react"
-import { Field } from "../ui/field";
+import { Field, FieldLabel } from "../ui/field";
 import { Input } from "../ui/input";
 import FieldErrorAnimation from "../shared/FieldErrorAnimation";
 import { cn } from "@/lib/utils";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 
 type FieldApiMock = {
     name: string;
@@ -31,7 +32,7 @@ interface FieldAnimationProps {
     variants?: Variants;
 }
 
-const FieldAnimation = ({ form, name, icon: Icon, type = "text", placeholder = "", variants }: FieldAnimationProps) => {
+export const InputAnimation = ({ form, name, icon: Icon, type = "text", placeholder = "", variants }: FieldAnimationProps) => {
     return <motion.div
         className="mt-4"
         variants={variants}
@@ -50,7 +51,7 @@ const FieldAnimation = ({ form, name, icon: Icon, type = "text", placeholder = "
                             {Icon && <Icon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />}
                             <Input
                                 type={type}
-                                className={cn(Icon ? "pl-10": "", "h-10 md:text-md")}
+                                className={cn(Icon ? "pl-10" : "", "h-10")}
                                 id={field.name}
                                 name={field.name}
                                 value={field.state.value}
@@ -68,4 +69,48 @@ const FieldAnimation = ({ form, name, icon: Icon, type = "text", placeholder = "
     </motion.div>
 }
 
-export default FieldAnimation;
+export const SelectAnimation = ({ form, name, icon: Icon, variants, data, fieldLabel }: FieldAnimationProps & {
+    fieldLabel?: string;
+    data: { value: string; label: string }[];
+}) => {
+    return <motion.div
+        className="mt-4"
+        variants={variants}
+        key={name}
+        initial={{ opacity: 0, height: 0 }}
+        animate={{ opacity: 1, height: "auto" }}
+        exit={{ opacity: 0, height: 0 }}
+        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+    >
+        <form.Field name={name}>
+            {(field: FieldApiMock) => {
+                const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid
+                return (
+                    <div className="w-full flex gap-x-2">
+                        {fieldLabel && <FieldLabel htmlFor={field.name}>{fieldLabel}</FieldLabel>}
+                        <Field data-invalid={isInvalid}>
+                            <div className="relative">
+                                {Icon && <Icon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />}
+                                <Select defaultValue={data[0].value} onValueChange={(value) => field.handleChange(value)}>
+                                    <SelectTrigger name={field.name} id={field.name}>
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {data.map((option) => (
+                                            <SelectItem key={option.value} value={option.value}>
+                                                {option.label}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <FieldErrorAnimation isInvalid={isInvalid} errors={field.state.meta.errors} />
+                        </Field>
+                    </div>
+                )
+            }}
+        </form.Field>
+    </motion.div>
+}
+
+export default InputAnimation;

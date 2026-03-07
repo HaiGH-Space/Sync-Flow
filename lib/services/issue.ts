@@ -26,12 +26,13 @@ export const Priority = {
 
 export type Priority = typeof Priority[keyof typeof Priority];
 
-type CreateIssue = {
+export type CreateIssue = {
     columnId: string
     title: string
     priority: Priority
     assigneeId?: string
     description?: string
+    order: number
 }
 
 type UpdateIssue = Partial<CreateIssue> & {

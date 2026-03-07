@@ -2,12 +2,12 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
-import { issueService, Priority } from "@/lib/services/issue";
+import { CreateIssue, issueService, Priority } from "@/lib/services/issue";
 import { useForm } from "@tanstack/react-form";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Loader2Icon, PlusIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import FieldAnimation from "@/components/auth/FieldAnimation";
+import FieldAnimation, { SelectAnimation } from "@/components/auth/FieldAnimation";
 import { toast } from "sonner";
 
 const createIssueSchema = z.object({
@@ -15,7 +15,6 @@ const createIssueSchema = z.object({
     priority: z.enum(Priority),
     description: z.string().optional(),
     assigneeId: z.string().optional(),
-    columnId: z.string()
 })
 
 type formSchema = z.infer<typeof createIssueSchema>
@@ -23,10 +22,15 @@ type formSchema = z.infer<typeof createIssueSchema>
 const defaultValues: formSchema = {
     title: "",
     priority: "MEDIUM",
-    columnId: ""
+    description: "",
 }
 
-export default function CreateIssueModal() {
+interface CreateIssueModalProps {
+    columnId: string;
+    projectId: string;
+}
+
+export default function CreateIssueModal({ columnId, projectId }: CreateIssueModalProps) {
     const [isOpen, setIsOpen] = useState(false)
     // const queryClient = useQueryClient()
     const { mutate: createIssue, isPending } = useMutation({
@@ -36,11 +40,12 @@ export default function CreateIssueModal() {
             toast.success("Issue created successfully");
             handleOpenChange(false);
         },
-        onError: () => {
+        onError: (e) => {
+            console.log(e)
             toast.error("Failed to create issue");
         }
     })
-    
+
     const form = useForm({
         defaultValues: defaultValues,
         validators: {
@@ -48,7 +53,16 @@ export default function CreateIssueModal() {
             onChange: createIssueSchema
         },
         onSubmit: async ({ value }) => {
-            console.log("Creating issue with values:", value)
+            const issueData: CreateIssue = {
+                order: 9000,
+                columnId,
+                title: value.title,
+                priority: value.priority,
+                description: value.description,
+                assigneeId: value.assigneeId,
+            }
+            console.log("Creating issue with values:", issueData);
+            createIssue({ projectId, issueData });
         },
     })
 
@@ -60,12 +74,16 @@ export default function CreateIssueModal() {
             }, 300);
         }
     }
+    const priorityOptions = Object.values(Priority).map((val) => ({
+        value: val,
+        label: val.charAt(0).toUpperCase() + val.slice(1).toLowerCase(),
+    }));
     return (
         <Dialog open={isOpen} onOpenChange={handleOpenChange}>
             <DialogTrigger asChild>
                 <Button className="cursor-pointer" variant="ghost" size="icon">
-                        <PlusIcon className="w-4 h-4" />
-                    </Button>
+                    <PlusIcon className="w-4 h-4" />
+                </Button>
             </DialogTrigger>
             <DialogContent>
                 <DialogHeader>
@@ -83,8 +101,14 @@ export default function CreateIssueModal() {
                     }}
                 >
                     <FieldAnimation form={form} name="title" placeholder="Issue Title" />
-                    <FieldAnimation form={form} name="priority" placeholder="Issue Priority" />
                     <FieldAnimation form={form} name="description" placeholder="Issue Description (optional)" />
+                    <SelectAnimation
+                        form={form}
+                        name="priority"
+                        placeholder="Issue Priority"
+                        fieldLabel="Priority"
+                        data={priorityOptions}
+                    />
                     <Button
                         type="submit"
                         className="mt-4 cursor-pointer w-full"
