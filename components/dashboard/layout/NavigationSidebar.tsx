@@ -63,7 +63,6 @@ export const NavigationSidebar = memo(function NavigationSidebar({ workspaceDeta
     }, [error, sprintsError])
     const searchHandle = useCallback(async (query: string) => {
         console.log("Searching for:", query);
-        // Logic search ở đây
     }, []);
 
     return (

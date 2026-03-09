@@ -1,4 +1,5 @@
 'use client'
+import { memo } from "react";
 import { MoreHorizontal } from "lucide-react"
 import { Button } from "../ui/button"
 import { Avatar, AvatarImage } from "../ui/avatar"
@@ -15,7 +16,7 @@ type KanbanCardProps = {
     priority?: Priority
 }
 
-export default function KanbanCard(props: KanbanCardProps) {
+function KanbanCard(props: KanbanCardProps) {
     const { ref, isDragging } = useDraggable({
         id: props.id,
         data: { type: 'task', ...props }
@@ -48,3 +49,5 @@ export default function KanbanCard(props: KanbanCardProps) {
         </div>
     )
 }
+
+export default memo(KanbanCard);

@@ -7,5 +7,5 @@ export default function DashBoardPage() {
     const { projectId } : { workspaceId: string, projectId: string } = useParams()
     const navigateActive = useDashboard((state) => (state.activeNavigate))
 
-    return navigateActive.value === NavigateType.BOARD ? <BoardCanvas /> : <div>Other View</div>
+    return navigateActive.value === NavigateType.BOARD ? <BoardCanvas projectId={projectId} /> : <div>Other View</div>
 }

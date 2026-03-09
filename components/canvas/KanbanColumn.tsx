@@ -1,4 +1,5 @@
 'use client'
+import { memo, useCallback } from "react";
 import { MoreHorizontal } from "lucide-react";
 import { Button } from "../ui/button";
 import { ScrollArea } from "../ui/scroll-area";
@@ -6,22 +7,40 @@ import KanbanCard from "./KanbanCard";
 import { useDraggable, useDroppable } from "@dnd-kit/react";
 import { cn } from "@/lib/utils";
 import CreateIssueModal from "../dashboard/comp/CreateIssueModal";
-import { Issue } from "@/lib/services/issue";
+import { issueService, Issue } from "@/lib/services/issue";
 import { useParams } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
+import type { ApiResponse } from "@/lib/api";
 
 type ColumnProps = {
     id: string
-    title: string
+    name: string
     columnId: string
-    tasks: TaskProps[]
     actionDeleteColumn: (columnId: string) => void
     actionEditColumn: (columnId: string) => void
 }
 
-export type TaskProps = Pick<Issue, "id" | "columnId" |"title" | "priority" | "description">
+export type TaskProps = Pick<Issue, "id" | "columnId" | "title" | "priority" | "description">
 
-export default function KanbanColumn(props: ColumnProps) {
+function KanbanColumn(props: ColumnProps) {
     const { projectId } : { projectId: string } = useParams()
+
+    // Each column subscribes to the shared cache with a stable per-column selector.
+    // TanStack Query v5 structural sharing means only the two columns whose task
+    // lists actually changed will receive a new reference → React.memo blocks
+    // re-renders for every other column.
+    const selectColumnTasks = useCallback(
+        (data: ApiResponse<Issue[]>): TaskProps[] =>
+            data.data.filter(issue => issue.columnId === props.columnId),
+        [props.columnId]
+    );
+
+    const { data: tasks = [] } = useQuery({
+        queryKey: ['issues', projectId],
+        queryFn: () => issueService.getIssuesByProjectId(projectId),
+        select: selectColumnTasks,
+        staleTime: 1000 * 60 * 5,
+    });
     const { ref: dropRef, isDropTarget } = useDroppable({
         id: props.id,
         data: { type: 'column' }
@@ -35,7 +54,7 @@ export default function KanbanColumn(props: ColumnProps) {
         <div ref={dropRef} className={cn("min-w-52 flex flex-col flex-1 bg-muted/50 rounded-lg duration-200", isDropTarget ? "bg-muted/80 ring-2 ring-primary/50" : "bg-muted/50", isDragging && "opacity-50 border-dashed border-2 border-primary")}>
             {/* Header */}
             <div ref={dragRef} className="flex items-center justify-between p-3">
-                <h3 className="text-lg font-medium">{props.title}</h3>
+                <h3 className="text-lg font-medium">{props.name}</h3>
                 <div className="flex gap-2">
                     <CreateIssueModal columnId={props.columnId} projectId={projectId} />
                     <Button className="cursor-pointer" variant="ghost" size="icon" onClick={() => props.actionDeleteColumn(props.columnId)}>
@@ -46,7 +65,7 @@ export default function KanbanColumn(props: ColumnProps) {
             {/* Task List */}
             <ScrollArea className="flex-1 min-h-0 px-3">
                 <div>
-                    {props.tasks.map((task) => (
+                    {tasks.map((task) => (
                         <KanbanCard
                             key={task.id}
                             id={task.id}
@@ -61,3 +80,5 @@ export default function KanbanColumn(props: ColumnProps) {
         </div >
     )
 }
+
+export default memo(KanbanColumn);
