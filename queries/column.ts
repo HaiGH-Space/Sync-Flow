@@ -1,7 +1,7 @@
+import { ApiResponse } from '@/lib/api/api';
 import { Column, columnService } from '@/lib/api/column';
 import { QueryOptions } from '@/types/query-option';
 import { queryOptions } from '@tanstack/react-query';
-import { ApiResponse } from '../api/api';
 
 
 export const columnKeys = {

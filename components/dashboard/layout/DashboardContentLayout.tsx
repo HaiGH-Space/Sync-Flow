@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { useStore } from "@/lib/hooks/use-store"
+import { useStore } from "@/hooks/use-store"
 import { navigateItems, NavigateType, useDashboard } from "@/lib/store/use-dashboard"
 import { PanelLeftClose, PanelLeftOpen } from "lucide-react"
 import React from "react"

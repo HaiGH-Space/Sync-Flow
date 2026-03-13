@@ -8,7 +8,7 @@ import { columnService } from "@/lib/api/column";
 import type { ApiResponse } from "@/lib/api/api";
 import type { Column } from "@/lib/api/column";
 import type { Issue } from "@/lib/api/issue";
-import { createColumnsQueryOptions } from "@/lib/query-options/column";
+import { createColumnsQueryOptions } from "@/queries/column";
 
 
 interface BoardCanvasProps {

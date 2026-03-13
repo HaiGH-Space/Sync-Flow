@@ -1,7 +1,8 @@
 import { queryOptions } from "@tanstack/react-query";
-import { Issue, issueService } from "../api/issue";
 import { QueryOptions } from "@/types/query-option";
-import { ApiResponse } from "../api/api";
+import { ApiResponse } from "@/lib/api/api";
+import { Issue, issueService } from "@/lib/api/issue";
+
 
 export const issueKeys = {
     all: ['issues'] as const,
