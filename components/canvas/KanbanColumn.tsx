@@ -7,10 +7,11 @@ import KanbanCard from "./KanbanCard";
 import { useDraggable, useDroppable } from "@dnd-kit/react";
 import { cn } from "@/lib/utils";
 import CreateIssueModal from "../dashboard/comp/CreateIssueModal";
-import { issueService, Issue } from "@/lib/api/issue";
+import { Issue } from "@/lib/api/issue";
 import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import type { ApiResponse } from "@/lib/api/api";
+import { createIssuesQueryOptions } from "@/lib/query-options/issue";
 
 type ColumnProps = {
     id: string
@@ -23,24 +24,20 @@ type ColumnProps = {
 export type TaskProps = Pick<Issue, "id" | "columnId" | "title" | "priority" | "description">
 
 function KanbanColumn(props: ColumnProps) {
-    const { projectId } : { projectId: string } = useParams()
+    const { projectId }: { projectId: string } = useParams()
 
     // Each column subscribes to the shared cache with a stable per-column selector.
     // TanStack Query v5 structural sharing means only the two columns whose task
     // lists actually changed will receive a new reference → React.memo blocks
     // re-renders for every other column.
-    const selectColumnTasks = useCallback(
-        (data: ApiResponse<Issue[]>): TaskProps[] =>
+    const selectColumnTasks = useCallback((data: ApiResponse<Issue[]>): TaskProps[] =>
             data.data.filter(issue => issue.columnId === props.columnId),
         [props.columnId]
     );
 
-    const { data: tasks = [] } = useQuery({
-        queryKey: ['issues', projectId],
-        queryFn: () => issueService.getIssuesByProjectId(projectId),
-        select: selectColumnTasks,
-        staleTime: 1000 * 60 * 5,
-    });
+    const { data: tasks = [] } = useQuery(createIssuesQueryOptions({ projectId }, {
+        select: selectColumnTasks
+    }));
     const { ref: dropRef, isDropTarget } = useDroppable({
         id: props.id,
         data: { type: 'column' }

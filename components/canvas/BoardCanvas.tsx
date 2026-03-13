@@ -9,7 +9,6 @@ import type { ApiResponse } from "@/lib/api/api";
 import type { Column } from "@/lib/api/column";
 import type { Issue } from "@/lib/api/issue";
 import { createColumnsQueryOptions } from "@/lib/query-options/column";
-import { createIssuesQueryOptions } from "@/lib/query-options/issue";
 
 
 interface BoardCanvasProps {
@@ -26,8 +25,6 @@ export default function BoardCanvas({ projectId }: BoardCanvasProps) {
     const columnDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const { data: columns, error: errorColumns, isLoading: isLoadingColumns } = useQuery(createColumnsQueryOptions({ projectId }));
-
-    const { data: issues, error: errorIssues, isLoading: isLoadingIssues } = useQuery(createIssuesQueryOptions({ projectId }));
 
     // ── Mutations: cancel in-flight queries, per-item success update,
     //    per-item rollback on error (only reverts the failed item) ──────────
@@ -76,9 +73,8 @@ export default function BoardCanvas({ projectId }: BoardCanvasProps) {
     const handleDeleteColumn = useCallback(() => { }, []);
     const handleEditColumn = useCallback(() => { }, []);
 
-    if (isLoadingColumns || isLoadingIssues) return <div>Loading...</div>;
+    if (isLoadingColumns) return <div>Loading...</div>;
     if (errorColumns) return <div>Error loading columns</div>;
-    if (errorIssues) return <div>Error loading issues</div>;
 
     return (
         <div className="w-full h-full">
