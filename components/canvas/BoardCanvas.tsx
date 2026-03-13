@@ -8,6 +8,8 @@ import { columnService } from "@/lib/api/column";
 import type { ApiResponse } from "@/lib/api/api";
 import type { Column } from "@/lib/api/column";
 import type { Issue } from "@/lib/api/issue";
+import { createColumnsQueryOptions } from "@/lib/query-options/column";
+import { createIssuesQueryOptions } from "@/lib/query-options/issue";
 
 
 interface BoardCanvasProps {
@@ -23,18 +25,9 @@ export default function BoardCanvas({ projectId }: BoardCanvasProps) {
     const issueDebounceMap = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
     const columnDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    // ── Server state (TanStack Query cache is the single source of truth) ─
-    const { data: columns, error: errorColumns, isLoading: isLoadingColumns } = useQuery({
-        queryKey: ['columns', projectId],
-        queryFn: () => columnService.getColumns({ projectId }),
-        staleTime: 1000 * 60 * 5,
-    });
+    const { data: columns, error: errorColumns, isLoading: isLoadingColumns } = useQuery(createColumnsQueryOptions({ projectId }));
 
-    const { data: issues, error: errorIssues, isLoading: isLoadingIssues } = useQuery({
-        queryKey: ['issues', projectId],
-        queryFn: () => issueService.getIssuesByProjectId(projectId),
-        staleTime: 1000 * 60 * 5,
-    });
+    const { data: issues, error: errorIssues, isLoading: isLoadingIssues } = useQuery(createIssuesQueryOptions({ projectId }));
 
     // ── Mutations: cancel in-flight queries, per-item success update,
     //    per-item rollback on error (only reverts the failed item) ──────────
@@ -80,8 +73,8 @@ export default function BoardCanvas({ projectId }: BoardCanvasProps) {
     });
 
     // ── Stable callbacks so memo'd KanbanColumn doesn't re-render ─────────
-    const handleDeleteColumn = useCallback(() => {}, []);
-    const handleEditColumn = useCallback(() => {}, []);
+    const handleDeleteColumn = useCallback(() => { }, []);
+    const handleEditColumn = useCallback(() => { }, []);
 
     if (isLoadingColumns || isLoadingIssues) return <div>Loading...</div>;
     if (errorColumns) return <div>Error loading columns</div>;
@@ -92,9 +85,6 @@ export default function BoardCanvas({ projectId }: BoardCanvasProps) {
             <DragDropProvider
                 onDragStart={() => {
                     isDraggingRef.current = true;
-                    // Cancel all pending debounce timers from previous fast drops
-                    // so their onSuccess cache writes don't fire mid-drag and
-                    // cause layout jerks on the currently active drag.
                     if (columnDebounceRef.current) {
                         clearTimeout(columnDebounceRef.current);
                         columnDebounceRef.current = null;
