@@ -1,5 +1,5 @@
+import { workspaceService } from '@/lib/api/workspace'
 import { useQuery } from '@tanstack/react-query'
-import { workspaceService } from '../api/workspace'
 import { useParams } from 'next/navigation'
 
 export const useCurrentWorkspace = () => {

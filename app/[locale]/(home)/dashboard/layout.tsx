@@ -2,7 +2,7 @@
 import DashboardContentLayout from "@/components/dashboard/layout/DashboardContentLayout";
 import { NavigationSidebar } from "@/components/dashboard/layout/NavigationSidebar";
 import { WorkspaceRail } from "@/components/dashboard/layout/WorkspaceRail";
-import { useCurrentWorkspace } from "@/lib/hooks/use-current-workspace";
+import { useCurrentWorkspace } from "@/hooks/use-current-workspace";
 import { useEffect } from "react";
 import { toast } from "sonner";
 

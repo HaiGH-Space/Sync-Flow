@@ -1,8 +1,8 @@
 'use client'
 
+import { userService } from "@/lib/api/user"
+import { useUserStore } from "@/lib/store/use-user-profile"
 import { useQuery } from "@tanstack/react-query"
-import { useUserStore } from "../store/use-user-profile"
-import { userService } from "../api/user"
 import { useEffect } from "react"
 
 export const useProfile = () => {
