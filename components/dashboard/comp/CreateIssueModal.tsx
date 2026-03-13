@@ -1,13 +1,16 @@
 'use client'
 import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
 import { z } from "zod";
-import { CreateIssue, issueService, Priority } from "@/lib/api/issue";
+import { CreateIssue, Issue, Priority } from "@/lib/api/issue";
 import { useForm } from "@tanstack/react-form";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Loader2Icon, PlusIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import FieldAnimation, { SelectAnimation } from "@/components/auth/FieldAnimation";
+import { useCreateIssue } from "@/hooks/mutations/issue";
+import { useQueryClient } from "@tanstack/react-query";
+import { ApiResponse } from "@/lib/api/api";
+import { issueKeys } from "@/queries/issue";
 import { toast } from "sonner";
 
 const createIssueSchema = z.object({
@@ -32,19 +35,8 @@ interface CreateIssueModalProps {
 
 export default function CreateIssueModal({ columnId, projectId }: CreateIssueModalProps) {
     const [isOpen, setIsOpen] = useState(false)
-    // const queryClient = useQueryClient()
-    const { mutate: createIssue, isPending } = useMutation({
-        mutationFn: issueService.createIssue,
-        onSuccess: async () => {
-            // await queryClient.invalidateQueries({ queryKey: ['issues', workspaceDetail?.id] });
-            toast.success("Issue created successfully");
-            handleOpenChange(false);
-        },
-        onError: (e) => {
-            console.log(e)
-            toast.error("Failed to create issue");
-        }
-    })
+    const { mutate: createIssue, isPending } = useCreateIssue(projectId);
+    const queryClient = useQueryClient();
 
     const form = useForm({
         defaultValues: defaultValues,
@@ -53,16 +45,35 @@ export default function CreateIssueModal({ columnId, projectId }: CreateIssueMod
             onChange: createIssueSchema
         },
         onSubmit: async ({ value }) => {
+            const cachedIssues = queryClient.getQueryData<ApiResponse<Issue[]>>(issueKeys.list(projectId));
+            let newOrder = 1000;
+            if (cachedIssues?.data) {
+                const columnIssues = cachedIssues.data
+                    .filter(issue => issue.columnId === columnId)
+                    .sort((a, b) => a.order - b.order);
+
+                if (columnIssues.length > 0) {
+                    const lastIssue = columnIssues[columnIssues.length - 1];
+                    newOrder = lastIssue.order + 1000;
+                }
+            }
             const issueData: CreateIssue = {
-                order: 9000,
+                order: newOrder,
                 columnId,
                 title: value.title,
                 priority: value.priority,
                 description: value.description,
                 assigneeId: value.assigneeId,
             }
-            console.log("Creating issue with values:", issueData);
-            createIssue({ projectId, issueData });
+            createIssue({ projectId, issueData },{
+                onSuccess: () => {
+                    toast.success("Issue created successfully");
+                    handleOpenChange(false);
+                },
+                onError: () => {
+                    toast.error("Failed to create issue");
+                }
+            });
         },
     })
 
@@ -74,6 +85,7 @@ export default function CreateIssueModal({ columnId, projectId }: CreateIssueMod
             }, 300);
         }
     }
+
     const priorityOptions = Object.values(Priority).map((val) => ({
         value: val,
         label: val.charAt(0).toUpperCase() + val.slice(1).toLowerCase(),
