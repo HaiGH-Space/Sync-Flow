@@ -7,10 +7,10 @@ import KanbanCard from "./KanbanCard";
 import { useDraggable, useDroppable } from "@dnd-kit/react";
 import { cn } from "@/lib/utils";
 import CreateIssueModal from "../dashboard/comp/CreateIssueModal";
-import { issueService, Issue } from "@/lib/services/issue";
+import { issueService, Issue } from "@/lib/api/issue";
 import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import type { ApiResponse } from "@/lib/api";
+import type { ApiResponse } from "@/lib/api/api";
 
 type ColumnProps = {
     id: string

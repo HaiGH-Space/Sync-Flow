@@ -2,9 +2,9 @@
 import { Button } from "@/components/ui/button";
 import { Loader2Icon, PlusIcon } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Workspace } from "@/lib/services/workspace";
+import { Workspace } from "@/lib/api/workspace";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { projectService } from "@/lib/services/project";
+import { projectService } from "@/lib/api/project";
 import { toast } from "sonner";
 import z from "zod";
 import { useForm } from "@tanstack/react-form";

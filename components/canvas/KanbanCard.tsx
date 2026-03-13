@@ -6,7 +6,7 @@ import { Avatar, AvatarImage } from "../ui/avatar"
 import { Badge } from "../ui/badge"
 import { cn } from "@/lib/utils"
 import {useDraggable} from '@dnd-kit/react';
-import { Priority } from "@/lib/services/issue"
+import { Priority } from "@/lib/api/issue"
 
 type KanbanCardProps = {
     id: string

@@ -1,4 +1,4 @@
-import { api, ApiResponse } from "../api"
+import { api, ApiResponse } from "./api"
 
 const USER_BASE_URL = '/users';
 

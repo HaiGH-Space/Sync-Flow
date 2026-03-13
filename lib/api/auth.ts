@@ -1,4 +1,4 @@
-import { api } from "../api"
+import { api } from "./api"
 import { UserProfile } from "./user"
 
 const AUTH_BASE_URL = "/auth"

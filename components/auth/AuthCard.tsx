@@ -12,7 +12,7 @@ import { Button } from "../ui/button";
 import LogoAppAnimation from "../shared/LogoAppAnimation";
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useUserStore } from "@/lib/store/use-user-profile";
-import { authService } from "@/lib/services/auth";
+import { authService } from "@/lib/api/auth";
 import SuccessState from "./SuccessState";
 import { useTranslations } from "next-intl";
 

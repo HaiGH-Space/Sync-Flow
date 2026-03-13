@@ -1,4 +1,4 @@
-import { api } from "../api";
+import { api } from "./api";
 import { PROJECT_BASE_URL } from "./project";
 
 const ISSUE_BASE_URL = '/issues';

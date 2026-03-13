@@ -1,4 +1,4 @@
-import type { UserProfile } from "../services/user"
+import type { UserProfile } from "../api/user"
 import { create } from "zustand"
 
 type UserProfileActions = {

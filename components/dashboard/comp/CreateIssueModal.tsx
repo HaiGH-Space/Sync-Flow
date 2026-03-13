@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
-import { CreateIssue, issueService, Priority } from "@/lib/services/issue";
+import { CreateIssue, issueService, Priority } from "@/lib/api/issue";
 import { useForm } from "@tanstack/react-form";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Loader2Icon, PlusIcon } from "lucide-react";

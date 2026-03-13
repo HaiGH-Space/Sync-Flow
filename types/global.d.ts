@@ -1,6 +1,6 @@
 import {routing} from "@/i18n/routing";
 import en from "@/i18n/en";
-import { ApiRequestError } from "@/lib/api";
+import { ApiRequestError } from "@/lib/api/api";
 
 declare module "next-intl" {
   interface AppConfig {

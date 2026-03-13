@@ -1,4 +1,4 @@
-import { api, ApiResponse } from "../api"
+import { api, ApiResponse } from "./api"
 import { MemberWorkspace } from "./member-workspace"
 
 export const WORKSPACE_BASE_URL = '/workspaces';

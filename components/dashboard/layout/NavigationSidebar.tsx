@@ -1,18 +1,18 @@
 'use client'
-import { Workspace } from "@/lib/services/workspace";
+import { Workspace } from "@/lib/api/workspace";
 import { useDashboard } from "@/lib/store/use-dashboard";
 import { AnimatePresence, motion, Variants } from "motion/react"
 import { AvatarWithBadge } from "@/components/shared/AvatarWithBadge";
 import { Search } from "@/components/shared/Search";
 import { useQuery } from "@tanstack/react-query";
-import { projectService } from "@/lib/services/project";
+import { projectService } from "@/lib/api/project";
 import { memo, useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import CreateProjectModal from "../comp/CreateProjectModal";
 import { Link } from "@/i18n/navigation";
 import { useParams } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { sprintService } from "@/lib/services/sprint";
+import { sprintService } from "@/lib/api/sprint";
 import { ChevronRight } from "lucide-react";
 
 const sidebarContainerVariants: Variants = {

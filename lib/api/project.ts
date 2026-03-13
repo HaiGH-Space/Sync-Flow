@@ -1,4 +1,4 @@
-import { api } from "../api"
+import { api } from "./api"
 import { Column } from "./column";
 import { WORKSPACE_BASE_URL } from "./workspace";
 export const PROJECT_BASE_URL = '/projects';

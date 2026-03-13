@@ -2,7 +2,7 @@
 
 import { Skeleton } from "@/components/ui/skeleton"
 import { Link } from "@/i18n/navigation"
-import { Workspace } from "@/lib/services/workspace"
+import { Workspace } from "@/lib/api/workspace"
 import { cn, getFirstLetters } from "@/lib/utils"
 
 type WorkspaceRailProps = {

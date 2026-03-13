@@ -2,12 +2,12 @@
 import { useCallback, useRef } from "react"
 import KanbanColumn from "./KanbanColumn"
 import { DragDropProvider } from "@dnd-kit/react";
-import { issueService } from "@/lib/services/issue";
+import { issueService } from "@/lib/api/issue";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { columnService } from "@/lib/services/column";
-import type { ApiResponse } from "@/lib/api";
-import type { Column } from "@/lib/services/column";
-import type { Issue } from "@/lib/services/issue";
+import { columnService } from "@/lib/api/column";
+import type { ApiResponse } from "@/lib/api/api";
+import type { Column } from "@/lib/api/column";
+import type { Issue } from "@/lib/api/issue";
 
 
 interface BoardCanvasProps {
