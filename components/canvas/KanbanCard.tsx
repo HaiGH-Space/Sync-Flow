@@ -1,22 +1,28 @@
 'use client'
-import { memo } from "react";
-import { MoreHorizontal } from "lucide-react"
-import { Button } from "../ui/button"
+import { memo, useState } from "react";
 import { Avatar, AvatarImage } from "../ui/avatar"
 import { Badge } from "../ui/badge"
 import { cn } from "@/lib/utils"
-import {useDraggable} from '@dnd-kit/react';
+import { useDraggable } from '@dnd-kit/react';
 import { Priority } from "@/lib/api/issue"
+import DropdownMenuUD from "../shared/DropdownMenuUD";
+import { toast } from "sonner";
+import DeleteConfirmModal from "../dashboard/comp/DeleteConfirmModal";
+import { useDeleteIssue } from "@/hooks/mutations/issue";
 
 type KanbanCardProps = {
     id: string
     title: string
+    projectId: string
     description?: string
     storyPoint?: number
     priority?: Priority
 }
 
 function KanbanCard(props: KanbanCardProps) {
+    const { mutate: deleteIssue, isPending } = useDeleteIssue(props.projectId)
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const { ref, isDragging } = useDraggable({
         id: props.id,
         data: { type: 'task', ...props }
@@ -25,16 +31,15 @@ function KanbanCard(props: KanbanCardProps) {
         <div ref={ref} className={cn("duration-200 hover:border-primary cursor-grab w-full min-w-48 p-3 mb-2 flex flex-col bg-card border rounded-lg", isDragging && "opacity-90 border-dashed")}>
             <div className="flex justify-between">
                 <h4 className="font-medium">{props.title}</h4>
-                <Button variant="ghost" size="icon" className="cursor-pointer">
-                    <MoreHorizontal className="w-4 h-4" />
-                </Button>
+                <DropdownMenuUD
+                    onEdit={() => setIsEditModalOpen(true)}
+                    onDelete={() => setIsDeleteModalOpen(true)} />
             </div>
             {props.description && <p className="text-sm text-muted-foreground">{props.description}</p>}
             <div className="flex justify-between mt-2">
                 <div>
-
                     {props.priority &&
-                        <Badge className={cn('mr-2' ,props.priority === Priority.HIGH ? 'bg-red-900 text-red-300' : props.priority === Priority.MEDIUM ? 'bg-yellow-900 text-yellow-300' : 'bg-green-900 text-green-300')}>
+                        <Badge className={cn('mr-2', props.priority === Priority.HIGH ? 'bg-red-900 text-red-300' : props.priority === Priority.MEDIUM ? 'bg-yellow-900 text-yellow-300' : 'bg-green-900 text-green-300')}>
                             {props.priority.charAt(0).toUpperCase() + props.priority.slice(1)}
                         </Badge>
                     }
@@ -46,6 +51,29 @@ function KanbanCard(props: KanbanCardProps) {
                     </Avatar>
                 </div>
             </div>
+
+            {isDeleteModalOpen && (
+                <DeleteConfirmModal
+                    isOpen={isDeleteModalOpen}
+                    title={`Delete "${props.title}"?`}
+                    description="Are you sure you want to delete this task?"
+                    onConfirm={() => {
+                        deleteIssue({
+                            issueId: props.id,
+                            projectId: props.projectId
+                        }, {
+                            onSuccess: () => {
+                                toast.success("Task deleted")
+                            },
+                            onError: () => {
+                                toast.error("Failed to delete task")
+                            }
+                        });
+                    }}
+                    onClose={setIsDeleteModalOpen}
+                    isLoading={isPending}
+                />
+            )}
         </div>
     )
 }

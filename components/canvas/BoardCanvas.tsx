@@ -167,6 +167,7 @@ export default function BoardCanvas({ projectId }: BoardCanvasProps) {
                     {columns?.data && columns.data.length > 0 ? (
                         columns.data.map((col) => (
                             <KanbanColumn
+                                projectId={projectId}
                                 key={col.id}
                                 id={col.id}
                                 columnId={col.id}

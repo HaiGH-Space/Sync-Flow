@@ -22,11 +22,6 @@ export const useDeleteIssue = (projectId: string) => {
         
         onSuccess: async () => {
             await queryClient.invalidateQueries({ queryKey: issueKeys.list(projectId) });
-            toast.success("Issue deleted successfully");
         },
-        
-        onError: () => {
-            toast.error("Failed to delete issue");
-        }
     });
 };

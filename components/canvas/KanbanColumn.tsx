@@ -16,6 +16,7 @@ type ColumnProps = {
     id: string
     name: string
     columnId: string
+    projectId: string
     actionDeleteColumn: (columnId: string) => void
     actionEditColumn: (columnId: string) => void
 }
@@ -23,18 +24,17 @@ type ColumnProps = {
 export type TaskProps = Pick<Issue, "id" | "columnId" | "title" | "priority" | "description">
 
 function KanbanColumn(props: ColumnProps) {
-    const { projectId }: { projectId: string } = useParams()
 
     // Each column subscribes to the shared cache with a stable per-column selector.
     // TanStack Query v5 structural sharing means only the two columns whose task
     // lists actually changed will receive a new reference → React.memo blocks
     // re-renders for every other column.
     const selectColumnTasks = useCallback((data: ApiResponse<Issue[]>): TaskProps[] =>
-            data.data.filter(issue => issue.columnId === props.columnId),
+        data.data.filter(issue => issue.columnId === props.columnId),
         [props.columnId]
     );
 
-    const { data: tasks = [] } = useQuery(createIssuesQueryOptions({ projectId }, {
+    const { data: tasks = [] } = useQuery(createIssuesQueryOptions({ projectId: props.projectId }, {
         select: selectColumnTasks
     }));
     const { ref: dropRef, isDropTarget } = useDroppable({
@@ -52,7 +52,7 @@ function KanbanColumn(props: ColumnProps) {
             <div ref={dragRef} className="flex items-center justify-between p-3">
                 <h3 className="text-lg font-medium">{props.name}</h3>
                 <div className="flex gap-2">
-                    <CreateIssueModal columnId={props.columnId} projectId={projectId} />
+                    <CreateIssueModal columnId={props.columnId} projectId={props.projectId} />
                     <Button className="cursor-pointer" variant="ghost" size="icon" onClick={() => props.actionDeleteColumn(props.columnId)}>
                         <MoreHorizontal className="w-4 h-4" />
                     </Button>
@@ -63,6 +63,7 @@ function KanbanColumn(props: ColumnProps) {
                 <div>
                     {tasks.map((task) => (
                         <KanbanCard
+                            projectId={props.projectId}
                             key={task.id}
                             id={task.id}
                             title={task.title}
