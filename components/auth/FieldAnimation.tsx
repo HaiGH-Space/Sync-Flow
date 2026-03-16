@@ -85,13 +85,14 @@ export const SelectAnimation = ({ form, name, icon: Icon, variants, data, fieldL
         <form.Field name={name}>
             {(field: FieldApiMock) => {
                 const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid
+                const currentValue = (field.state.value ?? data[0]?.value) as string | undefined
                 return (
                     <div className="w-full flex gap-x-2">
                         {fieldLabel && <FieldLabel htmlFor={field.name}>{fieldLabel}</FieldLabel>}
                         <Field data-invalid={isInvalid}>
                             <div className="relative">
                                 {Icon && <Icon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />}
-                                <Select defaultValue={data[0].value} onValueChange={(value) => field.handleChange(value)}>
+                                <Select value={currentValue} onValueChange={(value) => field.handleChange(value)}>
                                     <SelectTrigger name={field.name} id={field.name}>
                                         <SelectValue />
                                     </SelectTrigger>

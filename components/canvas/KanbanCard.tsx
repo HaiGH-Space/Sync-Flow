@@ -9,6 +9,7 @@ import DropdownMenuUD from "../shared/DropdownMenuUD";
 import { toast } from "sonner";
 import DeleteConfirmModal from "../dashboard/comp/DeleteConfirmModal";
 import { useDeleteIssue } from "@/hooks/mutations/issue";
+import UpdateIssueModal from "../dashboard/comp/UpdateIssueModal";
 
 type KanbanCardProps = {
     id: string
@@ -72,6 +73,20 @@ function KanbanCard(props: KanbanCardProps) {
                     }}
                     onClose={setIsDeleteModalOpen}
                     isLoading={isPending}
+                />
+            )}
+
+            {isEditModalOpen && (
+                <UpdateIssueModal
+                    isOpen={isEditModalOpen}
+                    onOpenChange={setIsEditModalOpen}
+                    projectId={props.projectId}
+                    issueId={props.id}
+                    defaultValues={{
+                        title: props.title,
+                        description: props.description,
+                        priority: props.priority,
+                    }}
                 />
             )}
         </div>
