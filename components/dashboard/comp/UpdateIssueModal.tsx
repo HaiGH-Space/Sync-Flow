@@ -61,7 +61,7 @@ export default function UpdateIssueModal({
           title: values.title,
           description: values.description,
           priority: values.priority,
-          assigneeId: values.assigneeId,
+          assigneeId: values.assigneeId ?? null,
         },
       },
       {

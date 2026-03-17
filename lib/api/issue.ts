@@ -30,7 +30,7 @@ export type CreateIssue = {
     columnId: string
     title: string
     priority: Priority
-    assigneeId?: string
+    assigneeId?: string | null
     description?: string
     order: number
 }
