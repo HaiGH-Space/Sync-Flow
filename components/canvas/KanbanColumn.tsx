@@ -21,7 +21,7 @@ type ColumnProps = {
     actionEditColumn: (columnId: string) => void
 }
 
-export type TaskProps = Pick<Issue, "id" | "columnId" | "title" | "priority" | "description">
+export type TaskProps = Pick<Issue, "id" | "columnId" | "title" | "priority" | "description" | "assigneeId">
 
 function KanbanColumn(props: ColumnProps) {
 
@@ -70,6 +70,7 @@ function KanbanColumn(props: ColumnProps) {
                             priority={task.priority}
                             storyPoint={undefined}
                             description={task.description}
+                            assigneeId={task.assigneeId}
                         />
                     ))}
                 </div>

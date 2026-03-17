@@ -18,6 +18,7 @@ type KanbanCardProps = {
     description?: string
     storyPoint?: number
     priority?: Priority
+    assigneeId?: string | null
 }
 
 function KanbanCard(props: KanbanCardProps) {
@@ -86,6 +87,7 @@ function KanbanCard(props: KanbanCardProps) {
                         title: props.title,
                         description: props.description,
                         priority: props.priority,
+                        assigneeId: props.assigneeId,
                     }}
                 />
             )}

@@ -5,12 +5,14 @@ import { DialogTrigger } from "@/components/ui/dialog";
 import { PlusIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCreateIssue } from "@/hooks/mutations/issue";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ApiResponse } from "@/lib/api/api";
 import { issueKeys } from "@/queries/issue";
 import { toast } from "sonner";
 import IssueFormDialog, { IssueFormValues } from "./IssueFormDialog";
 import { useProfile } from "@/hooks/use-profile";
+import { useParams } from "next/navigation";
+import { createWorkspaceMemberProfilesQueryOptions } from "@/queries/workspace-member";
 
 interface CreateIssueModalProps {
     columnId: string;
@@ -22,37 +24,49 @@ export default function CreateIssueModal({ columnId, projectId }: CreateIssueMod
     const { mutate: createIssue, isPending } = useCreateIssue(projectId);
     const queryClient = useQueryClient();
     const { data: profile } = useProfile();
+    const params = useParams<{ workspaceId: string }>();
+    const workspaceId = params.workspaceId;
+
+    const { data: memberProfilesResponse } = useQuery(createWorkspaceMemberProfilesQueryOptions({ workspaceId }, {
+        enabled: !!workspaceId,
+    }));
+
+    const assigneeOptions = memberProfilesResponse?.data
+        ? memberProfilesResponse.data.map((u) => ({
+            value: u.id,
+            label: profile?.id === u.id ? `Me (${u.name})` : u.name,
+        })) : undefined;
 
     const handleSubmit = async (value: IssueFormValues) => {
-            const cachedIssues = queryClient.getQueryData<ApiResponse<Issue[]>>(issueKeys.list(projectId));
-            let newOrder = 1000;
-            if (cachedIssues?.data) {
-                const columnIssues = cachedIssues.data
-                    .filter(issue => issue.columnId === columnId)
-                    .sort((a, b) => a.order - b.order);
+        const cachedIssues = queryClient.getQueryData<ApiResponse<Issue[]>>(issueKeys.list(projectId));
+        let newOrder = 1000;
+        if (cachedIssues?.data) {
+            const columnIssues = cachedIssues.data
+                .filter(issue => issue.columnId === columnId)
+                .sort((a, b) => a.order - b.order);
 
-                if (columnIssues.length > 0) {
-                    const lastIssue = columnIssues[columnIssues.length - 1];
-                    newOrder = lastIssue.order + 1000;
-                }
+            if (columnIssues.length > 0) {
+                const lastIssue = columnIssues[columnIssues.length - 1];
+                newOrder = lastIssue.order + 1000;
             }
-            const issueData: CreateIssue = {
-                order: newOrder,
-                columnId,
-                title: value.title,
-                priority: value.priority,
-                description: value.description,
-                assigneeId: value.assigneeId,
+        }
+        const issueData: CreateIssue = {
+            order: newOrder,
+            columnId,
+            title: value.title,
+            priority: value.priority,
+            description: value.description,
+            assigneeId: value.assigneeId,
+        }
+        createIssue({ projectId, issueData }, {
+            onSuccess: () => {
+                toast.success("Issue created successfully");
+                setIsOpen(false)
+            },
+            onError: () => {
+                toast.error("Failed to create issue");
             }
-            createIssue({ projectId, issueData },{
-                onSuccess: () => {
-                    toast.success("Issue created successfully");
-                    setIsOpen(false)
-                },
-                onError: () => {
-                    toast.error("Failed to create issue");
-                }
-            });
+        });
     }
 
     return (
@@ -64,7 +78,7 @@ export default function CreateIssueModal({ columnId, projectId }: CreateIssueMod
             submitLabel="Create Issue"
             submittingLabel="Creating..."
             isSubmitting={isPending}
-            assigneeOptions={profile ? [{ value: profile.id, label: `Me (${profile.name})` }] : undefined}
+            assigneeOptions={assigneeOptions}
             onSubmit={handleSubmit}
         >
             <DialogTrigger asChild>
