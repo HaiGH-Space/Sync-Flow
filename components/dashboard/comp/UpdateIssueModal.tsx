@@ -4,6 +4,7 @@ import { toast } from 'sonner'
 import { Priority } from '@/lib/api/issue'
 import { useUpdateIssue } from '@/hooks/mutations/issue'
 import IssueFormDialog, { type IssueFormValues } from './IssueFormDialog'
+import { useProfile } from '@/hooks/use-profile'
 
 type UpdateIssueModalProps = {
   isOpen: boolean
@@ -25,6 +26,7 @@ export default function UpdateIssueModal({
   defaultValues,
 }: UpdateIssueModalProps) {
   const { mutate: updateIssue, isPending } = useUpdateIssue(projectId)
+  const { data: profile } = useProfile()
 
   const handleSubmit = async (values: IssueFormValues) => {
     updateIssue(
@@ -59,6 +61,7 @@ export default function UpdateIssueModal({
       submitLabel="Update Issue"
       submittingLabel="Updating..."
       isSubmitting={isPending}
+      assigneeOptions={profile ? [{ value: profile.id, label: `Me (${profile.name})` }] : undefined}
       defaultValues={{
         title: defaultValues.title,
         description: defaultValues.description ?? '',

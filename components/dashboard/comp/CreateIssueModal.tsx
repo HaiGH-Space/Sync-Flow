@@ -10,6 +10,7 @@ import { ApiResponse } from "@/lib/api/api";
 import { issueKeys } from "@/queries/issue";
 import { toast } from "sonner";
 import IssueFormDialog, { IssueFormValues } from "./IssueFormDialog";
+import { useProfile } from "@/hooks/use-profile";
 
 interface CreateIssueModalProps {
     columnId: string;
@@ -20,6 +21,7 @@ export default function CreateIssueModal({ columnId, projectId }: CreateIssueMod
     const [isOpen, setIsOpen] = useState(false)
     const { mutate: createIssue, isPending } = useCreateIssue(projectId);
     const queryClient = useQueryClient();
+    const { data: profile } = useProfile();
 
     const handleSubmit = async (value: IssueFormValues) => {
             const cachedIssues = queryClient.getQueryData<ApiResponse<Issue[]>>(issueKeys.list(projectId));
@@ -62,6 +64,7 @@ export default function CreateIssueModal({ columnId, projectId }: CreateIssueMod
             submitLabel="Create Issue"
             submittingLabel="Creating..."
             isSubmitting={isPending}
+            assigneeOptions={profile ? [{ value: profile.id, label: `Me (${profile.name})` }] : undefined}
             onSubmit={handleSubmit}
         >
             <DialogTrigger asChild>

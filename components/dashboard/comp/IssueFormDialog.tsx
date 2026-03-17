@@ -28,7 +28,10 @@ const baseDefaultValues: IssueFormValues = {
   title: '',
   priority: 'MEDIUM',
   description: '',
+  assigneeId: 'UNASSIGNED',
 }
+
+export type AssigneeOption = { value: string; label: string }
 
 type IssueFormDialogProps = {
   open: boolean
@@ -36,6 +39,7 @@ type IssueFormDialogProps = {
   dialogTitle: string
   dialogDescription?: string
   children?: ReactNode
+  assigneeOptions?: AssigneeOption[]
   submitLabel: string
   submittingLabel?: string
   isSubmitting?: boolean
@@ -49,6 +53,7 @@ export default function IssueFormDialog({
   dialogTitle,
   dialogDescription,
   children,
+  assigneeOptions,
   submitLabel,
   submittingLabel = 'Saving...',
   isSubmitting = false,
@@ -67,7 +72,11 @@ export default function IssueFormDialog({
       onChange: issueFormSchema,
     },
     onSubmit: async ({ value }) => {
-      await onSubmit(value)
+      const normalized: IssueFormValues = {
+        ...value,
+        assigneeId: value.assigneeId === 'UNASSIGNED' ? undefined : value.assigneeId,
+      }
+      await onSubmit(normalized)
     },
   })
 
@@ -84,6 +93,10 @@ export default function IssueFormDialog({
     value: val,
     label: val.charAt(0).toUpperCase() + val.slice(1).toLowerCase(),
   }))
+
+  const normalizedAssigneeOptions = assigneeOptions
+    ? [{ value: 'UNASSIGNED', label: 'Unassigned' }, ...assigneeOptions]
+    : undefined
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -108,6 +121,15 @@ export default function IssueFormDialog({
             name="description"
             placeholder="Issue Description (optional)"
           />
+          {normalizedAssigneeOptions ? (
+            <SelectAnimation
+              form={form}
+              name="assigneeId"
+              placeholder="Assignee"
+              fieldLabel="Assignee"
+              data={normalizedAssigneeOptions}
+            />
+          ) : null}
           <SelectAnimation
             form={form}
             name="priority"
