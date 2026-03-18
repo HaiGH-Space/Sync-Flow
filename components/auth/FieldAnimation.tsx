@@ -87,10 +87,10 @@ export const SelectAnimation = ({ form, name, icon: Icon, variants, data, fieldL
                 const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid
                 const currentValue = (field.state.value ?? data[0]?.value) as string | undefined
                 return (
-                    <div className="w-full flex gap-x-2">
-                        {fieldLabel && <FieldLabel htmlFor={field.name}>{fieldLabel}</FieldLabel>}
-                        <Field data-invalid={isInvalid}>
-                            <div className="relative">
+                    <div className="w-full">
+                        {fieldLabel && <FieldLabel className="mb-2" htmlFor={field.name}>{fieldLabel}</FieldLabel>}
+                        <div className="relative">
+                            <Field data-invalid={isInvalid}>
                                 {Icon && <Icon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />}
                                 <Select value={currentValue} onValueChange={(value) => field.handleChange(value)}>
                                     <SelectTrigger name={field.name} id={field.name}>
@@ -104,9 +104,10 @@ export const SelectAnimation = ({ form, name, icon: Icon, variants, data, fieldL
                                         ))}
                                     </SelectContent>
                                 </Select>
-                            </div>
-                            <FieldErrorAnimation isInvalid={isInvalid} errors={field.state.meta.errors} />
-                        </Field>
+
+                                <FieldErrorAnimation isInvalid={isInvalid} errors={field.state.meta.errors} />
+                            </Field>
+                        </div>
                     </div>
                 )
             }}
