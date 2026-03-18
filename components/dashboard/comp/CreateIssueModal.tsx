@@ -13,6 +13,7 @@ import IssueFormDialog, { IssueFormValues } from "./IssueFormDialog";
 import { useProfile } from "@/hooks/use-profile";
 import { useParams } from "next/navigation";
 import { createWorkspaceMemberProfilesQueryOptions } from "@/queries/workspace-member";
+import { useTranslations } from "next-intl";
 
 interface CreateIssueModalProps {
     columnId: string;
@@ -24,6 +25,7 @@ export default function CreateIssueModal({ columnId, projectId }: CreateIssueMod
     const { mutate: createIssue, isPending } = useCreateIssue(projectId);
     const queryClient = useQueryClient();
     const { data: profile } = useProfile();
+    const tDashboard = useTranslations('dashboard');
     const params = useParams<{ workspaceId: string }>();
     const workspaceId = params.workspaceId;
 
@@ -34,7 +36,7 @@ export default function CreateIssueModal({ columnId, projectId }: CreateIssueMod
     const assigneeOptions = memberProfilesResponse?.data
         ? memberProfilesResponse.data.map((u) => ({
             value: u.id,
-            label: profile?.id === u.id ? `Me (${u.name})` : u.name,
+            label: profile?.id === u.id ? tDashboard('issue.assignee.me', { name: u.name }) : u.name,
         })) : undefined;
 
     const handleSubmit = async (value: IssueFormValues) => {
@@ -60,11 +62,11 @@ export default function CreateIssueModal({ columnId, projectId }: CreateIssueMod
         }
         createIssue({ projectId, issueData }, {
             onSuccess: () => {
-                toast.success("Issue created successfully");
+                toast.success(tDashboard('issue.toast.created'));
                 setIsOpen(false)
             },
             onError: () => {
-                toast.error("Failed to create issue");
+                toast.error(tDashboard('issue.toast.createFailed'));
             }
         });
     }
@@ -73,10 +75,10 @@ export default function CreateIssueModal({ columnId, projectId }: CreateIssueMod
         <IssueFormDialog
             open={isOpen}
             onOpenChange={setIsOpen}
-            dialogTitle="Create New Issue"
-            dialogDescription="Create a new issue in."
-            submitLabel="Create Issue"
-            submittingLabel="Creating..."
+            dialogTitle={tDashboard('issue.create.title')}
+            dialogDescription={tDashboard('issue.create.description')}
+            submitLabel={tDashboard('issue.create.submit')}
+            submittingLabel={tDashboard('issue.create.submitting')}
             isSubmitting={isPending}
             assigneeOptions={assigneeOptions}
             onSubmit={handleSubmit}

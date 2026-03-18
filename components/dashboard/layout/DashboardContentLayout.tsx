@@ -6,6 +6,7 @@ import { useStore } from "@/hooks/use-store"
 import { navigateItems, NavigateType, useDashboard } from "@/lib/store/use-dashboard"
 import { PanelLeftClose, PanelLeftOpen } from "lucide-react"
 import React from "react"
+import { useTranslations } from "next-intl"
 
 export default function DashboardContentLayout({ children }: { children: React.ReactNode }) {
     //
@@ -13,6 +14,7 @@ export default function DashboardContentLayout({ children }: { children: React.R
     const activeNavigate = useStore(useDashboard, (state) => state.activeNavigate)
     const toggleSidebarLeft = useDashboard((state) => state.toggleSidebarLeft)
     const setActiveNavigate = useDashboard((state) => state.setActiveNavigate)
+    const t = useTranslations('dashboard')
 
     if (isOpenSidebarLeft === undefined || !activeNavigate) return null
     return (
@@ -38,7 +40,13 @@ export default function DashboardContentLayout({ children }: { children: React.R
                             {Object.values(navigateItems).map((navigate) => (
                                 <TabsTrigger className="capitalize gap-x-2 py-4" key={navigate.value} value={navigate.value}>
                                     <navigate.icon className="w-4 h-4" />
-                                    {navigate.value.toLowerCase()}
+                                    {navigate.value === NavigateType.BOARD
+                                        ? t('navigation.board')
+                                        : navigate.value === NavigateType.BACKLOG
+                                            ? t('navigation.backlog')
+                                            : navigate.value === NavigateType.PLANNING
+                                                ? t('navigation.planning')
+                                                : t('navigation.timeline')}
                                 </TabsTrigger>
                             ))}
                         </TabsList>

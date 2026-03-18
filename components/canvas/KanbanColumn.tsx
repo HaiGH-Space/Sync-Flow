@@ -8,7 +8,6 @@ import { useDraggable, useDroppable } from "@dnd-kit/react";
 import { cn } from "@/lib/utils";
 import CreateIssueModal from "../dashboard/comp/CreateIssueModal";
 import { Issue } from "@/lib/api/issue";
-import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import type { ApiResponse } from "@/lib/api/api";
 import { createIssuesQueryOptions } from "@/queries/issue";

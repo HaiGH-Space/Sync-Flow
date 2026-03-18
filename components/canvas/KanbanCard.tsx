@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import DeleteConfirmModal from "../dashboard/comp/DeleteConfirmModal";
 import { useDeleteIssue } from "@/hooks/mutations/issue";
 import UpdateIssueModal from "../dashboard/comp/UpdateIssueModal";
+import { useTranslations } from "next-intl";
 
 type KanbanCardProps = {
     id: string
@@ -25,6 +26,7 @@ function KanbanCard(props: KanbanCardProps) {
     const { mutate: deleteIssue, isPending } = useDeleteIssue(props.projectId)
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const tDashboard = useTranslations('dashboard')
     const { ref, isDragging } = useDraggable({
         id: props.id,
         data: { type: 'task', ...props }
@@ -57,18 +59,18 @@ function KanbanCard(props: KanbanCardProps) {
             {isDeleteModalOpen && (
                 <DeleteConfirmModal
                     isOpen={isDeleteModalOpen}
-                    title={`Delete "${props.title}"?`}
-                    description="Are you sure you want to delete this task?"
+                    title={tDashboard('issue.delete.title', { title: props.title })}
+                    description={tDashboard('issue.delete.description')}
                     onConfirm={() => {
                         deleteIssue({
                             issueId: props.id,
                             projectId: props.projectId
                         }, {
                             onSuccess: () => {
-                                toast.success("Task deleted")
+                                toast.success(tDashboard('issue.toast.deleted'))
                             },
                             onError: () => {
-                                toast.error("Failed to delete task")
+                                toast.error(tDashboard('issue.toast.deleteFailed'))
                             }
                         });
                     }}

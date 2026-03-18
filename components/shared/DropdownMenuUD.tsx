@@ -6,12 +6,14 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Edit2, MoreHorizontal, Trash2 } from "lucide-react"
+import { useTranslations } from "next-intl"
 type DropdownMenuUDProps = {
     onEdit?: () => void
     onDelete?: () => void
 }
 
 export default function DropdownMenuUD({ onEdit, onDelete }: DropdownMenuUDProps) {
+    const t = useTranslations('common')
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild >
@@ -22,11 +24,11 @@ export default function DropdownMenuUD({ onEdit, onDelete }: DropdownMenuUDProps
             < DropdownMenuContent >
                 <DropdownMenuItem className="cursor-pointer" onClick={onEdit}>
                     <Edit2 className="w-4 h-4" />
-                    Edit
+                    {t('actions.edit')}
                 </DropdownMenuItem>
                 <DropdownMenuItem className="cursor-pointer" variant="destructive" onClick={onDelete}>
                     <Trash2 className="w-4 h-4" />
-                    Delete
+                    {t('actions.delete')}
                 </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>

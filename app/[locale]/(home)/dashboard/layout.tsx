@@ -5,15 +5,17 @@ import { WorkspaceRail } from "@/components/dashboard/layout/WorkspaceRail";
 import { useCurrentWorkspace } from "@/hooks/use-current-workspace";
 import { useEffect } from "react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 export default function DashBoardLayout({ children }: { children: React.ReactNode }) {
     const { workspaceList, isPending, error, workspaceId, activeWorkspace } = useCurrentWorkspace()
+    const t = useTranslations('dashboard');
 
     useEffect(() => {
         if (error) {
-            toast.error('Không thể tải danh sách workspace')
+            toast.error(t('toast.loadWorkspaceFailed'))
         }
-    }, [error])
+    }, [error, t])
 
     return <div className="flex flex-row w-full h-screen">
         <WorkspaceRail workspaceList={workspaceList} isPending={isPending} workspaceActiveId={workspaceId} />

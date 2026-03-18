@@ -4,10 +4,10 @@ import {
     DialogClose,
     DialogContent,
     DialogDescription,
-    DialogFooter,
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog"
+import { useTranslations } from "next-intl"
 
 type DeleteConfirmModalProps = {
     isOpen: boolean;
@@ -26,6 +26,7 @@ export default function DeleteConfirmModal({
     onConfirm,
     onClose
 }: DeleteConfirmModalProps) {
+    const t = useTranslations('common')
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent className="sm:max-w-sm">
@@ -35,10 +36,10 @@ export default function DeleteConfirmModal({
                 </DialogHeader>
                 <div className="flex justify-end space-x-2">
                     <DialogClose asChild>
-                        <Button variant="outline">Cancel</Button>
+                        <Button variant="outline">{t('actions.cancel')}</Button>
                     </DialogClose>
                     <Button variant="destructive" onClick={onConfirm} disabled={isLoading}>
-                        {isLoading ? "Deleting..." : "Confirm"}
+                        {isLoading ? t('status.deleting') : t('actions.confirm')}
                     </Button>
                 </div>
             </DialogContent>

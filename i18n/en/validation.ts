@@ -5,6 +5,13 @@ const validation = {
     password_min: "Password must be at least 8 characters",
     name_min: "Name must be at least 2 characters",
   },
+  project: {
+    name_required: "Project name is required",
+    key_required: "Project key is required",
+  },
+  issue: {
+    title_required: "Issue title is required",
+  },
 } as const;
 
 export default validation;

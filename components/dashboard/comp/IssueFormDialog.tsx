@@ -14,15 +14,17 @@ import {
 import { Button } from '@/components/ui/button'
 import { Loader2Icon } from 'lucide-react'
 import FieldAnimation, { SelectAnimation } from '@/components/auth/FieldAnimation'
+import { useTranslations } from 'next-intl'
 
-export const issueFormSchema = z.object({
-  title: z.string().min(1, 'Issue title is required'),
-  priority: z.enum(Priority),
-  description: z.string().optional(),
-  assigneeId: z.string().optional(),
-})
+const createIssueFormSchema = (tValidation: ReturnType<typeof useTranslations<'validation'>>) =>
+  z.object({
+    title: z.string().min(1, tValidation('issue.title_required')),
+    priority: z.enum(Priority),
+    description: z.string().optional(),
+    assigneeId: z.string().optional(),
+  })
 
-export type IssueFormValues = z.infer<typeof issueFormSchema>
+export type IssueFormValues = z.infer<ReturnType<typeof createIssueFormSchema>>
 
 const baseDefaultValues: IssueFormValues = {
   title: '',
@@ -60,6 +62,11 @@ export default function IssueFormDialog({
   defaultValues,
   onSubmit,
 }: IssueFormDialogProps) {
+  const tDashboard = useTranslations('dashboard')
+  const tCommon = useTranslations('common')
+  const tValidation = useTranslations('validation')
+  const issueFormSchema = createIssueFormSchema(tValidation)
+
   const mergedDefaultValues = useMemo<IssueFormValues>(
     () => ({ ...baseDefaultValues, ...defaultValues }),
     [defaultValues],
@@ -91,11 +98,11 @@ export default function IssueFormDialog({
 
   const priorityOptions = Object.values(Priority).map((val) => ({
     value: val,
-    label: val.charAt(0).toUpperCase() + val.slice(1).toLowerCase(),
+    label: tDashboard(`issue.priority.${val.toLowerCase() as 'low' | 'medium' | 'high'}`),
   }))
 
   const normalizedAssigneeOptions = assigneeOptions
-    ? [{ value: 'UNASSIGNED', label: 'Unassigned' }, ...assigneeOptions]
+    ? [{ value: 'UNASSIGNED', label: tDashboard('issue.assignee.unassigned') }, ...assigneeOptions]
     : undefined
 
   return (
@@ -115,33 +122,37 @@ export default function IssueFormDialog({
             form.handleSubmit()
           }}
         >
-          <FieldAnimation form={form} name="title" placeholder="Issue Title" />
+          <FieldAnimation
+            form={form}
+            name="title"
+            placeholder={tDashboard('issue.form.titlePlaceholder')}
+          />
           <FieldAnimation
             form={form}
             name="description"
-            placeholder="Issue Description (optional)"
+            placeholder={tDashboard('issue.form.descriptionPlaceholder')}
           />
           {normalizedAssigneeOptions ? (
             <SelectAnimation
               form={form}
               name="assigneeId"
-              placeholder="Assignee"
-              fieldLabel="Assignee"
+              placeholder={tDashboard('issue.form.assigneePlaceholder')}
+              fieldLabel={tDashboard('issue.form.assigneeLabel')}
               data={normalizedAssigneeOptions}
             />
           ) : null}
           <SelectAnimation
             form={form}
             name="priority"
-            placeholder="Issue Priority"
-            fieldLabel="Priority"
+            placeholder={tDashboard('issue.form.priorityPlaceholder')}
+            fieldLabel={tDashboard('issue.form.priorityLabel')}
             data={priorityOptions}
           />
           <Button type="submit" className="mt-4 cursor-pointer w-full" disabled={isSubmitting}>
             {isSubmitting ? (
               <>
                 <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
-                {submittingLabel}
+                {submittingLabel || tCommon('status.saving')}
               </>
             ) : (
               submitLabel

@@ -9,6 +9,7 @@ import type { ApiResponse } from "@/lib/api/api";
 import type { Column } from "@/lib/api/column";
 import type { Issue } from "@/lib/api/issue";
 import { createColumnsQueryOptions } from "@/queries/column";
+import { useTranslations } from "next-intl";
 
 
 interface BoardCanvasProps {
@@ -16,6 +17,8 @@ interface BoardCanvasProps {
 }
 
 export default function BoardCanvas({ projectId }: BoardCanvasProps) {
+    const tDashboard = useTranslations('dashboard');
+    const tCommon = useTranslations('common');
 
     const queryClient = useQueryClient();
 
@@ -73,8 +76,8 @@ export default function BoardCanvas({ projectId }: BoardCanvasProps) {
     const handleDeleteColumn = useCallback(() => { }, []);
     const handleEditColumn = useCallback(() => { }, []);
 
-    if (isLoadingColumns) return <div>Loading...</div>;
-    if (errorColumns) return <div>Error loading columns</div>;
+    if (isLoadingColumns) return <div>{tCommon('status.loading')}</div>;
+    if (errorColumns) return <div>{tDashboard('board.errorLoadingColumns')}</div>;
 
     return (
         <div className="w-full h-full">
@@ -177,7 +180,7 @@ export default function BoardCanvas({ projectId }: BoardCanvasProps) {
                             />
                         ))
                     ) : (
-                        <div>No columns or issues found</div>
+                        <div>{tDashboard('board.empty')}</div>
                     )}
                 </div>
             </DragDropProvider>

@@ -10,18 +10,19 @@ import z from "zod";
 import { useForm } from "@tanstack/react-form";
 import FieldAnimation from "@/components/auth/FieldAnimation";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 type CreateProjectModalProps = {
     workspaceDetail: Workspace
 }
 
-const createProjectSchema = z.object({
-    name: z.string().min(1, "Project name is required"),
-    key: z.string().min(1, "Project key is required"),
+const createProjectSchema = (tValidation: ReturnType<typeof useTranslations<"validation">>) => z.object({
+    name: z.string().min(1, tValidation('project.name_required')),
+    key: z.string().min(1, tValidation('project.key_required')),
     description: z.string().optional(),
 })
 
-type FormSchema = z.infer<typeof createProjectSchema>
+type FormSchema = z.infer<ReturnType<typeof createProjectSchema>>
 
 const defaultValues: FormSchema = {
     name: "",
@@ -31,24 +32,28 @@ const defaultValues: FormSchema = {
 
 export default function CreateProjectModal({ workspaceDetail }: CreateProjectModalProps) {
     const [isOpen, setIsOpen] = useState(false)
+    const tDashboard = useTranslations('dashboard')
+    const tCommon = useTranslations('common')
+    const tValidation = useTranslations('validation')
+    const schema = createProjectSchema(tValidation)
     const queryClient = useQueryClient()
     const { mutate: createProject, isPending } = useMutation({
         mutationFn: projectService.createProject,
         onSuccess: async () => {
             await queryClient.invalidateQueries({ queryKey: ['projects', workspaceDetail?.id] });
-            toast.success("Project created successfully");
+            toast.success(tDashboard('project.toast.created'));
             handleOpenChange(false);
         },
         onError: () => {
-            toast.error("Failed to create project");
+            toast.error(tDashboard('project.toast.createFailed'));
         }
     })
 
     const form = useForm({
         defaultValues: defaultValues,
         validators: {
-            onSubmit: createProjectSchema,
-            onChange: createProjectSchema
+            onSubmit: schema,
+            onChange: schema
         },
         onSubmit: async ({ value }) => {
             console.log("Creating project with values:", value);
@@ -77,9 +82,9 @@ export default function CreateProjectModal({ workspaceDetail }: CreateProjectMod
             </DialogTrigger>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>Create New Project</DialogTitle>
+                    <DialogTitle>{tDashboard('project.create.title')}</DialogTitle>
                     <DialogDescription>
-                        {`Create a new project in ${workspaceDetail.name}.`}
+                        {tDashboard('project.create.description', { workspaceName: workspaceDetail.name })}
                     </DialogDescription>
                 </DialogHeader>
                 <form
@@ -90,9 +95,9 @@ export default function CreateProjectModal({ workspaceDetail }: CreateProjectMod
                         form.handleSubmit();
                     }}
                 >
-                    <FieldAnimation form={form} name="name" placeholder="Project Name" />
-                    <FieldAnimation form={form} name="key" placeholder="Project Key" />
-                    <FieldAnimation form={form} name="description" placeholder="Project Description (optional)" />
+                    <FieldAnimation form={form} name="name" placeholder={tDashboard('project.create.namePlaceholder')} />
+                    <FieldAnimation form={form} name="key" placeholder={tDashboard('project.create.keyPlaceholder')} />
+                    <FieldAnimation form={form} name="description" placeholder={tDashboard('project.create.descriptionPlaceholder')} />
                     <Button
                         type="submit"
                         className="mt-4 cursor-pointer w-full"
@@ -101,10 +106,10 @@ export default function CreateProjectModal({ workspaceDetail }: CreateProjectMod
                         {isPending ? (
                             <>
                                 <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
-                                Creating...
+                                {tCommon('status.creating')}
                             </>
                         ) : (
-                            "Create Project"
+                            tDashboard('project.create.submit')
                         )}
                     </Button>
                 </form>

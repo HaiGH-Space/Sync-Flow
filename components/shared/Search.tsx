@@ -4,13 +4,16 @@ import { Field } from "../ui/field"
 import { Input } from "../ui/input"
 import { Button } from "../ui/button"
 import { Loader2Icon, SearchIcon } from "lucide-react"
+import { useTranslations } from "next-intl"
 
 type SearchProps = React.ComponentProps<typeof Field> & {
     placeholder?: string
     onSearch: (query: string) => Promise<void>,
 }
 
-export const Search = memo(function Search({ placeholder = "Search...", onSearch, ...props }: SearchProps) {
+export const Search = memo(function Search({ placeholder, onSearch, ...props }: SearchProps) {
+    const t = useTranslations('common')
+    const resolvedPlaceholder = placeholder ?? t('search.placeholder')
     const [query, setQuery] = useState("")
     const [isLoading, setIsLoading] = useState(false)
     const handleSearch = async () => {
@@ -30,13 +33,13 @@ export const Search = memo(function Search({ placeholder = "Search...", onSearch
     }
     return (
         <Field {...props} orientation="horizontal">
-            <Input aria-label={placeholder} type="search" placeholder={placeholder} value={query} onChange={e => setQuery(e.target.value)} onKeyDown={handleKeyDown} disabled={isLoading}/>
+            <Input aria-label={resolvedPlaceholder} type="search" placeholder={resolvedPlaceholder} value={query} onChange={e => setQuery(e.target.value)} onKeyDown={handleKeyDown} disabled={isLoading}/>
             <Button
                 className="cursor-pointer"
                 size={'icon-lg'}
                 onClick={handleSearch} 
                 disabled={isLoading}
-                aria-label="Submit search" 
+                aria-label={t('search.submit')}
             >
                 {isLoading ? (
                     <Loader2Icon/> 

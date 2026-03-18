@@ -9,6 +9,7 @@ import { useParams } from 'next/navigation'
 import { useQuery } from '@tanstack/react-query'
 import type { ApiResponse } from '@/lib/api/api'
 import { createWorkspaceMemberProfilesQueryOptions } from '@/queries/workspace-member'
+import { useTranslations } from 'next-intl'
 
 type UpdateIssueModalProps = {
   isOpen: boolean
@@ -32,6 +33,7 @@ export default function UpdateIssueModal({
 }: UpdateIssueModalProps) {
   const { mutate: updateIssue, isPending } = useUpdateIssue(projectId)
   const { data: profile } = useProfile()
+  const tDashboard = useTranslations('dashboard')
   const params = useParams<{ workspaceId?: string }>()
   const workspaceId = params.workspaceId
 
@@ -48,7 +50,7 @@ export default function UpdateIssueModal({
   const assigneeOptions = memberProfilesResponse?.data
     ? memberProfilesResponse.data.map((u) => ({
         value: u.id,
-        label: profile?.id === u.id ? `Me (${u.name})` : u.name,
+        label: profile?.id === u.id ? tDashboard('issue.assignee.me', { name: u.name }) : u.name,
       }))
     : undefined
 
@@ -66,11 +68,11 @@ export default function UpdateIssueModal({
       },
       {
         onSuccess: () => {
-          toast.success('Issue updated successfully')
+          toast.success(tDashboard('issue.toast.updated'))
           onOpenChange(false)
         },
         onError: () => {
-          toast.error('Failed to update issue')
+          toast.error(tDashboard('issue.toast.updateFailed'))
         },
       },
     )
@@ -80,10 +82,10 @@ export default function UpdateIssueModal({
     <IssueFormDialog
       open={isOpen}
       onOpenChange={onOpenChange}
-      dialogTitle="Update Issue"
-      dialogDescription="Update issue details."
-      submitLabel="Update Issue"
-      submittingLabel="Updating..."
+      dialogTitle={tDashboard('issue.update.title')}
+      dialogDescription={tDashboard('issue.update.description')}
+      submitLabel={tDashboard('issue.update.submit')}
+      submittingLabel={tDashboard('issue.update.submitting')}
       isSubmitting={isPending}
       assigneeOptions={assigneeOptions}
       defaultValues={{
