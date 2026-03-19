@@ -9,8 +9,7 @@ export interface Column {
 
 export type CreateColumn = Omit<Column, 'id' | 'projectId'>
 
-export type UpdateColumn = Partial<CreateColumn> & Pick<Column, 'id'>
-
+export type UpdateColumn = Partial<CreateColumn>
 async function getColumns({ projectId }: { projectId: string }) {
     return api.get<Column[]>(`/projects/${projectId}/columns`);
 }
@@ -19,8 +18,8 @@ async function createColumn({ projectId, columnData }: { projectId: string; colu
     return api.post<Column>(`/projects/${projectId}/columns`, columnData);
 }
 
-async function updateColumn({ projectId, columnData }: { projectId: string; columnData: UpdateColumn }) {
-    return api.patch<Column>(`/projects/${projectId}/columns`, columnData);
+async function updateColumn({ projectId, columnId, columnData }: { projectId: string; columnId: string; columnData: UpdateColumn }) {
+    return api.patch<Column>(`/projects/${projectId}/columns/${columnId}`, columnData);
 }
 
 async function deleteColumn({ projectId, columnId }: { projectId: string; columnId: string }) {
