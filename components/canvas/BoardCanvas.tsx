@@ -10,12 +10,13 @@ import type { Column } from "@/lib/api/column";
 import type { Issue } from "@/lib/api/issue";
 import { createColumnsQueryOptions } from "@/queries/column";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
+import { getInsertOrder, rebalanceOrders } from "@/lib/ordering";
 
 
 interface BoardCanvasProps {
     projectId: string
 }
-
 export default function BoardCanvas({ projectId }: BoardCanvasProps) {
     const tDashboard = useTranslations('dashboard');
     const tCommon = useTranslations('common');
@@ -33,7 +34,7 @@ export default function BoardCanvas({ projectId }: BoardCanvasProps) {
     //    per-item rollback on error (only reverts the failed item) ──────────
     const updateColumnMutation = useMutation({
         mutationFn: ({ id, order }: { id: string; order: number; originalOrder: number }) =>
-            columnService.updateColumn({ projectId, columnData: { id, order } }),
+            columnService.updateColumn({ projectId, columnId: id, columnData: { order } }),
         onMutate: async () => {
             await queryClient.cancelQueries({ queryKey: ['columns', projectId] });
         },
@@ -44,10 +45,33 @@ export default function BoardCanvas({ projectId }: BoardCanvasProps) {
             });
         },
         onError: (_err, vars) => {
+            toast.error('Failed to reorder columns. Please try again.');
             queryClient.setQueryData<ApiResponse<Column[]>>(['columns', projectId], (old) => {
                 if (!old) return old;
                 const restored = old.data.map(c => c.id === vars.id ? { ...c, order: vars.originalOrder } : c);
                 return { ...old, data: restored.sort((a, b) => a.order - b.order) };
+            });
+        },
+    });
+
+    const rebalanceColumnsMutation = useMutation({
+        mutationFn: async ({ updates }: { updates: Array<{ id: string; order: number }>; previousColumns: Column[] }) => {
+            for (const update of updates) {
+                await columnService.updateColumn({
+                    projectId,
+                    columnId: update.id,
+                    columnData: { order: update.order },
+                });
+            }
+        },
+        onMutate: async () => {
+            await queryClient.cancelQueries({ queryKey: ['columns', projectId] });
+        },
+        onError: (_err, vars) => {
+            toast.error('Failed to reorder columns. Please try again.');
+            queryClient.setQueryData<ApiResponse<Column[]>>(['columns', projectId], (old) => {
+                if (!old) return old;
+                return { ...old, data: [...vars.previousColumns].sort((a, b) => a.order - b.order) };
             });
         },
     });
@@ -110,25 +134,49 @@ export default function BoardCanvas({ projectId }: BoardCanvasProps) {
                         const currentCols = queryClient.getQueryData<ApiResponse<Column[]>>(['columns', projectId]);
                         if (!currentCols) return;
 
-                        const sourceIndex = currentCols.data.findIndex(c => c.id === source.id);
-                        const targetIndex = currentCols.data.findIndex(c => c.id === target.id);
+                        const sortedColumns = [...currentCols.data].sort((a, b) => a.order - b.order);
+                        const sourceIndex = sortedColumns.findIndex(c => c.id === source.id);
+                        const targetIndex = sortedColumns.findIndex(c => c.id === target.id);
                         if (sourceIndex === targetIndex) return;
 
-                        const originalOrder = currentCols.data[sourceIndex].order;
+                        const originalOrder = sortedColumns[sourceIndex].order;
 
                         // Instant optimistic reorder straight into the cache
-                        const next = [...currentCols.data];
+                        const next = [...sortedColumns];
                         const [moved] = next.splice(sourceIndex, 1);
                         next.splice(targetIndex, 0, moved);
+
+                        const prevCol = next[targetIndex - 1];
+                        const nextCol = next[targetIndex + 1];
+                        const { order: newOrder, requiresRebalance } = getInsertOrder(prevCol?.order, nextCol?.order);
+
+                        const optimisticColumns = requiresRebalance
+                            ? rebalanceOrders(next)
+                            : next.map((col) => col.id === moved.id ? { ...col, order: newOrder } : col);
+
                         queryClient.setQueryData<ApiResponse<Column[]>>(['columns', projectId], {
                             ...currentCols,
-                            data: next.map((col, i) => ({ ...col, order: i })),
+                            data: optimisticColumns,
                         });
 
                         // Debounce: collapse rapid reorders into a single API call
                         if (columnDebounceRef.current) clearTimeout(columnDebounceRef.current);
                         columnDebounceRef.current = setTimeout(() => {
-                            updateColumnMutation.mutate({ id: source.id as string, order: targetIndex, originalOrder });
+                            if (requiresRebalance) {
+                                const oldOrderMap = new Map(currentCols.data.map((col) => [col.id, col.order]));
+                                const updates = optimisticColumns
+                                    .filter((col) => oldOrderMap.get(col.id) !== col.order)
+                                    .map((col) => ({ id: col.id, order: col.order }));
+
+                                if (updates.length === 0) return;
+
+                                rebalanceColumnsMutation.mutate({
+                                    updates,
+                                    previousColumns: currentCols.data,
+                                });
+                                return;
+                            }
+                            updateColumnMutation.mutate({ id: source.id as string, order: newOrder, originalOrder });
                         }, 300);
                         return;
                     }

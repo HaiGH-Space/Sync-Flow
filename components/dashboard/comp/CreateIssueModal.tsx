@@ -14,6 +14,7 @@ import { useProfile } from "@/hooks/use-profile";
 import { useParams } from "next/navigation";
 import { createWorkspaceMemberProfilesQueryOptions } from "@/queries/workspace-member";
 import { useTranslations } from "next-intl";
+import { getTailOrder } from "@/lib/ordering";
 
 interface CreateIssueModalProps {
     columnId: string;
@@ -41,7 +42,7 @@ export default function CreateIssueModal({ columnId, projectId }: CreateIssueMod
 
     const handleSubmit = async (value: IssueFormValues) => {
         const cachedIssues = queryClient.getQueryData<ApiResponse<Issue[]>>(issueKeys.list(projectId));
-        let newOrder = 1000;
+        let newOrder = getTailOrder();
         if (cachedIssues?.data) {
             const columnIssues = cachedIssues.data
                 .filter(issue => issue.columnId === columnId)
@@ -49,7 +50,7 @@ export default function CreateIssueModal({ columnId, projectId }: CreateIssueMod
 
             if (columnIssues.length > 0) {
                 const lastIssue = columnIssues[columnIssues.length - 1];
-                newOrder = lastIssue.order + 1000;
+                newOrder = getTailOrder(lastIssue.order);
             }
         }
         const issueData: CreateIssue = {
