@@ -5,12 +5,6 @@ import { Badge } from "../../ui/badge"
 import { cn } from "@/lib/utils"
 import { useDraggable } from '@dnd-kit/react';
 import { Priority } from "@/lib/api/issue"
-import DropdownMenuUD from "../../shared/DropdownMenuUD";
-import { toast } from "sonner";
-import DeleteConfirmModal from "../../dashboard/comp/DeleteConfirmModal";
-import { useDeleteIssue } from "@/hooks/mutations/issue";
-import UpdateIssueModal from "../../dashboard/comp/UpdateIssueModal";
-import { useTranslations } from "next-intl";
 import IssueDetailDialog from "../../dashboard/comp/IssueDetailDialog";
 
 type KanbanCardProps = {
@@ -24,11 +18,7 @@ type KanbanCardProps = {
 }
 
 function KanbanCard(props: KanbanCardProps) {
-    const { mutate: deleteIssue, isPending } = useDeleteIssue(props.projectId)
     const [isViewDetailOpen, setIsViewDetailOpen] = useState(false);
-    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-    const tDashboard = useTranslations('dashboard')
     const { ref, isDragging } = useDraggable({
         id: props.id,
         data: { type: 'task', ...props }
@@ -38,9 +28,6 @@ function KanbanCard(props: KanbanCardProps) {
             <div onClick={() => setIsViewDetailOpen(true)} ref={ref} className={cn("duration-200 hover:border-primary cursor-grab w-full min-w-48 p-3 mb-2 flex flex-col bg-card border rounded-lg", isDragging && "opacity-90 border-dashed")}>
                 <div className="flex justify-between">
                     <h4 className="font-medium">{props.title}</h4>
-                    <DropdownMenuUD
-                        onEdit={() => setIsEditModalOpen(true)}
-                        onDelete={() => setIsDeleteModalOpen(true)} />
                 </div>
                 {props.description && <p className="text-sm text-muted-foreground">{props.description}</p>}
                 <div className="flex justify-between mt-2">
@@ -61,43 +48,6 @@ function KanbanCard(props: KanbanCardProps) {
 
 
             </div>
-            {isDeleteModalOpen && (
-                <DeleteConfirmModal
-                    isOpen={isDeleteModalOpen}
-                    title={tDashboard('issue.delete.title', { title: props.title })}
-                    description={tDashboard('issue.delete.description')}
-                    onConfirm={() => {
-                        deleteIssue({
-                            issueId: props.id,
-                            projectId: props.projectId
-                        }, {
-                            onSuccess: () => {
-                                toast.success(tDashboard('issue.toast.deleted'))
-                            },
-                            onError: () => {
-                                toast.error(tDashboard('issue.toast.deleteFailed'))
-                            }
-                        });
-                    }}
-                    onClose={setIsDeleteModalOpen}
-                    isLoading={isPending}
-                />
-            )}
-
-            {isEditModalOpen && (
-                <UpdateIssueModal
-                    isOpen={isEditModalOpen}
-                    onOpenChange={setIsEditModalOpen}
-                    projectId={props.projectId}
-                    issueId={props.id}
-                    defaultValues={{
-                        title: props.title,
-                        description: props.description,
-                        priority: props.priority,
-                        assigneeId: props.assigneeId,
-                    }}
-                />
-            )}
             <IssueDetailDialog
                 isOpen={isViewDetailOpen}
                 openChange={setIsViewDetailOpen}
