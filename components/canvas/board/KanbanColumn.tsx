@@ -1,12 +1,12 @@
 'use client'
 import { memo, useCallback } from "react";
 import { MoreHorizontal } from "lucide-react";
-import { Button } from "../ui/button";
-import { ScrollArea } from "../ui/scroll-area";
+import { Button } from "../../ui/button";
+import { ScrollArea } from "../../ui/scroll-area";
 import KanbanCard from "./KanbanCard";
 import { useDraggable, useDroppable } from "@dnd-kit/react";
 import { cn } from "@/lib/utils";
-import CreateIssueModal from "../dashboard/comp/CreateIssueModal";
+import CreateIssueModal from "../../dashboard/comp/CreateIssueModal";
 import { Issue } from "@/lib/api/issue";
 import { useQuery } from "@tanstack/react-query";
 import type { ApiResponse } from "@/lib/api/api";

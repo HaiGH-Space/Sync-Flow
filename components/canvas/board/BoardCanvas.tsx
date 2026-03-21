@@ -1,11 +1,11 @@
 'use client'
 import { useCallback } from "react"
-import KanbanColumn from "./KanbanColumn"
 import { DragDropProvider } from "@dnd-kit/react";
 import { useQuery } from "@tanstack/react-query";
 import { createColumnsQueryOptions } from "@/queries/column";
 import { useTranslations } from "next-intl";
 import { useBoardDragHandlers } from "./useBoardDragHandlers";
+import KanbanColumn from "./KanbanColumn";
 
 
 interface BoardCanvasProps {

@@ -1,5 +1,5 @@
 'use client'
-import BoardCanvas from "@/components/canvas/BoardCanvas"
+import BoardCanvas from "@/components/canvas/board/BoardCanvas"
 import { NavigateType, useDashboard } from "@/lib/store/use-dashboard"
 import { useParams } from "next/navigation"
 import { useTranslations } from "next-intl"

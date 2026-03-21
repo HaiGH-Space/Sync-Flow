@@ -9,6 +9,18 @@ export const issueKeys = {
     list: (projectId: string) => [...issueKeys.all, projectId] as const,
 };
 
+export function createIssueQueryOptions<
+    TData = ApiResponse<Issue>
+>(params: { projectId: string; issueId: string }, options?: QueryOptions<Issue, TData>) {
+    const { projectId, issueId } = params;
+    return queryOptions({
+        staleTime: 1000 * 60 * 5,
+        ...options,
+        queryKey: issueKeys.list(projectId).concat(issueId),
+        queryFn: () => issueService.getIssueById({ projectId, issueId }),
+    });
+}
+
 export function createIssuesQueryOptions<
     TData = ApiResponse<Issue[]>
 >(params: { projectId: string }, options?: QueryOptions<Issue[], TData>) {

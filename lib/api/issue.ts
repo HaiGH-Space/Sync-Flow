@@ -43,6 +43,10 @@ async function getIssuesByProjectId(projectId: string) {
     return api.get<Issue[]>(`${PROJECT_BASE_URL}/${projectId}${ISSUE_BASE_URL}`);
 }
 
+async function getIssueById({ projectId, issueId }: { projectId: string; issueId: string }) {
+    return api.get<Issue>(`${PROJECT_BASE_URL}/${projectId}${ISSUE_BASE_URL}/${issueId}`);
+}
+
 async function createIssue({ projectId, issueData }: { projectId: string; issueData: CreateIssue }) {
     return api.post<Issue>(`${PROJECT_BASE_URL}/${projectId}${ISSUE_BASE_URL}`, issueData);
 }
@@ -59,5 +63,6 @@ export const issueService = {
     getIssuesByProjectId,
     createIssue,
     updateIssue,
-    deleteIssue
+    deleteIssue,
+    getIssueById,
 }
