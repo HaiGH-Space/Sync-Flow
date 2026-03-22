@@ -73,6 +73,22 @@ const dashboard = {
       submit: 'Cập nhật issue',
       submitting: 'Đang cập nhật...'
     },
+    detail: {
+      loadingTitle: 'Đang tải chi tiết công việc',
+      errorTitle: 'Lỗi tải dữ liệu',
+      errorDescription: 'Đã xảy ra lỗi khi tải chi tiết công việc.',
+      dialogTitle: 'ISSUE {number} - {title}',
+      descriptionLabel: 'Mô tả',
+      descriptionPlaceholder: 'Không có mô tả.',
+      commentsLabel: 'Bình luận',
+      commentPlaceholder: 'Viết bình luận...',
+      noComments: 'Chưa có bình luận nào.',
+      statusLabel: 'Trạng thái',
+      saveChanges: 'Lưu thay đổi',
+      reporterLabel: 'Người tạo:',
+      createdAtLabel: 'Ngày tạo:',
+      updatedAtLabel: 'Cập nhật:'
+    },
     toast: {
       created: 'Tạo issue thành công',
       createFailed: 'Tạo issue thất bại',

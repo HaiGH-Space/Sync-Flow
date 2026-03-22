@@ -73,6 +73,22 @@ const dashboard = {
       submit: 'Update Issue',
       submitting: 'Updating...'
     },
+    detail: {
+      loadingTitle: 'Loading issue details',
+      errorTitle: 'Failed to load issue details',
+      errorDescription: 'An error occurred while loading issue details.',
+      dialogTitle: 'ISSUE {number} - {title}',
+      descriptionLabel: 'Description',
+      descriptionPlaceholder: 'No description.',
+      commentsLabel: 'Comments',
+      commentPlaceholder: 'Write a comment...',
+      noComments: 'No comments yet.',
+      statusLabel: 'Status',
+      saveChanges: 'Save changes',
+      reporterLabel: 'Reporter:',
+      createdAtLabel: 'Created:',
+      updatedAtLabel: 'Updated:'
+    },
     toast: {
       created: 'Issue created successfully',
       createFailed: 'Failed to create issue',
