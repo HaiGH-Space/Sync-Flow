@@ -8,12 +8,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useCreateComment } from "@/hooks/mutations/comment";
 import { useUpdateIssue } from "@/hooks/mutations/issue";
 import { useProfile } from "@/hooks/use-profile";
+import { type Comment } from "@/lib/api/comment";
 import { createDateFormatter } from "@/lib/format-date";
 import { Priority, type Issue, type Priority as PriorityType } from "@/lib/api/issue";
+import { type UserProfile } from "@/lib/api/user";
 import { cn } from "@/lib/utils";
 import { createColumnsQueryOptions } from "@/queries/column";
+import { createCommentsQueryOptions } from "@/queries/comment";
 import { createIssueQueryOptions } from "@/queries/issue";
 import { createWorkspaceMemberProfilesQueryOptions } from "@/queries/workspace-member";
 import { useQuery } from "@tanstack/react-query";
@@ -50,7 +54,13 @@ export default function IssueDetailDialog({ isOpen, openChange, projectId, issue
         enabled: !!projectId && isOpen,
     }));
 
+    const { data: comments = [] } = useQuery(createCommentsQueryOptions({ issueId }, {
+        enabled: !!issueId && isOpen,
+        select: (response) => response.data,
+    }));
+
     const { mutate: updateIssue, isPending: isUpdating } = useUpdateIssue(projectId);
+    const { mutate: createComment, isPending: isCreatingComment } = useCreateComment(issueId);
 
     const assigneeOptions = useMemo(() => {
         const members = memberProfilesResponse?.data ?? [];
@@ -69,6 +79,11 @@ export default function IssueDetailDialog({ isOpen, openChange, projectId, issue
         return new Map(entries);
     }, [memberProfilesResponse?.data]);
 
+    const memberById = useMemo(() => {
+        const entries = (memberProfilesResponse?.data ?? []).map((member) => [member.id, member] as const);
+        return new Map(entries);
+    }, [memberProfilesResponse?.data]);
+
     const columnNameById = useMemo(() => {
         const entries = (columnsResponse?.data ?? []).map((column) => [column.id, column.name] as const);
         return new Map(entries);
@@ -76,7 +91,7 @@ export default function IssueDetailDialog({ isOpen, openChange, projectId, issue
 
     return (
         <Dialog open={isOpen} onOpenChange={openChange}>
-            <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+            <DialogContent className="w-[95vw] md:w-[85vw] max-w-[95vw] md:max-w-[85vw] max-h-[90vh] overflow-hidden flex flex-col">
                 {isLoading ? (
                     <>
                         <DialogTitle className="sr-only">{tDashboard('issue.detail.loadingTitle')}</DialogTitle>
@@ -102,7 +117,11 @@ export default function IssueDetailDialog({ isOpen, openChange, projectId, issue
                             assigneeOptions={assigneeOptions}
                             reporterName={memberNameById.get(issue.reporterId) ?? issue.reporterId}
                             statusName={columnNameById.get(issue.columnId) ?? issue.columnId}
+                            currentUser={profile}
+                            comments={comments}
+                            memberById={memberById}
                             isUpdating={isUpdating}
+                            isCreatingComment={isCreatingComment}
                             onSave={(values) => {
                                 updateIssue({
                                     projectId,
@@ -114,6 +133,27 @@ export default function IssueDetailDialog({ isOpen, openChange, projectId, issue
                                     },
                                     onError: () => {
                                         toast.error(tDashboard('issue.toast.updateFailed'));
+                                    },
+                                });
+                            }}
+                            onCreateComment={(content) => {
+                                if (!profile?.id) {
+                                    toast.error(tDashboard('issue.toast.commentCreateFailed'));
+                                    return;
+                                }
+
+                                createComment({
+                                    issueId: issue.id,
+                                    data: {
+                                        content,
+                                        userId: profile.id,
+                                    },
+                                }, {
+                                    onSuccess: () => {
+                                        toast.success(tDashboard('issue.toast.commentCreated'));
+                                    },
+                                    onError: () => {
+                                        toast.error(tDashboard('issue.toast.commentCreateFailed'));
                                     },
                                 });
                             }}
@@ -135,18 +175,39 @@ interface IssueDetailEditableContentProps {
     assigneeOptions: AssigneeOption[];
     reporterName: string;
     statusName: string;
+    currentUser?: UserProfile;
+    comments: Comment[];
+    memberById: Map<string, UserProfile>;
     isUpdating: boolean;
+    isCreatingComment: boolean;
     onSave: (values: { description: string; assigneeId: string | null; priority: PriorityType }) => void;
+    onCreateComment: (content: string) => void;
 }
 
-function IssueDetailEditableContent({ issue, assigneeOptions, reporterName, statusName, isUpdating, onSave }: IssueDetailEditableContentProps) {
+function IssueDetailEditableContent({
+    issue,
+    assigneeOptions,
+    reporterName,
+    statusName,
+    currentUser,
+    comments,
+    memberById,
+    isUpdating,
+    isCreatingComment,
+    onSave,
+    onCreateComment,
+}: IssueDetailEditableContentProps) {
     const tDashboard = useTranslations('dashboard');
     const locale = useLocale();
     const [description, setDescription] = useState(issue.description ?? '');
     const [assigneeId, setAssigneeId] = useState(issue.assigneeId ?? 'UNASSIGNED');
     const [priority, setPriority] = useState<PriorityType>(issue.priority);
+    const [newComment, setNewComment] = useState('');
 
-    const formatDate = useMemo(() => createDateFormatter(locale), [locale]);
+    const formatDate = useMemo(() => createDateFormatter(locale, {
+        hour: '2-digit',
+        minute: '2-digit',
+    }), [locale]);
 
     const priorityOptions = [
         { value: Priority.LOW, label: tDashboard('issue.priority.low') },
@@ -157,6 +218,13 @@ function IssueDetailEditableContent({ issue, assigneeOptions, reporterName, stat
     const priorityLabel = priorityOptions.find((option) => option.value === priority)?.label ?? priority;
 
     const normalizedAssigneeId = assigneeId === 'UNASSIGNED' ? null : assigneeId;
+    const canSubmitComment = !!newComment.trim() && !!currentUser?.id && !isCreatingComment;
+
+    const submitComment = () => {
+        if (!canSubmitComment) return;
+        onCreateComment(newComment.trim());
+        setNewComment('');
+    };
 
     const isDirty =
         description !== (issue.description ?? '') ||
@@ -164,10 +232,10 @@ function IssueDetailEditableContent({ issue, assigneeOptions, reporterName, stat
         priority !== issue.priority;
 
     return (
-        <ScrollArea className="flex-1 pr-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 py-4">
-                {/* Details and COMMENTS */}
-                <div className="md:col-span-2 space-y-8">
+        <div className="flex-1 min-h-0 grid grid-cols-1 md:grid-cols-[3fr_1fr] gap-8 py-4">
+            {/* Details and COMMENTS */}
+            <ScrollArea className="min-h-0 pr-4">
+                <div className="space-y-8 pb-1">
                     <div>
                         <h3 className="font-medium mb-2">{tDashboard('issue.detail.descriptionLabel')}</h3>
                         <textarea
@@ -184,22 +252,70 @@ function IssueDetailEditableContent({ issue, assigneeOptions, reporterName, stat
                         <h3 className="font-medium">{tDashboard('issue.detail.commentsLabel')}</h3>
                         <div className="flex gap-3">
                             <Avatar className="w-8 h-8">
-                                <AvatarImage src="https://github.com/shadcn.png" />
-                                <AvatarFallback>U</AvatarFallback>
+                                <AvatarImage src={currentUser?.image} />
+                                <AvatarFallback>{(currentUser?.name ?? 'U').charAt(0).toUpperCase()}</AvatarFallback>
                             </Avatar>
-                            <div className="flex-1 bg-muted p-3 rounded-lg border text-sm text-muted-foreground cursor-text hover:bg-muted/80 transition-colors">
-                                {tDashboard('issue.detail.commentPlaceholder')}
+                            <div className="flex-1 space-y-2">
+                                <textarea
+                                    className="w-full min-h-20 rounded-md border bg-muted/30 p-3 text-sm text-foreground/80 leading-relaxed outline-none transition-colors focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+                                    placeholder={tDashboard('issue.detail.commentPlaceholder')}
+                                    value={newComment}
+                                    onChange={(e) => setNewComment(e.target.value)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter' && !e.shiftKey) {
+                                            e.preventDefault();
+                                            submitComment();
+                                        }
+                                    }}
+                                />
+                                <div className="flex justify-end">
+                                    <Button
+                                        size="sm"
+                                        disabled={!canSubmitComment}
+                                        onClick={submitComment}
+                                    >
+                                        {isCreatingComment ? tDashboard('issue.detail.commentSubmitting') : tDashboard('issue.detail.commentSubmit')}
+                                    </Button>
+                                </div>
                             </div>
                         </div>
-                        <div className="flex justify-center py-8 border-dashed border-2 rounded-lg">
-                            <p className="text-sm text-muted-foreground">{tDashboard('issue.detail.noComments')}</p>
-                        </div>
+                        {comments.length > 0 ? (
+                            <div className="space-y-3">
+                                {comments.map((comment) => {
+                                    const member = memberById.get(comment.userId);
+                                    const commenterName = comment.userId === currentUser?.id
+                                        ? tDashboard('issue.assignee.me', { name: currentUser.name })
+                                        : (member?.name ?? comment.userId);
+
+                                    return (
+                                        <div key={comment.id} className="flex gap-3 rounded-lg border p-3 bg-muted/20">
+                                            <Avatar className="w-8 h-8">
+                                                <AvatarImage src={member?.image} />
+                                                <AvatarFallback>{commenterName.charAt(0).toUpperCase()}</AvatarFallback>
+                                            </Avatar>
+                                            <div className="flex-1 space-y-1">
+                                                <div className="flex items-center justify-between gap-2">
+                                                    <p className="text-sm font-medium">{commenterName}</p>
+                                                    <p className="text-xs text-muted-foreground">{formatDate(comment.createdAt)}</p>
+                                                </div>
+                                                <p className="text-sm text-foreground/90 whitespace-pre-wrap wrap-break-word">{comment.content}</p>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        ) : (
+                            <div className="flex justify-center py-8 border-dashed border-2 rounded-lg">
+                                <p className="text-sm text-muted-foreground">{tDashboard('issue.detail.noComments')}</p>
+                            </div>
+                        )}
                     </div>
                 </div>
+            </ScrollArea>
 
-                {/* SIDEBAR */}
-                <div className="space-y-6">
-                    <div className="space-y-4">
+            {/* SIDEBAR */}
+            <div className="space-y-6">
+                <div className="space-y-4">
                         <div className="space-y-1.5">
                             <span className="text-xs font-semibold uppercase text-muted-foreground">{tDashboard('issue.detail.statusLabel')}</span>
                             <div><Badge variant="secondary">{statusName}</Badge></div>
@@ -275,10 +391,9 @@ function IssueDetailEditableContent({ issue, assigneeOptions, reporterName, stat
                                 <span className="text-xs">{formatDate(issue.updatedAt)}</span>
                             </div>
                         </div>
-                    </div>
                 </div>
             </div>
-        </ScrollArea>
+        </div>
     );
 }
 
@@ -289,18 +404,38 @@ function IssueDetailSkeleton() {
                 <Skeleton className="h-4 w-20" />
                 <Skeleton className="h-8 w-3/4" />
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div className="md:col-span-2 space-y-8">
+            <div className="flex-1 min-h-0 grid grid-cols-1 md:grid-cols-[3fr_1fr] gap-8 py-4">
+                <div className="space-y-8">
                     <div className="space-y-2">
                         <Skeleton className="h-4 w-24" />
-                        <Skeleton className="h-32 w-full" />
+                        <Skeleton className="h-40 w-full" />
                     </div>
                     <Separator />
                     <div className="space-y-4">
                         <Skeleton className="h-4 w-32" />
                         <div className="flex gap-3">
                             <Skeleton className="h-8 w-8 rounded-full" />
-                            <Skeleton className="h-10 flex-1" />
+                            <div className="flex-1 space-y-2">
+                                <Skeleton className="h-20 w-full" />
+                                <div className="flex justify-end">
+                                    <Skeleton className="h-8 w-24" />
+                                </div>
+                            </div>
+                        </div>
+                        <div className="space-y-3">
+                            {[1, 2].map((i) => (
+                                <div key={i} className="flex gap-3 rounded-lg border p-3">
+                                    <Skeleton className="h-8 w-8 rounded-full" />
+                                    <div className="flex-1 space-y-2">
+                                        <div className="flex justify-between gap-2">
+                                            <Skeleton className="h-4 w-30" />
+                                            <Skeleton className="h-3 w-24" />
+                                        </div>
+                                        <Skeleton className="h-4 w-full" />
+                                        <Skeleton className="h-4 w-5/6" />
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 </div>
@@ -312,9 +447,11 @@ function IssueDetailSkeleton() {
                         </div>
                     ))}
                     <Separator />
+                    <Skeleton className="h-9 w-full" />
                     <div className="space-y-3">
                         <Skeleton className="h-4 w-full" />
                         <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-4 w-3/4" />
                     </div>
                 </div>
             </div>

@@ -82,6 +82,8 @@ const dashboard = {
       descriptionPlaceholder: 'Không có mô tả.',
       commentsLabel: 'Bình luận',
       commentPlaceholder: 'Viết bình luận...',
+      commentSubmit: 'Thêm bình luận',
+      commentSubmitting: 'Đang thêm...',
       noComments: 'Chưa có bình luận nào.',
       statusLabel: 'Trạng thái',
       saveChanges: 'Lưu thay đổi',
@@ -94,6 +96,8 @@ const dashboard = {
       createFailed: 'Tạo issue thất bại',
       updated: 'Cập nhật issue thành công',
       updateFailed: 'Cập nhật issue thất bại',
+      commentCreated: 'Thêm bình luận thành công',
+      commentCreateFailed: 'Thêm bình luận thất bại',
       deleted: 'Đã xóa issue',
       deleteFailed: 'Xóa issue thất bại'
     },

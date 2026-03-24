@@ -82,6 +82,8 @@ const dashboard = {
       descriptionPlaceholder: 'No description.',
       commentsLabel: 'Comments',
       commentPlaceholder: 'Write a comment...',
+      commentSubmit: 'Add comment',
+      commentSubmitting: 'Adding...',
       noComments: 'No comments yet.',
       statusLabel: 'Status',
       saveChanges: 'Save changes',
@@ -94,6 +96,8 @@ const dashboard = {
       createFailed: 'Failed to create issue',
       updated: 'Issue updated successfully',
       updateFailed: 'Failed to update issue',
+      commentCreated: 'Comment added successfully',
+      commentCreateFailed: 'Failed to add comment',
       deleted: 'Issue deleted',
       deleteFailed: 'Failed to delete issue'
     },
