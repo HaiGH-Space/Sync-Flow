@@ -13,3 +13,25 @@ export const useCreateComment = (issueId: string) => {
         },
     });
 };
+
+export const useDeleteComment = (issueId: string) => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: commentService.deleteComment,
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({ queryKey: commentKeys.list(issueId) });
+        },
+    });
+};
+
+export const useUpdateComment = (issueId: string) => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: commentService.updateComment,
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({ queryKey: commentKeys.list(issueId) });
+        },
+    });
+};

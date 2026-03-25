@@ -8,7 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useCreateComment } from "@/hooks/mutations/comment";
+import DropdownMenuUD from "@/components/shared/DropdownMenuUD";
+import { useCreateComment, useDeleteComment, useUpdateComment } from "@/hooks/mutations/comment";
 import { useUpdateIssue } from "@/hooks/mutations/issue";
 import { useProfile } from "@/hooks/use-profile";
 import { type Comment } from "@/lib/api/comment";
@@ -36,6 +37,8 @@ interface IssueDetailDialogProps {
 export default function IssueDetailDialog({ isOpen, openChange, projectId, issueId }: IssueDetailDialogProps) {
     const tDashboard = useTranslations('dashboard');
     const { data: profile } = useProfile();
+    const [deletingCommentId, setDeletingCommentId] = useState<string | null>(null);
+    const [updatingCommentId, setUpdatingCommentId] = useState<string | null>(null);
     const params = useParams<{ workspaceId: string }>();
     const workspaceId = params.workspaceId;
 
@@ -61,6 +64,8 @@ export default function IssueDetailDialog({ isOpen, openChange, projectId, issue
 
     const { mutate: updateIssue, isPending: isUpdating } = useUpdateIssue(projectId);
     const { mutate: createComment, isPending: isCreatingComment } = useCreateComment(issueId);
+    const { mutate: deleteComment, isPending: isDeletingComment } = useDeleteComment(issueId);
+    const { mutate: updateComment, isPending: isUpdatingComment } = useUpdateComment(issueId);
 
     const assigneeOptions = useMemo(() => {
         const members = memberProfilesResponse?.data ?? [];
@@ -122,6 +127,10 @@ export default function IssueDetailDialog({ isOpen, openChange, projectId, issue
                             memberById={memberById}
                             isUpdating={isUpdating}
                             isCreatingComment={isCreatingComment}
+                            isDeletingComment={isDeletingComment}
+                            deletingCommentId={deletingCommentId}
+                            isUpdatingComment={isUpdatingComment}
+                            updatingCommentId={updatingCommentId}
                             onSave={(values) => {
                                 updateIssue({
                                     projectId,
@@ -133,6 +142,43 @@ export default function IssueDetailDialog({ isOpen, openChange, projectId, issue
                                     },
                                     onError: () => {
                                         toast.error(tDashboard('issue.toast.updateFailed'));
+                                    },
+                                });
+                            }}
+                            onUpdateComment={(commentId, content) => {
+                                setUpdatingCommentId(commentId);
+
+                                updateComment({
+                                    issueId: issue.id,
+                                    commentId,
+                                    data: { content },
+                                }, {
+                                    onSuccess: () => {
+                                        toast.success(tDashboard('issue.toast.commentUpdated'));
+                                    },
+                                    onError: () => {
+                                        toast.error(tDashboard('issue.toast.commentUpdateFailed'));
+                                    },
+                                    onSettled: () => {
+                                        setUpdatingCommentId(null);
+                                    },
+                                });
+                            }}
+                            onDeleteComment={(commentId) => {
+                                setDeletingCommentId(commentId);
+
+                                deleteComment({
+                                    issueId: issue.id,
+                                    commentId,
+                                }, {
+                                    onSuccess: () => {
+                                        toast.success(tDashboard('issue.toast.commentDeleted'));
+                                    },
+                                    onError: () => {
+                                        toast.error(tDashboard('issue.toast.commentDeleteFailed'));
+                                    },
+                                    onSettled: () => {
+                                        setDeletingCommentId(null);
                                     },
                                 });
                             }}
@@ -180,7 +226,13 @@ interface IssueDetailEditableContentProps {
     memberById: Map<string, UserProfile>;
     isUpdating: boolean;
     isCreatingComment: boolean;
+    isDeletingComment: boolean;
+    deletingCommentId: string | null;
+    isUpdatingComment: boolean;
+    updatingCommentId: string | null;
     onSave: (values: { description: string; assigneeId: string | null; priority: PriorityType }) => void;
+    onUpdateComment: (commentId: string, content: string) => void;
+    onDeleteComment: (commentId: string) => void;
     onCreateComment: (content: string) => void;
 }
 
@@ -194,7 +246,13 @@ function IssueDetailEditableContent({
     memberById,
     isUpdating,
     isCreatingComment,
+    isDeletingComment,
+    deletingCommentId,
+    isUpdatingComment,
+    updatingCommentId,
     onSave,
+    onUpdateComment,
+    onDeleteComment,
     onCreateComment,
 }: IssueDetailEditableContentProps) {
     const tDashboard = useTranslations('dashboard');
@@ -203,6 +261,8 @@ function IssueDetailEditableContent({
     const [assigneeId, setAssigneeId] = useState(issue.assigneeId ?? 'UNASSIGNED');
     const [priority, setPriority] = useState<PriorityType>(issue.priority);
     const [newComment, setNewComment] = useState('');
+    const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
+    const [editingCommentContent, setEditingCommentContent] = useState('');
 
     const formatDate = useMemo(() => createDateFormatter(locale, {
         hour: '2-digit',
@@ -283,6 +343,10 @@ function IssueDetailEditableContent({
                             <div className="space-y-3">
                                 {comments.map((comment) => {
                                     const member = memberById.get(comment.userId);
+                                    const isOwnComment = comment.userId === currentUser?.id;
+                                    const isDeletingCurrentComment = isDeletingComment && deletingCommentId === comment.id;
+                                    const isUpdatingCurrentComment = isUpdatingComment && updatingCommentId === comment.id;
+                                    const isEditingCurrentComment = editingCommentId === comment.id;
                                     const commenterName = comment.userId === currentUser?.id
                                         ? tDashboard('issue.assignee.me', { name: currentUser.name })
                                         : (member?.name ?? comment.userId);
@@ -296,9 +360,68 @@ function IssueDetailEditableContent({
                                             <div className="flex-1 space-y-1">
                                                 <div className="flex items-center justify-between gap-2">
                                                     <p className="text-sm font-medium">{commenterName}</p>
-                                                    <p className="text-xs text-muted-foreground">{formatDate(comment.createdAt)}</p>
+                                                    <div className="flex items-center gap-1">
+                                                        <p className="text-xs text-muted-foreground">
+                                                            {isDeletingCurrentComment
+                                                                ? tDashboard('issue.detail.commentDeleting')
+                                                                : isUpdatingCurrentComment
+                                                                    ? tDashboard('issue.detail.commentUpdating')
+                                                                    : formatDate(comment.createdAt)}
+                                                        </p>
+                                                        {isOwnComment && !isEditingCurrentComment ? (
+                                                            <DropdownMenuUD
+                                                                onEdit={() => {
+                                                                    setEditingCommentId(comment.id);
+                                                                    setEditingCommentContent(comment.content);
+                                                                }}
+                                                                onDelete={() => onDeleteComment(comment.id)}
+                                                            />
+                                                        ) : null}
+                                                    </div>
                                                 </div>
-                                                <p className="text-sm text-foreground/90 whitespace-pre-wrap wrap-break-word">{comment.content}</p>
+                                                {isEditingCurrentComment ? (
+                                                    <div className="space-y-2">
+                                                        <textarea
+                                                            className="w-full min-h-20 rounded-md border bg-muted/30 p-3 text-sm text-foreground/80 leading-relaxed outline-none transition-colors focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+                                                            value={editingCommentContent}
+                                                            onChange={(e) => setEditingCommentContent(e.target.value)}
+                                                        />
+                                                        <div className="flex justify-end gap-2">
+                                                            <Button
+                                                                type="button"
+                                                                variant="outline"
+                                                                size="sm"
+                                                                onClick={() => {
+                                                                    setEditingCommentId(null);
+                                                                    setEditingCommentContent('');
+                                                                }}
+                                                            >
+                                                                {tDashboard('issue.detail.commentCancel')}
+                                                            </Button>
+                                                            <Button
+                                                                type="button"
+                                                                size="sm"
+                                                                disabled={!editingCommentContent.trim() || isUpdatingCurrentComment}
+                                                                onClick={() => {
+                                                                    onUpdateComment(comment.id, editingCommentContent.trim());
+                                                                    setEditingCommentId(null);
+                                                                    setEditingCommentContent('');
+                                                                }}
+                                                            >
+                                                                {isUpdatingCurrentComment
+                                                                    ? tDashboard('issue.detail.commentUpdating')
+                                                                    : tDashboard('issue.detail.commentUpdate')}
+                                                            </Button>
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <p className="text-sm text-foreground/90 whitespace-pre-wrap wrap-break-word">{comment.content}</p>
+                                                )}
+                                                {isOwnComment && isEditingCurrentComment ? (
+                                                    <div className="flex justify-end">
+                                                        <span className="text-[11px] text-muted-foreground">{tDashboard('issue.detail.commentEditing')}</span>
+                                                    </div>
+                                                ) : null}
                                             </div>
                                         </div>
                                     );
