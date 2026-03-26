@@ -1,52 +1,49 @@
 'use client'
-import { KeyboardEvent, memo, useState } from "react"
+import { memo, useEffect, useRef, useState } from "react"
 import { Field } from "../ui/field"
 import { Input } from "../ui/input"
-import { Button } from "../ui/button"
-import { Loader2Icon, SearchIcon } from "lucide-react"
 import { useTranslations } from "next-intl"
 
 type SearchProps = React.ComponentProps<typeof Field> & {
     placeholder?: string
-    onSearch: (query: string) => Promise<void>,
+    onSearch: (query: string) => void | Promise<void>
+    debounceMs?: number
 }
 
-export const Search = memo(function Search({ placeholder, onSearch, ...props }: SearchProps) {
+export const Search = memo(function Search({ placeholder, onSearch, debounceMs = 300, ...props }: SearchProps) {
     const t = useTranslations('common')
     const resolvedPlaceholder = placeholder ?? t('search.placeholder')
     const [query, setQuery] = useState("")
-    const [isLoading, setIsLoading] = useState(false)
-    const handleSearch = async () => {
-       try {
-            setIsLoading(true)
-            await onSearch(query)
-        } catch (error) {
-            console.error("Search failed:", error)
-        } finally {
-            setIsLoading(false)
+    const hasUserTypedRef = useRef(false)
+
+    useEffect(() => {
+        if (!hasUserTypedRef.current) {
+            return
         }
-    }
-    const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === "Enter" && !isLoading) {
-            handleSearch()
+
+        const timer = window.setTimeout(() => {
+            Promise.resolve(onSearch(query)).catch((error) => {
+                console.error("Search failed:", error)
+            })
+        }, debounceMs)
+
+        return () => {
+            window.clearTimeout(timer)
         }
-    }
+    }, [debounceMs, onSearch, query])
+
     return (
         <Field {...props} orientation="horizontal">
-            <Input aria-label={resolvedPlaceholder} type="search" placeholder={resolvedPlaceholder} value={query} onChange={e => setQuery(e.target.value)} onKeyDown={handleKeyDown} disabled={isLoading}/>
-            <Button
-                className="cursor-pointer"
-                size={'icon-lg'}
-                onClick={handleSearch} 
-                disabled={isLoading}
-                aria-label={t('search.submit')}
-            >
-                {isLoading ? (
-                    <Loader2Icon/> 
-                ) : (
-                    <SearchIcon/> 
-                )}
-            </Button>
+            <Input
+                aria-label={resolvedPlaceholder}
+                type="search"
+                placeholder={resolvedPlaceholder}
+                value={query}
+                onChange={(e) => {
+                    hasUserTypedRef.current = true
+                    setQuery(e.target.value)
+                }}
+            />
         </Field>
     )
 })

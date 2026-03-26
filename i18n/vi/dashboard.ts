@@ -13,6 +13,7 @@ const dashboard = {
     noWorkspaceSelected: 'Chưa chọn workspace',
     loadingProjects: 'Đang tải dự án...',
     noProjects: 'Chưa có dự án',
+    noSearchResults: 'Không tìm thấy dự án phù hợp',
     loadingSprints: 'Đang tải sprint...',
     errorLoadingSprints: 'Lỗi tải sprint',
     noSprints: 'Chưa có sprint',
@@ -26,6 +27,7 @@ const dashboard = {
   },
   board: {
     errorLoadingColumns: 'Lỗi tải cột',
+    errorHint: 'Vui lòng kiểm tra kết nối và thử lại.',
     empty: 'Chưa có cột hoặc issue nào'
   },
   project: {

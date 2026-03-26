@@ -19,7 +19,7 @@ export default function DashboardContentLayout({ children }: { children: React.R
     if (isOpenSidebarLeft === undefined || !activeNavigate) return null
     return (
         <div className="flex flex-col flex-1 h-full overflow-hidden bg-background">
-            <header className="text-lg flex items-center h-14 border-b border-border">
+            <header className="text-lg flex items-center h-14 border-b border-border/70 bg-background/90 backdrop-blur">
                 <Button
                     variant="ghost"
                     size="icon"
@@ -57,7 +57,7 @@ export default function DashboardContentLayout({ children }: { children: React.R
 
                 </div>
             </header>
-            <main className="flex-1 p-6 overflow-y-auto">
+            <main className="flex-1 p-6 overflow-y-auto bg-background">
                 {children}
             </main>
         </div>

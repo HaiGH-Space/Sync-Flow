@@ -13,7 +13,7 @@ type WorkspaceRailProps = {
 
 export function WorkspaceRail({ workspaceList, isPending, workspaceActiveId }: WorkspaceRailProps) {
     return (
-        <div className="border-r w-20 h-full bg-card flex flex-col items-center gap-4 p-4">
+        <div className="border-r border-border/70 w-20 h-full bg-background flex flex-col items-center gap-4 p-4">
             {isPending ? <>
                 {Array.from({ length: 3 }).map((_, index) => (
                     <Skeleton key={index} className="w-10 h-10 rounded-xl " />

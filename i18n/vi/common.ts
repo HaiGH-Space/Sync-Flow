@@ -3,7 +3,8 @@ const common = {
     edit: 'Sửa',
     delete: 'Xóa',
     cancel: 'Hủy',
-    confirm: 'Xác nhận'
+    confirm: 'Xác nhận',
+    retry: 'Thử lại'
   },
   search: {
     placeholder: 'Tìm kiếm...',

@@ -6,14 +6,14 @@ import { AvatarWithBadge } from "@/components/shared/AvatarWithBadge";
 import { Search } from "@/components/shared/Search";
 import { useQuery } from "@tanstack/react-query";
 import { projectService } from "@/lib/api/project";
-import { memo, useCallback, useEffect, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import CreateProjectModal from "../comp/CreateProjectModal";
 import { Link } from "@/i18n/navigation";
 import { useParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { sprintService } from "@/lib/api/sprint";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 const sidebarContainerVariants: Variants = {
@@ -42,12 +42,15 @@ export const NavigationSidebar = memo(function NavigationSidebar({ workspaceDeta
     const { projectId }: { projectId: string | undefined } = useParams();
     const t = useTranslations('dashboard');
     const [expandedProjectId, setExpandedProjectId] = useState<string | null>(() => projectId ?? null)
+    const [searchQuery, setSearchQuery] = useState('')
+    const canLoadProjects = !!workspaceDetail?.id && isOpenSidebarLeft
     const { data: projects, error, isFetching } = useQuery({
         queryKey: ['projects', workspaceDetail?.id],
         queryFn: () => projectService.getProjectsByWorkspaceId({ workspaceId: workspaceDetail!.id }),
-        enabled: !!workspaceDetail?.id && isOpenSidebarLeft,
+        enabled: canLoadProjects,
         staleTime: 5 * 60 * 1000,
     })
+    const isProjectsLoading = canLoadProjects && (isFetching || !projects)
     const { data: sprints, error: sprintsError, isFetching: isSprintsFetching } = useQuery({
         queryKey: ['sprints', expandedProjectId],
         queryFn: () => sprintService.getSprint({ projectId: expandedProjectId as string }),
@@ -63,15 +66,29 @@ export const NavigationSidebar = memo(function NavigationSidebar({ workspaceDeta
             toast.error(sprintsError.message)
         }
     }, [error, sprintsError])
+
+    const filteredProjects = useMemo(() => {
+        const projectList = projects?.data ?? []
+        const normalizedQuery = searchQuery.trim().toLowerCase()
+
+        if (!normalizedQuery) {
+            return projectList
+        }
+
+        return projectList.filter((project) =>
+            project.name.toLowerCase().includes(normalizedQuery)
+        )
+    }, [projects?.data, searchQuery])
+
     const searchHandle = useCallback(async (query: string) => {
-        console.log("Searching for:", query);
+        setSearchQuery(query)
     }, []);
 
     return (
         <AnimatePresence mode="wait">
             {isOpenSidebarLeft && (
                 <motion.aside
-                    className="border-r border-border whitespace-nowrap bg-card text-card-foreground h-full overflow-hidden"
+                    className="border-r border-border/70 whitespace-nowrap bg-background text-foreground h-full overflow-hidden"
                     variants={sidebarContainerVariants}
                     initial="hidden"
                     animate={"visible"}
@@ -79,7 +96,7 @@ export const NavigationSidebar = memo(function NavigationSidebar({ workspaceDeta
                 >
                     <div className="h-full flex flex-col w-62.5">
                         {/* Header */}
-                        <div className="h-14 px-4 flex flex-row justify-between items-center gap-2 border-b border-border overflow-hidden min-w-0">
+                        <div className="h-14 px-4 flex flex-row justify-between items-center gap-2 border-b border-border/70 bg-background/90 backdrop-blur overflow-hidden min-w-0">
                             {workspaceDetail ? (
                                 <>
                                     <h2 className="text-lg font-semibold truncate">
@@ -101,18 +118,24 @@ export const NavigationSidebar = memo(function NavigationSidebar({ workspaceDeta
                             </div>
                             <div className="flex-1 overflow-y-auto">
                                 <nav className="space-y-1">
-                                    {isFetching && (
-                                        <div className="px-3 py-2 text-sm text-muted-foreground">
-                                            {t('sidebar.loadingProjects')}
+                                    {isProjectsLoading && (
+                                        <div className="flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground">
+                                            <Loader2 className="size-4 animate-spin" />
+                                            <span>{t('sidebar.loadingProjects')}</span>
                                         </div>
                                     )}
 
-                                    {!isFetching && (projects?.data?.length ?? 0) === 0 && (
+                                    {canLoadProjects && !isProjectsLoading && (projects?.data?.length ?? 0) === 0 && (
                                         <div className="px-3 py-2 text-sm text-muted-foreground">
                                             {t('sidebar.noProjects')}
                                         </div>
                                     )}
-                                    {projects?.data.map((project) => {
+                                    {canLoadProjects && !isProjectsLoading && (projects?.data?.length ?? 0) > 0 && filteredProjects.length === 0 && (
+                                        <div className="px-3 py-2 text-sm text-muted-foreground">
+                                            {t('sidebar.noSearchResults')}
+                                        </div>
+                                    )}
+                                    {filteredProjects.map((project) => {
                                         const isExpanded = expandedProjectId === project.id
                                         return (
                                             <div key={project.id} className="rounded-md my-2">
@@ -159,8 +182,9 @@ export const NavigationSidebar = memo(function NavigationSidebar({ workspaceDeta
                                                             <div className="mt-2 pl-3">
                                                                 <div className="border-l border-border pl-3 space-y-1">
                                                                     {isSprintsFetching && (
-                                                                        <div className="text-xs text-muted-foreground">
-                                                                            {t('sidebar.loadingSprints')}
+                                                                        <div className="flex items-center gap-2 py-1 text-xs text-muted-foreground">
+                                                                            <Loader2 className="size-3.5 animate-spin" />
+                                                                            <span>{t('sidebar.loadingSprints')}</span>
                                                                         </div>
                                                                     )}
                                                                     {sprintsError && (

@@ -3,7 +3,8 @@ const common = {
     edit: 'Edit',
     delete: 'Delete',
     cancel: 'Cancel',
-    confirm: 'Confirm'
+    confirm: 'Confirm',
+    retry: 'Try again'
   },
   search: {
     placeholder: 'Search...',

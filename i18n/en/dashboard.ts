@@ -13,6 +13,7 @@ const dashboard = {
     noWorkspaceSelected: 'No Workspace Selected',
     loadingProjects: 'Loading projects...',
     noProjects: 'No projects yet',
+    noSearchResults: 'No matching projects found',
     loadingSprints: 'Loading sprints...',
     errorLoadingSprints: 'Error loading sprints',
     noSprints: 'No sprints yet',
@@ -26,6 +27,7 @@ const dashboard = {
   },
   board: {
     errorLoadingColumns: 'Error loading columns',
+    errorHint: 'Please check your connection and try again.',
     empty: 'No columns or issues found'
   },
   project: {
