@@ -9,6 +9,9 @@ const validation = {
     name_required: "Project name is required",
     key_required: "Project key is required",
   },
+  workspace: {
+    name_required: "Workspace name is required",
+  },
   issue: {
     title_required: "Issue title is required",
   },

@@ -9,6 +9,9 @@ const validation = {
     name_required: "Tên dự án là bắt buộc",
     key_required: "Mã dự án là bắt buộc",
   },
+  workspace: {
+    name_required: "Tên workspace là bắt buộc",
+  },
   issue: {
     title_required: "Tiêu đề issue là bắt buộc",
   },

@@ -45,6 +45,19 @@ const dashboard = {
       createFailed: 'Failed to create project'
     }
   },
+  workspace: {
+    create: {
+      title: 'Create New Workspace',
+      description: 'Create a workspace to organize your projects.',
+      nameLabel: 'Workspace name',
+      namePlaceholder: 'My Workspace',
+      submit: 'Create Workspace'
+    },
+    toast: {
+      created: 'Workspace created successfully',
+      createFailed: 'Failed to create workspace'
+    }
+  },
   issue: {
     assignee: {
       me: 'Me ({name})',

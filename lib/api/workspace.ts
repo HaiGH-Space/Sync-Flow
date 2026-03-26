@@ -13,6 +13,11 @@ export interface Workspace {
     members?: MemberWorkspace[]
 }
 
+export type CreateWorkspace = {
+    name: string
+    urlSlug: string
+}
+
 async function getMyWorkspace(): Promise<ApiResponse<Workspace[]>> {
     return api.get<Workspace[]>(`${WORKSPACE_BASE_URL}/me`)
 }
@@ -21,7 +26,12 @@ async function getWorkspaceById(workspaceId: string): Promise<ApiResponse<Worksp
     return api.get<Workspace>(`${WORKSPACE_BASE_URL}/${workspaceId}`)
 }
 
+async function createWorkspace({ name, urlSlug }: CreateWorkspace): Promise<ApiResponse<Workspace>> {
+    return api.post<Workspace>(WORKSPACE_BASE_URL, { name, urlSlug })
+}
+
 export const workspaceService = {
     getMyWorkspace,
-    getWorkspaceById
+    getWorkspaceById,
+    createWorkspace
 }

@@ -45,6 +45,19 @@ const dashboard = {
       createFailed: 'Tạo dự án thất bại'
     }
   },
+  workspace: {
+    create: {
+      title: 'Tạo workspace mới',
+      description: 'Tạo workspace để tổ chức các dự án của bạn.',
+      nameLabel: 'Tên workspace',
+      namePlaceholder: 'Workspace của tôi',
+      submit: 'Tạo workspace'
+    },
+    toast: {
+      created: 'Tạo workspace thành công',
+      createFailed: 'Tạo workspace thất bại'
+    }
+  },
   issue: {
     assignee: {
       me: 'Tôi ({name})',

@@ -4,6 +4,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Link } from "@/i18n/navigation"
 import { Workspace } from "@/lib/api/workspace"
 import { cn, getFirstLetters } from "@/lib/utils"
+import CreateWorkspaceModal from "../comp/CreateWorkspaceModal"
 
 type WorkspaceRailProps = {
     workspaceList: Workspace[] | undefined,
@@ -28,6 +29,9 @@ export function WorkspaceRail({ workspaceList, isPending, workspaceActiveId }: W
                     />
                 ))
             )}
+            <div className="mt-auto pt-2">
+                <CreateWorkspaceModal />
+            </div>
         </div>
     )
 }
