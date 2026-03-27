@@ -5,16 +5,23 @@ import { AnimatePresence, motion, Variants } from "motion/react"
 import { AvatarWithBadge } from "@/components/shared/AvatarWithBadge";
 import { Search } from "@/components/shared/Search";
 import { useQuery } from "@tanstack/react-query";
-import { projectService } from "@/lib/api/project";
 import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import CreateProjectModal from "../comp/CreateProjectModal";
-import { Link } from "@/i18n/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
 import { useParams } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { sprintService } from "@/lib/api/sprint";
-import { ChevronRight, Loader2 } from "lucide-react";
+import { ChevronRight, Loader2, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useProfile } from "@/hooks/use-profile";
+import DeleteConfirmModal from "../comp/DeleteConfirmModal";
+import { Button } from "@/components/ui/button";
+import { createWorkspaceDetailQueryOptions } from "@/queries/workspace";
+import { createProjectsQueryOptions } from "@/queries/project";
+import { createSprintsQueryOptions } from "@/queries/sprint";
+import { useDeleteProject } from "@/hooks/mutations/project";
+
+type WorkspaceRole = 'OWNER' | 'ADMIN' | 'MEMBER';
 
 const sidebarContainerVariants: Variants = {
     hidden: {
@@ -41,22 +48,62 @@ export const NavigationSidebar = memo(function NavigationSidebar({ workspaceDeta
     const isOpenSidebarLeft = useDashboard((state) => state.isOpenSidebarLeft)
     const { projectId }: { projectId: string | undefined } = useParams();
     const t = useTranslations('dashboard');
+    const router = useRouter();
+    const { data: profile } = useProfile();
+    const profileId = profile?.id
     const [expandedProjectId, setExpandedProjectId] = useState<string | null>(() => projectId ?? null)
     const [searchQuery, setSearchQuery] = useState('')
+    const [projectToDelete, setProjectToDelete] = useState<{ id: string; name: string } | null>(null)
     const canLoadProjects = !!workspaceDetail?.id && isOpenSidebarLeft
-    const { data: projects, error, isFetching } = useQuery({
-        queryKey: ['projects', workspaceDetail?.id],
-        queryFn: () => projectService.getProjectsByWorkspaceId({ workspaceId: workspaceDetail!.id }),
-        enabled: canLoadProjects,
-        staleTime: 5 * 60 * 1000,
-    })
+
+    const { data: workspaceDetailResponse } = useQuery(
+        createWorkspaceDetailQueryOptions({ workspaceId: workspaceDetail?.id ?? '' }, {
+            enabled: !!workspaceDetail?.id && isOpenSidebarLeft,
+        })
+    )
+
+    const activeWorkspace = workspaceDetailResponse?.data ?? workspaceDetail
+
+    const currentWorkspaceRole = useMemo<WorkspaceRole>(() => {
+        if (!activeWorkspace || !profileId) {
+            return 'MEMBER'
+        }
+
+        if (activeWorkspace.ownerId === profileId) {
+            return 'OWNER'
+        }
+
+        const currentMembership = activeWorkspace.members?.find((member) => member.userId === profileId)
+        return currentMembership?.role ?? 'MEMBER'
+    }, [activeWorkspace, profileId])
+
+    const canManageProject = currentWorkspaceRole === 'OWNER' || currentWorkspaceRole === 'ADMIN'
+
+    const workspaceRoleLabel = useMemo(() => {
+        if (currentWorkspaceRole === 'OWNER') {
+            return t('sidebar.role.owner')
+        }
+        if (currentWorkspaceRole === 'ADMIN') {
+            return t('sidebar.role.admin')
+        }
+
+        return t('sidebar.role.member')
+    }, [currentWorkspaceRole, t])
+
+    const { data: projects, error, isFetching } = useQuery(
+        createProjectsQueryOptions({ workspaceId: workspaceDetail?.id ?? '' }, {
+            enabled: canLoadProjects,
+        })
+    )
     const isProjectsLoading = canLoadProjects && (isFetching || !projects)
-    const { data: sprints, error: sprintsError, isFetching: isSprintsFetching } = useQuery({
-        queryKey: ['sprints', expandedProjectId],
-        queryFn: () => sprintService.getSprint({ projectId: expandedProjectId as string }),
-        enabled: !!expandedProjectId && isOpenSidebarLeft,
-        staleTime: 5 * 60 * 1000,
-    })
+
+    const { mutate: deleteProject, isPending: isDeletingProject } = useDeleteProject(workspaceDetail?.id ?? '')
+
+    const { data: sprints, error: sprintsError, isFetching: isSprintsFetching } = useQuery(
+        createSprintsQueryOptions({ projectId: expandedProjectId ?? '' }, {
+            enabled: !!expandedProjectId && isOpenSidebarLeft,
+        })
+    )
 
     useEffect(() => {
         if (error) {
@@ -85,24 +132,30 @@ export const NavigationSidebar = memo(function NavigationSidebar({ workspaceDeta
     }, []);
 
     return (
-        <AnimatePresence mode="wait">
-            {isOpenSidebarLeft && (
-                <motion.aside
-                    className="border-r border-border/70 whitespace-nowrap bg-background text-foreground h-full overflow-hidden"
-                    variants={sidebarContainerVariants}
-                    initial="hidden"
-                    animate={"visible"}
-                    exit="hidden"
-                >
-                    <div className="h-full flex flex-col w-62.5">
+        <>
+            <AnimatePresence mode="wait">
+                {isOpenSidebarLeft && (
+                    <motion.aside
+                        className="border-r border-border/70 whitespace-nowrap bg-background text-foreground h-full overflow-hidden"
+                        variants={sidebarContainerVariants}
+                        initial="hidden"
+                        animate={"visible"}
+                        exit="hidden"
+                    >
+                        <div className="h-full flex flex-col w-62.5">
                         {/* Header */}
                         <div className="h-14 px-4 flex flex-row justify-between items-center gap-2 border-b border-border/70 bg-background/90 backdrop-blur overflow-hidden min-w-0">
                             {workspaceDetail ? (
                                 <>
-                                    <h2 className="text-lg font-semibold truncate">
-                                        {workspaceDetail.name}
-                                    </h2>
-                                    <CreateProjectModal workspaceDetail={workspaceDetail} />
+                                    <div className="min-w-0">
+                                        <h2 className="text-lg font-semibold truncate">
+                                            {workspaceDetail.name}
+                                        </h2>
+                                        <p className="text-xs text-muted-foreground truncate">
+                                            {workspaceRoleLabel}
+                                        </p>
+                                    </div>
+                                    {canManageProject && <CreateProjectModal workspaceDetail={workspaceDetail} />}
                                 </>
                             ) : (
                                 <h2 className="text-lg font-semibold truncate">
@@ -137,38 +190,59 @@ export const NavigationSidebar = memo(function NavigationSidebar({ workspaceDeta
                                     )}
                                     {filteredProjects.map((project) => {
                                         const isExpanded = expandedProjectId === project.id
+                                        const isDeletingCurrentProject = isDeletingProject && projectToDelete?.id === project.id
+
                                         return (
                                             <div key={project.id} className="rounded-md my-2">
-                                                <Link
-                                                    href={`/dashboard/${workspaceDetail?.id}/${project.id}`}
-                                                    aria-label={`Switch to ${project.name}`}
-                                                    aria-current={isExpanded ? "page" : undefined}
-                                                    onClick={(e) => {
-                                                        // Toggle when clicking the currently active project (collapse/expand)
-                                                        // but still navigate when selecting a different project.
-                                                        if (isExpanded) {
-                                                            e.preventDefault()
-                                                            setExpandedProjectId((prev) => (prev === project.id ? null : project.id))
-                                                            return
-                                                        }
+                                                <div className="flex items-center gap-1">
+                                                    <Link
+                                                        href={`/dashboard/${workspaceDetail?.id}/${project.id}`}
+                                                        aria-label={`Switch to ${project.name}`}
+                                                        aria-current={isExpanded ? "page" : undefined}
+                                                        onClick={(e) => {
+                                                            // Toggle when clicking the currently active project (collapse/expand)
+                                                            // but still navigate when selecting a different project.
+                                                            if (isExpanded) {
+                                                                e.preventDefault()
+                                                                setExpandedProjectId((prev) => (prev === project.id ? null : project.id))
+                                                                return
+                                                            }
 
-                                                        setExpandedProjectId(project.id)
-                                                    }}
-                                                    className={cn(
-                                                        "w-full flex items-center justify-between gap-2 px-3 py-2 rounded-md text-sm font-medium overflow-hidden",
-                                                        isExpanded
-                                                            ? "bg-primary text-primary-foreground"
-                                                            : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
-                                                    )}
-                                                >
-                                                    <span className="truncate text-left">{project.name}</span>
-                                                    <ChevronRight
+                                                            setExpandedProjectId(project.id)
+                                                        }}
                                                         className={cn(
-                                                            "size-4 shrink-0 transition-transform duration-200",
-                                                            isExpanded ? "rotate-90" : "rotate-0"
+                                                            "w-full flex items-center justify-between gap-2 px-3 py-2 rounded-md text-sm font-medium overflow-hidden",
+                                                            isExpanded
+                                                                ? "bg-primary text-primary-foreground"
+                                                                : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
                                                         )}
-                                                    />
-                                                </Link>
+                                                    >
+                                                        <span className="truncate text-left">{project.name}</span>
+                                                        <ChevronRight
+                                                            className={cn(
+                                                                "size-4 shrink-0 transition-transform duration-200",
+                                                                isExpanded ? "rotate-90" : "rotate-0"
+                                                            )}
+                                                        />
+                                                    </Link>
+                                                    {canManageProject && (
+                                                        <Button
+                                                            type="button"
+                                                            variant="ghost"
+                                                            size="icon-sm"
+                                                            className="text-muted-foreground hover:text-destructive"
+                                                            aria-label={t('project.delete.action', { name: project.name })}
+                                                            disabled={isDeletingCurrentProject}
+                                                            onClick={(e) => {
+                                                                e.preventDefault()
+                                                                e.stopPropagation()
+                                                                setProjectToDelete({ id: project.id, name: project.name })
+                                                            }}
+                                                        >
+                                                            {isDeletingCurrentProject ? <Loader2 className="size-4 animate-spin" /> : <Trash2 className="size-4" />}
+                                                        </Button>
+                                                    )}
+                                                </div>
                                                 <AnimatePresence initial={false}>
                                                     {isExpanded && (
                                                         <motion.div
@@ -221,9 +295,46 @@ export const NavigationSidebar = memo(function NavigationSidebar({ workspaceDeta
                         <div className="p-4 border-t border-border">
                             <AvatarWithBadge alt="user avatar" src="https://github.com/shadcn.png" avtFallback="CN" status="online" />
                         </div>
-                    </div>
-                </motion.aside>
-            )}
-        </AnimatePresence>
+                        </div>
+                    </motion.aside>
+                )}
+            </AnimatePresence>
+
+            <DeleteConfirmModal
+                isOpen={!!projectToDelete}
+                isLoading={isDeletingProject}
+                title={t('project.delete.title', { name: projectToDelete?.name ?? '' })}
+                description={t('project.delete.description')}
+                onConfirm={() => {
+                    if (!projectToDelete || !workspaceDetail?.id) {
+                        return
+                    }
+
+                    deleteProject({
+                        workspaceId: workspaceDetail.id,
+                        projectId: projectToDelete.id,
+                    }, {
+                        onSuccess: (_response, variables) => {
+                            toast.success(t('project.toast.deleted'))
+
+                            if (projectId === variables.projectId) {
+                                setExpandedProjectId(null)
+                                router.push(`/dashboard/${workspaceDetail.id}`)
+                            }
+
+                            setProjectToDelete(null)
+                        },
+                        onError: () => {
+                            toast.error(t('project.toast.deleteFailed'))
+                        },
+                    })
+                }}
+                onClose={(isOpen) => {
+                    if (!isOpen && !isDeletingProject) {
+                        setProjectToDelete(null)
+                    }
+                }}
+            />
+        </>
     )
 })

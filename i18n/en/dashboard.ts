@@ -17,7 +17,12 @@ const dashboard = {
     loadingSprints: 'Loading sprints...',
     errorLoadingSprints: 'Error loading sprints',
     noSprints: 'No sprints yet',
-    searchPlaceholder: 'Search...'
+    searchPlaceholder: 'Search...',
+    role: {
+      owner: 'Workspace owner',
+      admin: 'Administrator',
+      member: 'Member'
+    }
   },
   navigation: {
     board: 'Board',
@@ -42,7 +47,14 @@ const dashboard = {
     },
     toast: {
       created: 'Project created successfully',
-      createFailed: 'Failed to create project'
+      createFailed: 'Failed to create project',
+      deleted: 'Project deleted successfully',
+      deleteFailed: 'Failed to delete project'
+    },
+    delete: {
+      title: 'Delete project "{name}"?',
+      description: 'Are you sure you want to delete this project?',
+      action: 'Delete project {name}'
     }
   },
   workspace: {

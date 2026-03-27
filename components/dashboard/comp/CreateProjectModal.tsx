@@ -3,14 +3,13 @@ import { Button } from "@/components/ui/button";
 import { Loader2Icon, PlusIcon } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Workspace } from "@/lib/api/workspace";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { projectService } from "@/lib/api/project";
 import { toast } from "sonner";
 import z from "zod";
 import { useForm } from "@tanstack/react-form";
 import FieldAnimation from "@/components/auth/FieldAnimation";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { useCreateProject } from "@/hooks/mutations/project";
 
 type CreateProjectModalProps = {
     workspaceDetail: Workspace
@@ -36,18 +35,7 @@ export default function CreateProjectModal({ workspaceDetail }: CreateProjectMod
     const tCommon = useTranslations('common')
     const tValidation = useTranslations('validation')
     const schema = createProjectSchema(tValidation)
-    const queryClient = useQueryClient()
-    const { mutate: createProject, isPending } = useMutation({
-        mutationFn: projectService.createProject,
-        onSuccess: async () => {
-            await queryClient.invalidateQueries({ queryKey: ['projects', workspaceDetail?.id] });
-            toast.success(tDashboard('project.toast.created'));
-            handleOpenChange(false);
-        },
-        onError: () => {
-            toast.error(tDashboard('project.toast.createFailed'));
-        }
-    })
+    const { mutate: createProject, isPending } = useCreateProject(workspaceDetail.id)
 
     const form = useForm({
         defaultValues: defaultValues,
@@ -60,6 +48,14 @@ export default function CreateProjectModal({ workspaceDetail }: CreateProjectMod
             createProject({
                 workspaceId: workspaceDetail.id,
                 project: value
+            }, {
+                onSuccess: () => {
+                    toast.success(tDashboard('project.toast.created'));
+                    handleOpenChange(false);
+                },
+                onError: () => {
+                    toast.error(tDashboard('project.toast.createFailed'));
+                }
             })
         },
     })

@@ -17,7 +17,12 @@ const dashboard = {
     loadingSprints: 'Đang tải sprint...',
     errorLoadingSprints: 'Lỗi tải sprint',
     noSprints: 'Chưa có sprint',
-    searchPlaceholder: 'Tìm kiếm...'
+    searchPlaceholder: 'Tìm kiếm...',
+    role: {
+      owner: 'Chủ workspace',
+      admin: 'Quản trị viên',
+      member: 'Thành viên'
+    }
   },
   navigation: {
     board: 'Bảng',
@@ -42,7 +47,14 @@ const dashboard = {
     },
     toast: {
       created: 'Tạo dự án thành công',
-      createFailed: 'Tạo dự án thất bại'
+      createFailed: 'Tạo dự án thất bại',
+      deleted: 'Xóa dự án thành công',
+      deleteFailed: 'Xóa dự án thất bại'
+    },
+    delete: {
+      title: 'Xóa dự án "{name}"?',
+      description: 'Bạn có chắc chắn muốn xóa dự án này không?',
+      action: 'Xóa dự án {name}'
     }
   },
   workspace: {

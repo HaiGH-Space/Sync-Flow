@@ -20,3 +20,16 @@ export function createMyWorkspacesQueryOptions<
     queryFn: workspaceService.getMyWorkspace,
   })
 }
+
+export function createWorkspaceDetailQueryOptions<
+  TData = ApiResponse<Workspace>
+>(params: { workspaceId: string }, options?: QueryOptions<Workspace, TData>) {
+  const { workspaceId } = params
+
+  return queryOptions({
+    staleTime: 1000 * 60 * 5,
+    ...options,
+    queryKey: workspaceKeys.detail(workspaceId),
+    queryFn: () => workspaceService.getWorkspaceById(workspaceId),
+  })
+}
