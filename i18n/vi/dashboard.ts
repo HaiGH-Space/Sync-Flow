@@ -72,11 +72,14 @@ const dashboard = {
     },
     tabs: {
       general: 'Tổng quan',
+      generalDescription: 'Thông tin cơ bản',
       members: {
-        title: 'Thành viên'
+        title: 'Thành viên',
+        description: 'Người trong workspace'
       },
       permissions: {
-        title: 'Phân quyền'
+        title: 'Phân quyền',
+        description: 'Quyền và vai trò'
       }
     },
     settings: {

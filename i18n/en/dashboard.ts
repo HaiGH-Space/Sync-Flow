@@ -72,11 +72,14 @@ const dashboard = {
     },
     tabs: {
       general: 'General',
+      generalDescription: 'Basic workspace info',
       members: {
-        title: 'Members'
+        title: 'Members',
+        description: 'People in this workspace'
       },
       permissions: {
-        title: 'Permissions'
+        title: 'Permissions',
+        description: 'Roles and access'
       }
     },
     settings: {
