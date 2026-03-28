@@ -65,6 +65,45 @@ const dashboard = {
       namePlaceholder: 'Workspace của tôi',
       submit: 'Tạo workspace'
     },
+    menu: {
+      title: 'Cài đặt workspace',
+      openSettings: 'Mở cài đặt',
+      copyId: 'Sao chép ID workspace'
+    },
+    tabs: {
+      general: 'Tổng quan',
+      members: {
+        title: 'Thành viên'
+      },
+      permissions: {
+        title: 'Phân quyền'
+      }
+    },
+    settings: {
+      title: 'Cài đặt workspace',
+      description: 'Nơi hiển thị và quản lý các cài đặt của workspace.',
+      name: 'Tên workspace',
+      id: 'ID workspace',
+      slug: 'URL slug',
+      manageHint: 'Bạn có thể thêm các tùy chọn quản lý workspace tại đây sau này.',
+      memberHint: 'Bạn đang ở vai trò thành viên. Một số cài đặt có thể bị giới hạn.',
+      membersDescription: 'Danh sách thành viên đang tham gia workspace này.',
+      noMembers: 'Chưa có thành viên nào.',
+      permissionsAdminHint: 'Bạn có thể quản lý một số cài đặt quan trọng của workspace.',
+      permissionsMemberHint: 'Một số quyền quản trị hiện không khả dụng với vai trò của bạn.',
+      permissionAllowed: {
+        label: 'Được phép'
+      },
+      permissionRestricted: {
+        label: 'Bị giới hạn'
+      },
+      permissionItem: {
+        manageProjects: 'Quản lý dự án',
+        manageMembers: 'Quản lý thành viên'
+      },
+      copied: 'Đã sao chép ID workspace',
+      copyFailed: 'Không thể sao chép ID workspace'
+    },
     toast: {
       created: 'Tạo workspace thành công',
       createFailed: 'Tạo workspace thất bại'

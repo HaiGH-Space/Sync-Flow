@@ -65,6 +65,45 @@ const dashboard = {
       namePlaceholder: 'My Workspace',
       submit: 'Create Workspace'
     },
+    menu: {
+      title: 'Workspace settings',
+      openSettings: 'Open settings',
+      copyId: 'Copy workspace ID'
+    },
+    tabs: {
+      general: 'General',
+      members: {
+        title: 'Members'
+      },
+      permissions: {
+        title: 'Permissions'
+      }
+    },
+    settings: {
+      title: 'Workspace settings',
+      description: 'This is where workspace settings can be shown and managed.',
+      name: 'Workspace name',
+      id: 'Workspace ID',
+      slug: 'URL slug',
+      manageHint: 'You can add workspace management options here later.',
+      memberHint: 'You are currently a member. Some settings may be limited.',
+      membersDescription: 'A list of members currently in this workspace.',
+      noMembers: 'No members yet.',
+      permissionsAdminHint: 'You can manage some important workspace settings.',
+      permissionsMemberHint: 'Some administrative permissions are not available for your role.',
+      permissionAllowed: {
+        label: 'Allowed'
+      },
+      permissionRestricted: {
+        label: 'Restricted'
+      },
+      permissionItem: {
+        manageProjects: 'Manage projects',
+        manageMembers: 'Manage members'
+      },
+      copied: 'Workspace ID copied',
+      copyFailed: 'Failed to copy workspace ID'
+    },
     toast: {
       created: 'Workspace created successfully',
       createFailed: 'Failed to create workspace'

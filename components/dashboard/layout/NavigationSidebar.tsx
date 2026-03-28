@@ -20,6 +20,7 @@ import { createWorkspaceDetailQueryOptions } from "@/queries/workspace";
 import { createProjectsQueryOptions } from "@/queries/project";
 import { createSprintsQueryOptions } from "@/queries/sprint";
 import { useDeleteProject } from "@/hooks/mutations/project";
+import WorkspaceSettingsMenu from "../comp/WorkspaceSettingsMenu";
 
 type WorkspaceRole = 'OWNER' | 'ADMIN' | 'MEMBER';
 
@@ -79,17 +80,6 @@ export const NavigationSidebar = memo(function NavigationSidebar({ workspaceDeta
 
     const canManageProject = currentWorkspaceRole === 'OWNER' || currentWorkspaceRole === 'ADMIN'
 
-    const workspaceRoleLabel = useMemo(() => {
-        if (currentWorkspaceRole === 'OWNER') {
-            return t('sidebar.role.owner')
-        }
-        if (currentWorkspaceRole === 'ADMIN') {
-            return t('sidebar.role.admin')
-        }
-
-        return t('sidebar.role.member')
-    }, [currentWorkspaceRole, t])
-
     const { data: projects, error, isFetching } = useQuery(
         createProjectsQueryOptions({ workspaceId: workspaceDetail?.id ?? '' }, {
             enabled: canLoadProjects,
@@ -147,14 +137,7 @@ export const NavigationSidebar = memo(function NavigationSidebar({ workspaceDeta
                         <div className="h-14 px-4 flex flex-row justify-between items-center gap-2 border-b border-border/70 bg-background/90 backdrop-blur overflow-hidden min-w-0">
                             {workspaceDetail ? (
                                 <>
-                                    <div className="min-w-0">
-                                        <h2 className="text-lg font-semibold truncate">
-                                            {workspaceDetail.name}
-                                        </h2>
-                                        <p className="text-xs text-muted-foreground truncate">
-                                            {workspaceRoleLabel}
-                                        </p>
-                                    </div>
+                                    <WorkspaceSettingsMenu workspace={workspaceDetail} role={currentWorkspaceRole} />
                                     {canManageProject && <CreateProjectModal workspaceDetail={workspaceDetail} />}
                                 </>
                             ) : (
