@@ -55,6 +55,25 @@ const dashboard = {
       title: 'Xóa dự án "{name}"?',
       description: 'Bạn có chắc chắn muốn xóa dự án này không?',
       action: 'Xóa dự án {name}'
+    },
+    settings: {
+      title: 'Cài đặt dự án',
+      description: 'Xem và quản lý cài đặt dự án.',
+      action: 'Cài đặt {name}',
+      nameLabel: 'Tên dự án',
+      keyLabel: 'Mã dự án',
+      idLabel: 'ID dự án',
+      descriptionLabel: 'Mô tả',
+      manageHint: 'Bạn có thể thêm các tùy chọn quản lý dự án tại đây sau này.',
+      dangerTitle: 'Khu vực nguy hiểm',
+      dangerDescription: 'Các hành động ở đây không thể hoàn tác. Vui lòng cẩn thận.',
+      deleteWarning: 'Hành động này là vĩnh viễn và không thể hoàn tác. Tất cả dữ liệu sẽ bị mất.',
+      tabs: {
+        general: 'Tổng quan',
+        generalDescription: 'Thông tin cơ bản',
+        dangerZone: 'Khu vực nguy hiểm',
+        dangerZoneDescription: 'Hành động không thể hoàn tác'
+      }
     }
   },
   workspace: {

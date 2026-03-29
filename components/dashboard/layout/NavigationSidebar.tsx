@@ -11,10 +11,10 @@ import CreateProjectModal from "../comp/CreateProjectModal";
 import { Link, useRouter } from "@/i18n/navigation";
 import { useParams } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { ChevronRight, Loader2, Trash2 } from "lucide-react";
+import { ChevronRight, Loader2, Settings2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useProfile } from "@/hooks/use-profile";
-import DeleteConfirmModal from "../comp/DeleteConfirmModal";
+import ProjectSettingsDialog from "../comp/ProjectSettingsDialog";
 import { Button } from "@/components/ui/button";
 import { createWorkspaceDetailQueryOptions } from "@/queries/workspace";
 import { createProjectsQueryOptions } from "@/queries/project";
@@ -55,6 +55,7 @@ export const NavigationSidebar = memo(function NavigationSidebar({ workspaceDeta
     const [expandedProjectId, setExpandedProjectId] = useState<string | null>(() => projectId ?? null)
     const [searchQuery, setSearchQuery] = useState('')
     const [projectToDelete, setProjectToDelete] = useState<{ id: string; name: string } | null>(null)
+    const [settingsProject, setSettingsProject] = useState<{ id: string; name: string; key: string; description?: string; workspaceId: string; createdAt: string; updatedAt: string } | null>(null)
     const canLoadProjects = !!workspaceDetail?.id && isOpenSidebarLeft
 
     const { data: workspaceDetailResponse } = useQuery(
@@ -174,6 +175,7 @@ export const NavigationSidebar = memo(function NavigationSidebar({ workspaceDeta
                                     {filteredProjects.map((project) => {
                                         const isExpanded = expandedProjectId === project.id
                                         const isDeletingCurrentProject = isDeletingProject && projectToDelete?.id === project.id
+                                        const isProjectSettings = settingsProject?.id === project.id
 
                                         return (
                                             <div key={project.id} className="rounded-md my-2">
@@ -208,23 +210,20 @@ export const NavigationSidebar = memo(function NavigationSidebar({ workspaceDeta
                                                             )}
                                                         />
                                                     </Link>
-                                                    {canManageProject && (
-                                                        <Button
-                                                            type="button"
-                                                            variant="ghost"
-                                                            size="icon-sm"
-                                                            className="text-muted-foreground hover:text-destructive"
-                                                            aria-label={t('project.delete.action', { name: project.name })}
-                                                            disabled={isDeletingCurrentProject}
-                                                            onClick={(e) => {
-                                                                e.preventDefault()
-                                                                e.stopPropagation()
-                                                                setProjectToDelete({ id: project.id, name: project.name })
-                                                            }}
-                                                        >
-                                                            {isDeletingCurrentProject ? <Loader2 className="size-4 animate-spin" /> : <Trash2 className="size-4" />}
-                                                        </Button>
-                                                    )}
+                                                    <Button
+                                                        type="button"
+                                                        variant="ghost"
+                                                        size="icon-sm"
+                                                        className="text-muted-foreground hover:text-foreground"
+                                                        aria-label={t('project.settings.action', { name: project.name })}
+                                                        onClick={(e) => {
+                                                            e.preventDefault()
+                                                            e.stopPropagation()
+                                                            setSettingsProject(project)
+                                                        }}
+                                                    >
+                                                        <Settings2 className="size-4" />
+                                                    </Button>
                                                 </div>
                                                 <AnimatePresence initial={false}>
                                                     {isExpanded && (
@@ -283,41 +282,47 @@ export const NavigationSidebar = memo(function NavigationSidebar({ workspaceDeta
                 )}
             </AnimatePresence>
 
-            <DeleteConfirmModal
-                isOpen={!!projectToDelete}
-                isLoading={isDeletingProject}
-                title={t('project.delete.title', { name: projectToDelete?.name ?? '' })}
-                description={t('project.delete.description')}
-                onConfirm={() => {
-                    if (!projectToDelete || !workspaceDetail?.id) {
-                        return
-                    }
-
-                    deleteProject({
-                        workspaceId: workspaceDetail.id,
-                        projectId: projectToDelete.id,
-                    }, {
-                        onSuccess: (_response, variables) => {
-                            toast.success(t('project.toast.deleted'))
-
-                            if (projectId === variables.projectId) {
-                                setExpandedProjectId(null)
-                                router.push(`/dashboard/${workspaceDetail.id}`)
-                            }
-
+            {settingsProject && (
+                <ProjectSettingsDialog
+                    project={settingsProject}
+                    canManage={canManageProject}
+                    open={!!settingsProject}
+                    onOpenChange={(open) => {
+                        if (!open && !isDeletingProject) {
+                            setSettingsProject(null)
                             setProjectToDelete(null)
-                        },
-                        onError: () => {
-                            toast.error(t('project.toast.deleteFailed'))
-                        },
-                    })
-                }}
-                onClose={(isOpen) => {
-                    if (!isOpen && !isDeletingProject) {
-                        setProjectToDelete(null)
-                    }
-                }}
-            />
+                        }
+                    }}
+                    onDelete={() => {
+                        if (!settingsProject || !workspaceDetail?.id) {
+                            return
+                        }
+
+                        setProjectToDelete({ id: settingsProject.id, name: settingsProject.name })
+
+                        deleteProject({
+                            workspaceId: workspaceDetail.id,
+                            projectId: settingsProject.id,
+                        }, {
+                            onSuccess: (_response, variables) => {
+                                toast.success(t('project.toast.deleted'))
+
+                                if (projectId === variables.projectId) {
+                                    setExpandedProjectId(null)
+                                    router.push(`/dashboard/${workspaceDetail.id}`)
+                                }
+
+                                setSettingsProject(null)
+                                setProjectToDelete(null)
+                            },
+                            onError: () => {
+                                toast.error(t('project.toast.deleteFailed'))
+                            },
+                        })
+                    }}
+                    isDeleting={isDeletingProject}
+                />
+            )}
         </>
     )
 })
