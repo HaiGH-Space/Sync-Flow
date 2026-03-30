@@ -6,14 +6,33 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Edit2, MoreHorizontal, Trash2 } from "lucide-react"
+import { Edit2, MoreHorizontal, Trash2, type LucideIcon } from "lucide-react"
 import { useTranslations } from "next-intl"
+import { cn } from "@/lib/utils"
+
 type DropdownMenuUDProps = {
     onEdit?: () => void
     onDelete?: () => void
+    showEdit?: boolean
+    showDelete?: boolean
+    editLabel?: string
+    deleteLabel?: string
+    triggerClassName?: string
+    contentClassName?: string
+    triggerIcon?: LucideIcon
 }
 
-export default function DropdownMenuUD({ onEdit, onDelete }: DropdownMenuUDProps) {
+export default function DropdownMenuUD({
+    onEdit,
+    onDelete,
+    showEdit = true,
+    showDelete = true,
+    editLabel,
+    deleteLabel,
+    triggerClassName,
+    contentClassName,
+    triggerIcon: TriggerIcon = MoreHorizontal,
+}: DropdownMenuUDProps) {
     const t = useTranslations('common')
 
     return (
@@ -22,35 +41,39 @@ export default function DropdownMenuUD({ onEdit, onDelete }: DropdownMenuUDProps
                 <Button
                     variant="ghost"
                     size="icon"
-                    className="cursor-pointer"
+                    className={cn("cursor-pointer", triggerClassName)}
                     onClick={(e) => e.stopPropagation()}
                 >
-                    <MoreHorizontal className="w-4 h-4" />
+                    <TriggerIcon className="w-4 h-4" />
                 </Button>
             </DropdownMenuTrigger>
 
-            <DropdownMenuContent>
-                <DropdownMenuItem
-                    className="cursor-pointer"
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        onEdit?.();
-                    }}
-                >
-                    <Edit2 className="w-4 h-4" />
-                    {t('actions.edit')}
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                    className="cursor-pointer"
-                    variant="destructive"
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        onDelete?.();
-                    }}
-                >
-                    <Trash2 className="w-4 h-4" />
-                    {t('actions.delete')}
-                </DropdownMenuItem>
+            <DropdownMenuContent className={contentClassName}>
+                {showEdit && onEdit && (
+                    <DropdownMenuItem
+                        className="cursor-pointer"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onEdit?.();
+                        }}
+                    >
+                        <Edit2 className="w-4 h-4" />
+                        {editLabel ?? t('actions.edit')}
+                    </DropdownMenuItem>
+                )}
+                {showDelete && onDelete && (
+                    <DropdownMenuItem
+                        className="cursor-pointer"
+                        variant="destructive"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onDelete?.();
+                        }}
+                    >
+                        <Trash2 className="w-4 h-4" />
+                        {deleteLabel ?? t('actions.delete')}
+                    </DropdownMenuItem>
+                )}
             </DropdownMenuContent>
         </DropdownMenu>
     )

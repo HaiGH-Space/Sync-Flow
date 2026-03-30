@@ -1,7 +1,5 @@
 'use client'
 import { memo, useCallback } from "react";
-import { MoreHorizontal } from "lucide-react";
-import { Button } from "../../ui/button";
 import { ScrollArea } from "../../ui/scroll-area";
 import KanbanCard from "./KanbanCard";
 import { useDraggable, useDroppable } from "@dnd-kit/react";
@@ -11,6 +9,7 @@ import { Issue } from "@/lib/api/issue";
 import { useQuery } from "@tanstack/react-query";
 import type { ApiResponse } from "@/lib/api/api";
 import { createIssuesQueryOptions } from "@/queries/issue";
+import DropdownMenuUD from "@/components/shared/DropdownMenuUD";
 type ColumnProps = {
     id: string
     name: string
@@ -52,9 +51,10 @@ function KanbanColumn(props: ColumnProps) {
                 <h3 className="text-lg font-medium">{props.name}</h3>
                 <div className="flex gap-2">
                     <CreateIssueModal columnId={props.columnId} projectId={props.projectId} />
-                    <Button className="cursor-pointer" variant="ghost" size="icon" onClick={() => props.actionDeleteColumn(props.columnId)}>
-                        <MoreHorizontal className="w-4 h-4" />
-                    </Button>
+                    <DropdownMenuUD
+                        onEdit={() => props.actionEditColumn(props.columnId)}
+                        onDelete={() => props.actionDeleteColumn(props.columnId)}
+                    />
                 </div>
             </div>
             {/* Task List */}

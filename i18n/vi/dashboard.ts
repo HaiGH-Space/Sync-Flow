@@ -33,7 +33,21 @@ const dashboard = {
   board: {
     errorLoadingColumns: 'Lỗi tải cột',
     errorHint: 'Vui lòng kiểm tra kết nối và thử lại.',
-    empty: 'Chưa có cột hoặc issue nào'
+    empty: 'Chưa có cột hoặc issue nào',
+    column: {
+      edit: {
+        title: 'Sửa cột',
+        description: 'Đổi tên cột này.',
+        nameLabel: 'Tên cột',
+        namePlaceholder: 'Nhập tên cột mới',
+        success: 'Cập nhật cột thành công'
+      },
+      delete: {
+        title: 'Xóa cột "{name}"?',
+        description: 'Bạn có chắc muốn xóa cột này không?',
+        success: 'Xóa cột thành công'
+      }
+    }
   },
   project: {
     create: {

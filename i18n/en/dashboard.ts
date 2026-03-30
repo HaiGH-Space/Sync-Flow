@@ -33,7 +33,21 @@ const dashboard = {
   board: {
     errorLoadingColumns: 'Error loading columns',
     errorHint: 'Please check your connection and try again.',
-    empty: 'No columns or issues found'
+    empty: 'No columns or issues found',
+    column: {
+      edit: {
+        title: 'Edit column',
+        description: 'Rename this column.',
+        nameLabel: 'Column name',
+        namePlaceholder: 'Enter a new column name',
+        success: 'Column updated successfully'
+      },
+      delete: {
+        title: 'Delete column "{name}"?',
+        description: 'Are you sure you want to delete this column?',
+        success: 'Column deleted successfully'
+      }
+    }
   },
   project: {
     create: {

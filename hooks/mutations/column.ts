@@ -17,6 +17,15 @@ interface RebalanceColumnsVars {
 	previousColumns: Column[];
 }
 
+interface UpdateColumnVars {
+	id: string;
+	name: string;
+}
+
+interface DeleteColumnVars {
+	id: string;
+}
+
 export const useUpdateColumnOrderMutation = (projectId: string) => {
 	const queryClient = useQueryClient();
 
@@ -70,6 +79,35 @@ export const useRebalanceColumnsMutation = (projectId: string) => {
 				if (!old) return old;
 				return { ...old, data: [...vars.previousColumns].sort((a, b) => a.order - b.order) };
 			});
+		},
+	});
+};
+
+export const useUpdateColumnMutation = (projectId: string) => {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: ({ id, name }: UpdateColumnVars) =>
+			columnService.updateColumn({ projectId, columnId: id, columnData: { name } }),
+		onSuccess: async () => {
+			await queryClient.invalidateQueries({ queryKey: columnKeys.list(projectId) });
+		},
+		onError: () => {
+			toast.error('Failed to update column. Please try again.');
+		},
+	});
+};
+
+export const useDeleteColumnMutation = (projectId: string) => {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: ({ id }: DeleteColumnVars) => columnService.deleteColumn({ projectId, columnId: id }),
+		onSuccess: async () => {
+			await queryClient.invalidateQueries({ queryKey: columnKeys.list(projectId) });
+		},
+		onError: () => {
+			toast.error('Failed to delete column. Please try again.');
 		},
 	});
 };
