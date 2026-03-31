@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import DeleteConfirmModal from "@/components/dashboard/comp/DeleteConfirmModal";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -10,7 +11,7 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import DropdownMenuUD from "@/components/shared/DropdownMenuUD";
 import { useCreateComment, useDeleteComment, useUpdateComment } from "@/hooks/mutations/comment";
-import { useUpdateIssue } from "@/hooks/mutations/issue";
+import { useDeleteIssue, useUpdateIssue } from "@/hooks/mutations/issue";
 import { useProfile } from "@/hooks/use-profile";
 import { type Comment } from "@/lib/api/comment";
 import { createDateFormatter } from "@/lib/format-date";
@@ -63,6 +64,7 @@ export default function IssueDetailDialog({ isOpen, openChange, projectId, issue
     }));
 
     const { mutate: updateIssue, isPending: isUpdating } = useUpdateIssue(projectId);
+    const { mutate: deleteIssue, isPending: isDeletingIssue } = useDeleteIssue(projectId);
     const { mutate: createComment, isPending: isCreatingComment } = useCreateComment(issueId);
     const { mutate: deleteComment, isPending: isDeletingComment } = useDeleteComment(issueId);
     const { mutate: updateComment, isPending: isUpdatingComment } = useUpdateComment(issueId);
@@ -131,6 +133,7 @@ export default function IssueDetailDialog({ isOpen, openChange, projectId, issue
                             deletingCommentId={deletingCommentId}
                             isUpdatingComment={isUpdatingComment}
                             updatingCommentId={updatingCommentId}
+                            isDeletingIssue={isDeletingIssue}
                             onSave={(values) => {
                                 updateIssue({
                                     projectId,
@@ -142,6 +145,20 @@ export default function IssueDetailDialog({ isOpen, openChange, projectId, issue
                                     },
                                     onError: () => {
                                         toast.error(tDashboard('issue.toast.updateFailed'));
+                                    },
+                                });
+                            }}
+                            onDeleteIssue={() => {
+                                deleteIssue({
+                                    projectId,
+                                    issueId: issue.id,
+                                }, {
+                                    onSuccess: () => {
+                                        toast.success(tDashboard('issue.toast.deleted'));
+                                        openChange(false);
+                                    },
+                                    onError: () => {
+                                        toast.error(tDashboard('issue.toast.deleteFailed'));
                                     },
                                 });
                             }}
@@ -230,7 +247,9 @@ interface IssueDetailEditableContentProps {
     deletingCommentId: string | null;
     isUpdatingComment: boolean;
     updatingCommentId: string | null;
+    isDeletingIssue: boolean;
     onSave: (values: { description: string; assigneeId: string | null; priority: PriorityType }) => void;
+    onDeleteIssue: () => void;
     onUpdateComment: (commentId: string, content: string) => void;
     onDeleteComment: (commentId: string) => void;
     onCreateComment: (content: string) => void;
@@ -250,7 +269,9 @@ function IssueDetailEditableContent({
     deletingCommentId,
     isUpdatingComment,
     updatingCommentId,
+    isDeletingIssue,
     onSave,
+    onDeleteIssue,
     onUpdateComment,
     onDeleteComment,
     onCreateComment,
@@ -263,6 +284,7 @@ function IssueDetailEditableContent({
     const [newComment, setNewComment] = useState('');
     const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
     const [editingCommentContent, setEditingCommentContent] = useState('');
+    const [isDeleteIssueDialogOpen, setIsDeleteIssueDialogOpen] = useState(false);
 
     const formatDate = useMemo(() => createDateFormatter(locale, {
         hour: '2-digit',
@@ -499,6 +521,27 @@ function IssueDetailEditableContent({
                         >
                             {isUpdating ? tDashboard('issue.update.submitting') : tDashboard('issue.detail.saveChanges')}
                         </Button>
+
+                        <Button
+                            className="w-full"
+                            variant="destructive"
+                            onClick={() => setIsDeleteIssueDialogOpen(true)}
+                            disabled={isDeletingIssue}
+                        >
+                            {isDeletingIssue ? tDashboard('issue.detail.deletingIssue') : tDashboard('issue.detail.deleteIssue')}
+                        </Button>
+
+                        <DeleteConfirmModal
+                            isOpen={isDeleteIssueDialogOpen}
+                            isLoading={isDeletingIssue}
+                            title={tDashboard('issue.delete.title', { title: issue.title })}
+                            description={tDashboard('issue.delete.description')}
+                            onClose={setIsDeleteIssueDialogOpen}
+                            onConfirm={() => {
+                                onDeleteIssue();
+                                setIsDeleteIssueDialogOpen(false);
+                            }}
+                        />
 
                         <div className="space-y-3 text-sm">
                             <div className="flex justify-between items-center">

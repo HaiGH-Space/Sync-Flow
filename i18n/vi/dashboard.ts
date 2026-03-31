@@ -195,6 +195,9 @@ const dashboard = {
       noComments: 'Chưa có bình luận nào.',
       statusLabel: 'Trạng thái',
       saveChanges: 'Lưu thay đổi',
+      cancel: 'Hủy',
+      deleteIssue: 'Xóa issue',
+      deletingIssue: 'Đang xóa issue...',
       reporterLabel: 'Người tạo:',
       createdAtLabel: 'Ngày tạo:',
       updatedAtLabel: 'Cập nhật:'

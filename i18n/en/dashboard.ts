@@ -195,6 +195,9 @@ const dashboard = {
       noComments: 'No comments yet.',
       statusLabel: 'Status',
       saveChanges: 'Save changes',
+      cancel: 'Cancel',
+      deleteIssue: 'Delete issue',
+      deletingIssue: 'Deleting issue...',
       reporterLabel: 'Reporter:',
       createdAtLabel: 'Created:',
       updatedAtLabel: 'Updated:'
