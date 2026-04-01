@@ -32,15 +32,42 @@ function toUrlSlug(value: string) {
 
 export default function CreateWorkspaceModal() {
     const [isOpen, setIsOpen] = useState(false);
+
+    const tDashboard = useTranslations("dashboard");
+
+    const handleOpenChange = (open: boolean) => {
+        setIsOpen(open);
+    };
+
+
+    return (
+        <Dialog open={isOpen} onOpenChange={handleOpenChange}>
+            <DialogTrigger asChild>
+                <Button
+                    variant="outline"
+                    size="icon"
+                    className="w-10 h-10 rounded-xl cursor-pointer"
+                    aria-label={tDashboard("workspace.create.submit")}
+                >
+                    <PlusIcon className="size-4" />
+                </Button>
+            </DialogTrigger>
+            <CreateWorkspaceDialog onClose={setIsOpen} />
+        </Dialog>
+    );
+}
+
+
+function CreateWorkspaceDialog(props: {
+    onClose(open: boolean): void,
+}) {
+    const { mutate: createWorkspace, isPending } = useCreateWorkspace();
     const [workspaceName, setWorkspaceName] = useState("");
     const [nameError, setNameError] = useState<string | null>(null);
     const tDashboard = useTranslations("dashboard");
     const tCommon = useTranslations("common");
     const tValidation = useTranslations("validation");
     const router = useRouter();
-
-    const { mutate: createWorkspace, isPending } = useCreateWorkspace();
-
     const handleSubmit = (e: BaseSyntheticEvent) => {
         e.preventDefault();
         const trimmedName = workspaceName.trim();
@@ -57,7 +84,7 @@ export default function CreateWorkspaceModal() {
         }, {
             onSuccess: (response) => {
                 toast.success(tDashboard("workspace.toast.created"));
-                setIsOpen(false);
+                props.onClose(false);
                 setWorkspaceName("");
                 setNameError(null);
                 router.push(`/dashboard/${response.data.id}`);
@@ -68,64 +95,41 @@ export default function CreateWorkspaceModal() {
         }
         );
     };
+    return <DialogContent>
+        <DialogHeader>
+            <DialogTitle>{tDashboard("workspace.create.title")}</DialogTitle>
+            <DialogDescription>{tDashboard("workspace.create.description")}</DialogDescription>
+        </DialogHeader>
 
-    const handleOpenChange = (open: boolean) => {
-        setIsOpen(open);
-        if (!open) {
-            setWorkspaceName("");
-            setNameError(null);
-        }
-    };
+        <form onSubmit={handleSubmit} className="space-y-3">
+            <div className="space-y-2">
+                <Label htmlFor="workspace-name">{tDashboard("workspace.create.nameLabel")}</Label>
+                <Input
+                    id="workspace-name"
+                    value={workspaceName}
+                    onChange={(e) => {
+                        setWorkspaceName(e.target.value);
+                        if (nameError) {
+                            setNameError(null);
+                        }
+                    }}
+                    placeholder={tDashboard("workspace.create.namePlaceholder")}
+                    disabled={isPending}
+                    aria-invalid={Boolean(nameError)}
+                />
+                {nameError && <p className="text-xs text-destructive">{nameError}</p>}
+            </div>
 
-    return (
-        <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-            <DialogTrigger asChild>
-                <Button
-                    variant="outline"
-                    size="icon"
-                    className="w-10 h-10 rounded-xl cursor-pointer"
-                    aria-label={tDashboard("workspace.create.submit")}
-                >
-                    <PlusIcon className="size-4" />
-                </Button>
-            </DialogTrigger>
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>{tDashboard("workspace.create.title")}</DialogTitle>
-                    <DialogDescription>{tDashboard("workspace.create.description")}</DialogDescription>
-                </DialogHeader>
-
-                <form onSubmit={handleSubmit} className="space-y-3">
-                    <div className="space-y-2">
-                        <Label htmlFor="workspace-name">{tDashboard("workspace.create.nameLabel")}</Label>
-                        <Input
-                            id="workspace-name"
-                            value={workspaceName}
-                            onChange={(e) => {
-                                setWorkspaceName(e.target.value);
-                                if (nameError) {
-                                    setNameError(null);
-                                }
-                            }}
-                            placeholder={tDashboard("workspace.create.namePlaceholder")}
-                            disabled={isPending}
-                            aria-invalid={Boolean(nameError)}
-                        />
-                        {nameError && <p className="text-xs text-destructive">{nameError}</p>}
-                    </div>
-
-                    <Button type="submit" className="w-full cursor-pointer" disabled={isPending}>
-                        {isPending ? (
-                            <>
-                                <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
-                                {tCommon("status.creating")}
-                            </>
-                        ) : (
-                            tDashboard("workspace.create.submit")
-                        )}
-                    </Button>
-                </form>
-            </DialogContent>
-        </Dialog>
-    );
+            <Button type="submit" className="w-full cursor-pointer" disabled={isPending}>
+                {isPending ? (
+                    <>
+                        <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
+                        {tCommon("status.creating")}
+                    </>
+                ) : (
+                    tDashboard("workspace.create.submit")
+                )}
+            </Button>
+        </form>
+    </DialogContent>
 }
