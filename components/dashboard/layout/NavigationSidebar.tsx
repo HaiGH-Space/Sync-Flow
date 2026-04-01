@@ -54,7 +54,6 @@ export const NavigationSidebar = memo(function NavigationSidebar({ workspaceDeta
     const profileId = profile?.id
     const [expandedProjectId, setExpandedProjectId] = useState<string | null>(() => projectId ?? null)
     const [searchQuery, setSearchQuery] = useState('')
-    const [projectToDelete, setProjectToDelete] = useState<{ id: string; name: string } | null>(null)
     const [settingsProject, setSettingsProject] = useState<{ id: string; name: string; key: string; description?: string; workspaceId: string; createdAt: string; updatedAt: string } | null>(null)
     const canLoadProjects = !!workspaceDetail?.id && isOpenSidebarLeft
 
@@ -174,8 +173,6 @@ export const NavigationSidebar = memo(function NavigationSidebar({ workspaceDeta
                                     )}
                                     {filteredProjects.map((project) => {
                                         const isExpanded = expandedProjectId === project.id
-                                        const isDeletingCurrentProject = isDeletingProject && projectToDelete?.id === project.id
-                                        const isProjectSettings = settingsProject?.id === project.id
 
                                         return (
                                             <div key={project.id} className="rounded-md my-2">
@@ -290,15 +287,12 @@ export const NavigationSidebar = memo(function NavigationSidebar({ workspaceDeta
                     onOpenChange={(open) => {
                         if (!open && !isDeletingProject) {
                             setSettingsProject(null)
-                            setProjectToDelete(null)
                         }
                     }}
                     onDelete={() => {
                         if (!settingsProject || !workspaceDetail?.id) {
                             return
                         }
-
-                        setProjectToDelete({ id: settingsProject.id, name: settingsProject.name })
 
                         deleteProject({
                             workspaceId: workspaceDetail.id,
@@ -313,7 +307,6 @@ export const NavigationSidebar = memo(function NavigationSidebar({ workspaceDeta
                                 }
 
                                 setSettingsProject(null)
-                                setProjectToDelete(null)
                             },
                             onError: () => {
                                 toast.error(t('project.toast.deleteFailed'))

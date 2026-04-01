@@ -127,6 +127,9 @@ const dashboard = {
       noMembers: 'No members yet.',
       permissionsAdminHint: 'You can manage some important workspace settings.',
       permissionsMemberHint: 'Some administrative permissions are not available for your role.',
+      dangerTitle: 'Danger Zone',
+      dangerDescription: 'Actions here are irreversible. Please proceed with caution.',
+      deleteWarning: 'This action is permanent and cannot be undone. All data will be lost.',
       permissionAllowed: {
         label: 'Allowed'
       },
@@ -137,12 +140,21 @@ const dashboard = {
         manageProjects: 'Manage projects',
         manageMembers: 'Manage members'
       },
+      tabs: {
+        dangerZone: 'Danger Zone',
+        dangerZoneDescription: 'Irreversible actions'
+      },
       copied: 'Workspace ID copied',
       copyFailed: 'Failed to copy workspace ID'
     },
     toast: {
       created: 'Workspace created successfully',
-      createFailed: 'Failed to create workspace'
+      createFailed: 'Failed to create workspace',
+      deleted: 'Workspace deleted successfully',
+      deleteFailed: 'Failed to delete workspace'
+    },
+    delete: {
+      title: 'Delete workspace "{name}"?'
     }
   },
   issue: {

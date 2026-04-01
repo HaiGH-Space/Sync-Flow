@@ -13,6 +13,8 @@ import { useState } from "react"
 import { useTranslations } from "next-intl"
 import { toast } from "sonner"
 import WorkspaceSettingsDialog from "./WorkspaceSettingsDialog"
+import { useDeleteWorkspace } from "@/hooks/mutations/workspace"
+import { useRouter } from "@/i18n/navigation"
 
 type WorkspaceRole = 'OWNER' | 'ADMIN' | 'MEMBER'
 
@@ -23,7 +25,9 @@ type WorkspaceSettingsMenuProps = {
 
 export default function WorkspaceSettingsMenu({ workspace, role }: WorkspaceSettingsMenuProps) {
     const tDashboard = useTranslations('dashboard')
+    const router = useRouter()
     const [isSettingsOpen, setIsSettingsOpen] = useState(false)
+    const { mutate: deleteWorkspace, isPending: isDeletingWorkspace } = useDeleteWorkspace()
 
     const copyWorkspaceId = async () => {
         try {
@@ -68,6 +72,19 @@ export default function WorkspaceSettingsMenu({ workspace, role }: WorkspaceSett
                 role={role}
                 open={isSettingsOpen}
                 onOpenChange={setIsSettingsOpen}
+                isDeleting={isDeletingWorkspace}
+                onDelete={() => {
+                    deleteWorkspace({ workspaceId: workspace.id }, {
+                        onSuccess: () => {
+                            toast.success(tDashboard('workspace.toast.deleted'))
+                            setIsSettingsOpen(false)
+                            router.push('/dashboard')
+                        },
+                        onError: () => {
+                            toast.error(tDashboard('workspace.toast.deleteFailed'))
+                        },
+                    })
+                }}
             />
         </>
     )

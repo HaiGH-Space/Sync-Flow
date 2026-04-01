@@ -18,6 +18,10 @@ export type CreateWorkspace = {
     urlSlug: string
 }
 
+type DeleteWorkspaceRequest = {
+    workspaceId: string
+}
+
 async function getMyWorkspace(): Promise<ApiResponse<Workspace[]>> {
     return api.get<Workspace[]>(`${WORKSPACE_BASE_URL}/me`)
 }
@@ -30,8 +34,13 @@ async function createWorkspace({ name, urlSlug }: CreateWorkspace): Promise<ApiR
     return api.post<Workspace>(WORKSPACE_BASE_URL, { name, urlSlug })
 }
 
+async function deleteWorkspace({ workspaceId }: DeleteWorkspaceRequest): Promise<ApiResponse<Workspace>> {
+    return api.delete(`${WORKSPACE_BASE_URL}/${workspaceId}`)
+}
+
 export const workspaceService = {
     getMyWorkspace,
     getWorkspaceById,
-    createWorkspace
+    createWorkspace,
+    deleteWorkspace
 }

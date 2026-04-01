@@ -5,10 +5,11 @@ import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import type { Workspace } from "@/lib/api/workspace"
 import { useQuery } from "@tanstack/react-query"
-import { useMemo } from "react"
+import { useMemo, useState } from "react"
 import { useTranslations } from "next-intl"
 import { createWorkspaceMemberProfilesQueryOptions } from "@/queries/workspace-member"
-import { Shield, Settings2, Users } from "lucide-react"
+import { AlertTriangle, Loader2, Settings2, Shield, Trash2, Users } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import SettingsDialogShell, { type SettingsTab } from "./SettingsDialogShell"
 
 type WorkspaceRole = 'OWNER' | 'ADMIN' | 'MEMBER'
@@ -18,6 +19,8 @@ type WorkspaceSettingsDialogProps = {
     role: WorkspaceRole
     open: boolean
     onOpenChange: (open: boolean) => void
+    onDelete: () => void
+    isDeleting: boolean
 }
 
 export default function WorkspaceSettingsDialog({
@@ -25,8 +28,19 @@ export default function WorkspaceSettingsDialog({
     role,
     open,
     onOpenChange,
+    onDelete,
+    isDeleting,
 }: WorkspaceSettingsDialogProps) {
     const tDashboard = useTranslations('dashboard')
+    const tCommon = useTranslations('common')
+    const [confirmDelete, setConfirmDelete] = useState(false)
+
+    const handleOpenChange = (nextOpen: boolean) => {
+        if (!nextOpen) {
+            setConfirmDelete(false)
+        }
+        onOpenChange(nextOpen)
+    }
 
     const { data: memberProfilesResponse } = useQuery(
         createWorkspaceMemberProfilesQueryOptions({ workspaceId: workspace.id }, {
@@ -34,8 +48,8 @@ export default function WorkspaceSettingsDialog({
         })
     )
 
-    const memberProfiles = memberProfilesResponse?.data ?? []
-    const workspaceMembers = workspace.members ?? []
+    const memberProfiles = useMemo(() => memberProfilesResponse?.data ?? [], [memberProfilesResponse?.data])
+    const workspaceMembers = useMemo(() => workspace.members ?? [], [workspace.members])
 
     const roleLabel = useMemo(() => {
         if (role === 'OWNER') {
@@ -177,12 +191,89 @@ export default function WorkspaceSettingsDialog({
                 </>
             ),
         },
-    ], [tDashboard, workspace, role, roleLabel, memberProfiles, workspaceMembers])
+        {
+            value: 'danger',
+            icon: <AlertTriangle className="size-4 shrink-0 text-muted-foreground" />,
+            label: tDashboard('workspace.settings.tabs.dangerZone'),
+            description: tDashboard('workspace.settings.tabs.dangerZoneDescription'),
+            triggerClassName: "data-active:bg-destructive/10 data-active:text-destructive",
+            onClick: () => setConfirmDelete(false),
+            visible: role === 'OWNER',
+            content: (
+                <>
+                    <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4">
+                        <div className="flex items-start gap-3">
+                            <AlertTriangle className="mt-0.5 size-5 shrink-0 text-destructive" />
+                            <div className="min-w-0">
+                                <p className="text-sm font-semibold text-destructive">
+                                    {tDashboard('workspace.settings.dangerTitle')}
+                                </p>
+                                <p className="mt-1 text-sm text-muted-foreground">
+                                    {tDashboard('workspace.settings.dangerDescription')}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="rounded-lg border p-4">
+                        <div className="flex items-center justify-between gap-4">
+                            <div className="min-w-0">
+                                <p className="text-sm font-medium">
+                                    {tDashboard('workspace.delete.title', { name: workspace.name })}
+                                </p>
+                                <p className="mt-0.5 text-sm text-muted-foreground">
+                                    {tDashboard('workspace.settings.deleteWarning')}
+                                </p>
+                            </div>
+
+                            {!confirmDelete ? (
+                                <Button
+                                    variant="destructive"
+                                    size="sm"
+                                    className="shrink-0"
+                                    onClick={() => setConfirmDelete(true)}
+                                >
+                                    <Trash2 className="mr-2 size-4" />
+                                    {tCommon('actions.delete')}
+                                </Button>
+                            ) : (
+                                <div className="flex shrink-0 items-center gap-2">
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => setConfirmDelete(false)}
+                                        disabled={isDeleting}
+                                    >
+                                        {tCommon('actions.cancel')}
+                                    </Button>
+                                    <Button
+                                        variant="destructive"
+                                        size="sm"
+                                        onClick={onDelete}
+                                        disabled={isDeleting}
+                                    >
+                                        {isDeleting ? (
+                                            <>
+                                                <Loader2 className="mr-2 size-4 animate-spin" />
+                                                {tCommon('status.deleting')}
+                                            </>
+                                        ) : (
+                                            tCommon('actions.confirm')
+                                        )}
+                                    </Button>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </>
+            ),
+        },
+    ], [tDashboard, tCommon, workspace, role, roleLabel, memberProfiles, workspaceMembers, confirmDelete, isDeleting, onDelete])
 
     return (
         <SettingsDialogShell
             open={open}
-            onOpenChange={onOpenChange}
+            onOpenChange={handleOpenChange}
             title={tDashboard('workspace.settings.title')}
             description={tDashboard('workspace.settings.description')}
             tabs={tabs}

@@ -127,6 +127,9 @@ const dashboard = {
       noMembers: 'Chưa có thành viên nào.',
       permissionsAdminHint: 'Bạn có thể quản lý một số cài đặt quan trọng của workspace.',
       permissionsMemberHint: 'Một số quyền quản trị hiện không khả dụng với vai trò của bạn.',
+      dangerTitle: 'Khu vực nguy hiểm',
+      dangerDescription: 'Các hành động ở đây không thể hoàn tác. Vui lòng cẩn thận.',
+      deleteWarning: 'Hành động này là vĩnh viễn và không thể hoàn tác. Tất cả dữ liệu sẽ bị mất.',
       permissionAllowed: {
         label: 'Được phép'
       },
@@ -137,12 +140,21 @@ const dashboard = {
         manageProjects: 'Quản lý dự án',
         manageMembers: 'Quản lý thành viên'
       },
+      tabs: {
+        dangerZone: 'Khu vực nguy hiểm',
+        dangerZoneDescription: 'Hành động không thể hoàn tác'
+      },
       copied: 'Đã sao chép ID workspace',
       copyFailed: 'Không thể sao chép ID workspace'
     },
     toast: {
       created: 'Tạo workspace thành công',
-      createFailed: 'Tạo workspace thất bại'
+      createFailed: 'Tạo workspace thất bại',
+      deleted: 'Xóa workspace thành công',
+      deleteFailed: 'Xóa workspace thất bại'
+    },
+    delete: {
+      title: 'Xóa workspace "{name}"?'
     }
   },
   issue: {

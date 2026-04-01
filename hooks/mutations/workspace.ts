@@ -12,3 +12,15 @@ export const useCreateWorkspace = () => {
     },
   })
 }
+
+export const useDeleteWorkspace = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (payload: { workspaceId: string }) => workspaceService.deleteWorkspace(payload),
+    onSuccess: async (_response, variables) => {
+      await queryClient.invalidateQueries({ queryKey: workspaceKeys.list() })
+      await queryClient.invalidateQueries({ queryKey: workspaceKeys.detail(variables.workspaceId) })
+    },
+  })
+}
