@@ -157,6 +157,19 @@ const dashboard = {
       title: 'Xóa workspace "{name}"?'
     }
   },
+  backlog: {
+    empty: 'Chưa có issue trong backlog.',
+    searchPlaceholder: 'Tìm trong backlog...',
+    countLabel: 'issue',
+    columns: {
+      id: 'ID',
+      title: 'Tiêu đề',
+      priority: 'Ưu tiên',
+      assignee: 'Người phụ trách',
+      status: 'Trạng thái',
+      updatedAt: 'Cập nhật'
+    }
+  },
   issue: {
     assignee: {
       me: 'Tôi ({name})',

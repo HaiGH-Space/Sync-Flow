@@ -157,6 +157,19 @@ const dashboard = {
       title: 'Delete workspace "{name}"?'
     }
   },
+  backlog: {
+    empty: 'No backlog issues yet.',
+    searchPlaceholder: 'Search backlog...',
+    countLabel: 'issues',
+    columns: {
+      id: 'ID',
+      title: 'Title',
+      priority: 'Priority',
+      assignee: 'Assignee',
+      status: 'Status',
+      updatedAt: 'Updated'
+    }
+  },
   issue: {
     assignee: {
       me: 'Me ({name})',
