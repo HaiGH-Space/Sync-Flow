@@ -137,7 +137,7 @@ export const NavigationSidebar = memo(function NavigationSidebar({ workspaceDeta
                         <div className="h-14 px-4 flex flex-row justify-between items-center gap-2 border-b border-border/70 bg-background/90 backdrop-blur overflow-hidden min-w-0">
                             {workspaceDetail ? (
                                 <>
-                                    <WorkspaceSettingsMenu workspace={workspaceDetail} role={currentWorkspaceRole} />
+                                    <WorkspaceSettingsMenu role={currentWorkspaceRole} />
                                     {canManageProject && <CreateProjectModal workspaceDetail={workspaceDetail} />}
                                 </>
                             ) : (

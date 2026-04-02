@@ -7,7 +7,6 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Workspace } from "@/lib/api/workspace"
 import { ChevronDown, Copy, Settings2 } from "lucide-react"
 import { useState } from "react"
 import { useTranslations } from "next-intl"
@@ -15,15 +14,16 @@ import { toast } from "sonner"
 import WorkspaceSettingsDialog from "./WorkspaceSettingsDialog"
 import { useDeleteWorkspace } from "@/hooks/mutations/workspace"
 import { useRouter } from "@/i18n/navigation"
+import { useCurrentWorkspace } from "@/hooks/use-current-workspace"
 
 type WorkspaceRole = 'OWNER' | 'ADMIN' | 'MEMBER'
 
 type WorkspaceSettingsMenuProps = {
-    workspace: Workspace
     role: WorkspaceRole
 }
 
-export default function WorkspaceSettingsMenu({ workspace, role }: WorkspaceSettingsMenuProps) {
+export default function WorkspaceSettingsMenu({ role }: WorkspaceSettingsMenuProps) {
+    const { activeWorkspace: workspace } = useCurrentWorkspace()
     const tDashboard = useTranslations('dashboard')
     const router = useRouter()
     const [isSettingsOpen, setIsSettingsOpen] = useState(false)
@@ -31,7 +31,7 @@ export default function WorkspaceSettingsMenu({ workspace, role }: WorkspaceSett
 
     const copyWorkspaceId = async () => {
         try {
-            await navigator.clipboard.writeText(workspace.id)
+            await navigator.clipboard.writeText(workspace!.id)
             toast.success(tDashboard('workspace.settings.copied'))
         } catch {
             toast.error(tDashboard('workspace.settings.copyFailed'))
@@ -48,7 +48,7 @@ export default function WorkspaceSettingsMenu({ workspace, role }: WorkspaceSett
                     >
                         <span className="min-w-0 flex-1 text-left">
                             <span className="block truncate text-lg font-semibold">
-                                {workspace.name}
+                                {workspace!.name}
                             </span>
                         </span>
                         <ChevronDown className="size-4 shrink-0 text-muted-foreground" />
@@ -68,13 +68,13 @@ export default function WorkspaceSettingsMenu({ workspace, role }: WorkspaceSett
             </DropdownMenu>
 
             <WorkspaceSettingsDialog
-                workspace={workspace}
+                workspace={workspace!}
                 role={role}
                 open={isSettingsOpen}
                 onOpenChange={setIsSettingsOpen}
                 isDeleting={isDeletingWorkspace}
                 onDelete={() => {
-                    deleteWorkspace({ workspaceId: workspace.id }, {
+                    deleteWorkspace({ workspaceId: workspace!.id }, {
                         onSuccess: () => {
                             toast.success(tDashboard('workspace.toast.deleted'))
                             setIsSettingsOpen(false)
