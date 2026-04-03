@@ -161,6 +161,12 @@ const dashboard = {
     empty: 'Chưa có issue trong backlog.',
     searchPlaceholder: 'Tìm trong backlog...',
     countLabel: 'issue',
+    filters: {
+      all: 'Tất cả',
+      priority: 'Ưu tiên',
+      status: 'Trạng thái',
+      reset: 'Đặt lại'
+    },
     columns: {
       id: 'ID',
       title: 'Tiêu đề',

@@ -161,6 +161,12 @@ const dashboard = {
     empty: 'No backlog issues yet.',
     searchPlaceholder: 'Search backlog...',
     countLabel: 'issues',
+    filters: {
+      all: 'All',
+      priority: 'Priority',
+      status: 'Status',
+      reset: 'Reset'
+    },
     columns: {
       id: 'ID',
       title: 'Title',

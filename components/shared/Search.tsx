@@ -1,5 +1,5 @@
 'use client'
-import { memo, useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Field } from "../ui/field"
 import { Input } from "../ui/input"
 import { useTranslations } from "next-intl"
@@ -10,7 +10,7 @@ type SearchProps = React.ComponentProps<typeof Field> & {
     debounceMs?: number
 }
 
-export const Search = memo(function Search({ placeholder, onSearch, debounceMs = 300, ...props }: SearchProps) {
+export const Search = function Search({ placeholder, onSearch, debounceMs = 300, ...props }: SearchProps) {
     const t = useTranslations('common')
     const resolvedPlaceholder = placeholder ?? t('search.placeholder')
     const [query, setQuery] = useState("")
@@ -46,4 +46,4 @@ export const Search = memo(function Search({ placeholder, onSearch, debounceMs =
             />
         </Field>
     )
-})
+}
