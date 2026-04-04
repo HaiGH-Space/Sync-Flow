@@ -10,6 +10,7 @@ import { useQuery } from "@tanstack/react-query";
 import type { ApiResponse } from "@/lib/api/api";
 import { createIssuesQueryOptions } from "@/queries/issue";
 import DropdownMenuUD from "@/components/shared/DropdownMenuUD";
+import { useDashboard } from "@/lib/store/use-dashboard";
 type ColumnProps = {
     id: string
     name: string
@@ -22,14 +23,19 @@ type ColumnProps = {
 export type TaskProps = Pick<Issue, "id" | "columnId" | "title" | "priority" | "description" | "assigneeId">
 
 function KanbanColumn(props: ColumnProps) {
+    const selectedSprintId = useDashboard((state) => state.selectedSprintId)
 
     // Each column subscribes to the shared cache with a stable per-column selector.
     // TanStack Query v5 structural sharing means only the two columns whose task
     // lists actually changed will receive a new reference → React.memo blocks
     // re-renders for every other column.
     const selectColumnTasks = useCallback((data: ApiResponse<Issue[]>): TaskProps[] =>
-        data.data.filter(issue => issue.columnId === props.columnId),
-        [props.columnId]
+        data.data.filter((issue) => {
+            const matchColumn = issue.columnId === props.columnId
+            const matchSprint = selectedSprintId === 'all' || issue.sprintId === selectedSprintId
+            return matchColumn && matchSprint
+        }),
+        [props.columnId, selectedSprintId]
     );
 
     const { data: tasks = [] } = useQuery(createIssuesQueryOptions({ projectId: props.projectId }, {

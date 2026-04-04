@@ -14,6 +14,7 @@ import BacklogLoading from './BacklogLoading'
 import BacklogTable from './BacklogTable'
 import type { IssueRow } from './types'
 import BacklogEmpty from './BacklogEmpty'
+import { useDashboard } from '@/lib/store/use-dashboard'
 
 type BacklogCanvasProps = {
     projectId: string
@@ -22,6 +23,7 @@ type BacklogCanvasProps = {
 export default function BacklogCanvas({ projectId }: BacklogCanvasProps) {
     const tDashboard = useTranslations('dashboard')
     const { workspaceId } = useParams<{ workspaceId?: string }>()
+    const selectedSprintId = useDashboard((state) => state.selectedSprintId)
     const [selectedIssueId, setSelectedIssueId] = useState<string | null>(null)
 
     const {
@@ -67,9 +69,13 @@ export default function BacklogCanvas({ projectId }: BacklogCanvasProps) {
 
     const backlogRows = useMemo<IssueRow[]>(() => {
         const issues = issuesResponse?.data ?? []
+        const filteredBySprint = selectedSprintId === 'all'
+            ? issues
+            : issues.filter((issue) => issue.sprintId === selectedSprintId)
+
         const filtered = doneColumnIds.size > 0
-            ? issues.filter((issue) => !doneColumnIds.has(issue.columnId))
-            : issues
+            ? filteredBySprint.filter((issue) => !doneColumnIds.has(issue.columnId))
+            : filteredBySprint
 
         return filtered.map((issue) => ({
             ...issue,
@@ -78,7 +84,7 @@ export default function BacklogCanvas({ projectId }: BacklogCanvasProps) {
                 : unassignedLabel,
             statusName: columnsById.get(issue.columnId) ?? '',
         }))
-    }, [columnsById, doneColumnIds, issuesResponse?.data, membersById, unassignedLabel])
+    }, [columnsById, doneColumnIds, issuesResponse?.data, membersById, selectedSprintId, unassignedLabel])
 
     const handleIssueSelect = useCallback((issueId: string) => {
         setSelectedIssueId(issueId)

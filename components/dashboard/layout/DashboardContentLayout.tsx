@@ -1,11 +1,21 @@
 'use client'
 
+import { useQuery } from "@tanstack/react-query"
 import { Button } from "@/components/ui/button"
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { navigateItems, NavigateType, useDashboard } from "@/lib/store/use-dashboard"
 import { PanelLeftClose, PanelLeftOpen } from "lucide-react"
-import React from "react"
+import React, { useEffect, useMemo } from "react"
 import { useTranslations } from "next-intl"
+import { useParams } from "next/navigation"
+import { createSprintsQueryOptions } from "@/queries/sprint"
 
 export default function DashboardContentLayout({ children }: { children: React.ReactNode }) {
     const isOpenSidebarLeft = useDashboard((state) => state.isOpenSidebarLeft)
@@ -29,8 +39,8 @@ export default function DashboardContentLayout({ children }: { children: React.R
                 <div>
                     <HeaderTabList />
                 </div>
-                <div className="ml-auto">
-
+                <div className="ml-auto px-2">
+                    <HeaderSprintSelect />
                 </div>
             </header>
             <main className="flex-1 p-6 overflow-y-auto bg-background">
@@ -45,7 +55,7 @@ function HeaderTabList() {
     const activeNavigate = useDashboard((s) => s.activeNavigate)
     const setActiveNavigate = useDashboard((s) => s.setActiveNavigate)
     return (
-        <Tabs defaultValue={activeNavigate?.value} onValueChange={(v) => setActiveNavigate(v as NavigateType)}>
+        <Tabs value={activeNavigate.value} onValueChange={(v) => setActiveNavigate(v as NavigateType)}>
             <TabsList className="py-5">
                 {Object.values(navigateItems).map((navigate) => (
                     <TabsTrigger className="capitalize gap-x-2 py-4" key={navigate.value} value={navigate.value}>
@@ -61,5 +71,66 @@ function HeaderTabList() {
                 ))}
             </TabsList>
         </Tabs>
+    )
+}
+
+function HeaderSprintSelect() {
+    const t = useTranslations('dashboard')
+    const { projectId } = useParams<{ projectId?: string }>()
+    const selectedSprintId = useDashboard((state) => state.selectedSprintId)
+    const setSelectedSprintId = useDashboard((state) => state.setSelectedSprintId)
+
+    const { data: sprintsResponse, isLoading } = useQuery(
+        createSprintsQueryOptions({ projectId: projectId ?? '' }, {
+            enabled: !!projectId,
+        })
+    )
+
+    const sprintOptions = useMemo(() => sprintsResponse?.data ?? [], [sprintsResponse?.data])
+    const isDisabled = !projectId
+
+    useEffect(() => {
+        setSelectedSprintId('all')
+    }, [projectId, setSelectedSprintId])
+
+    useEffect(() => {
+        if (selectedSprintId === 'all') {
+            return
+        }
+
+        const exists = sprintOptions.some((sprint) => sprint.id === selectedSprintId)
+        if (!exists) {
+            setSelectedSprintId('all')
+        }
+    }, [selectedSprintId, setSelectedSprintId, sprintOptions])
+
+    return (
+        <div className="flex items-center gap-2">
+            <Select
+                value={selectedSprintId}
+                onValueChange={setSelectedSprintId}
+                disabled={isDisabled}
+            >
+                <SelectTrigger className="w-44" disabled={isDisabled}>
+                    <SelectValue
+                        placeholder={
+                            !projectId
+                                ? t('header.sprintNoProject')
+                                : isLoading && sprintOptions.length === 0
+                                    ? t('header.sprintLoading')
+                                    : t('header.sprintEmpty')
+                        }
+                    />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all">{t('header.sprintAll')}</SelectItem>
+                    {sprintOptions.map((sprint) => (
+                        <SelectItem key={sprint.id} value={sprint.id}>
+                            {sprint.name}
+                        </SelectItem>
+                    ))}
+                </SelectContent>
+            </Select>
+        </div>
     )
 }

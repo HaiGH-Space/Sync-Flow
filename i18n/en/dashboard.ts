@@ -30,6 +30,13 @@ const dashboard = {
     planning: 'Planning',
     timeline: 'Timeline'
   },
+  header: {
+    sprintLabel: 'Sprint',
+    sprintAll: 'All sprints',
+    sprintNoProject: 'No project',
+    sprintLoading: 'Loading sprints...',
+    sprintEmpty: 'No sprints'
+  },
   board: {
     errorLoadingColumns: 'Error loading columns',
     errorHint: 'Please check your connection and try again.',

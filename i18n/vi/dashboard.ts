@@ -30,6 +30,13 @@ const dashboard = {
     planning: 'Lập kế hoạch',
     timeline: 'Dòng thời gian'
   },
+  header: {
+    sprintLabel: 'Sprint',
+    sprintAll: 'Tất cả sprint',
+    sprintNoProject: 'Chưa chọn dự án',
+    sprintLoading: 'Đang tải sprint...',
+    sprintEmpty: 'Chưa có sprint'
+  },
   board: {
     errorLoadingColumns: 'Lỗi tải cột',
     errorHint: 'Vui lòng kiểm tra kết nối và thử lại.',

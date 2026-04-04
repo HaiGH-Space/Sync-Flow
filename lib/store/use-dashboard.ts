@@ -25,19 +25,22 @@ type DashboardState = {
     isOpenSidebarLeft: boolean
     isOpenSidebarRight: boolean
     activeNavigate: NavigateItem
+    selectedSprintId: string
 }
 
 type DashboardAction = {
     toggleSidebarLeft: () => void
     toggleSidebarRight: () => void
     setActiveNavigate: (navigateType: NavigateType) => void
+    setSelectedSprintId: (sprintId: string) => void
     reset: () => void
 }
 
 const initialState: DashboardState = {
     isOpenSidebarLeft: true,
     isOpenSidebarRight: false,
-    activeNavigate: navigateItems[0]
+    activeNavigate: navigateItems[0],
+    selectedSprintId: 'all'
 }
 
 type DashboardStore = DashboardState & DashboardAction
@@ -49,6 +52,7 @@ export const useDashboard = create<DashboardStore>()(
             toggleSidebarLeft: () => set((state) => ({ isOpenSidebarLeft: !state.isOpenSidebarLeft })),
             toggleSidebarRight: () => set((state) => ({ isOpenSidebarRight: !state.isOpenSidebarRight })),
             setActiveNavigate: (navigateType: NavigateType) => set({ activeNavigate: navigateItems.find(n => n.value === navigateType)! }),
+            setSelectedSprintId: (sprintId: string) => set({ selectedSprintId: sprintId }),
             reset: () => set(initialState)
         }),
         {
