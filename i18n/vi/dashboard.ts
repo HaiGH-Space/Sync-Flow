@@ -37,6 +37,22 @@ const dashboard = {
     sprintLoading: 'Đang tải sprint...',
     sprintEmpty: 'Chưa có sprint'
   },
+  sprint: {
+    create: {
+      action: 'Tạo sprint',
+      title: 'Tạo sprint',
+      description: 'Tạo sprint cho dự án này.',
+      namePlaceholder: 'Tên sprint',
+      goalPlaceholder: 'Mục tiêu sprint (tùy chọn)',
+      startDateLabel: 'Ngày bắt đầu',
+      endDateLabel: 'Ngày kết thúc',
+      submit: 'Tạo sprint'
+    },
+    toast: {
+      created: 'Tạo sprint thành công',
+      createFailed: 'Tạo sprint thất bại'
+    }
+  },
   board: {
     errorLoadingColumns: 'Lỗi tải cột',
     errorHint: 'Vui lòng kiểm tra kết nối và thử lại.',

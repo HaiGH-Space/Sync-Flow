@@ -15,6 +15,10 @@ const validation = {
   issue: {
     title_required: "Issue title is required",
   },
+  sprint: {
+    name_required: 'Sprint name is required',
+    end_date_after_start: 'End date must be after start date',
+  },
 } as const;
 
 export default validation;

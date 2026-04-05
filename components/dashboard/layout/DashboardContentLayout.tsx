@@ -16,6 +16,7 @@ import React, { useEffect, useMemo } from "react"
 import { useTranslations } from "next-intl"
 import { useParams } from "next/navigation"
 import { createSprintsQueryOptions } from "@/queries/sprint"
+import CreateSprintModal from "@/components/dashboard/comp/CreateSprintModal"
 
 export default function DashboardContentLayout({ children }: { children: React.ReactNode }) {
     const isOpenSidebarLeft = useDashboard((state) => state.isOpenSidebarLeft)
@@ -106,6 +107,12 @@ function HeaderSprintSelect() {
 
     return (
         <div className="flex items-center gap-2">
+            {projectId ? (
+                <CreateSprintModal
+                    projectId={projectId}
+                    onCreated={(sprintId) => setSelectedSprintId(sprintId)}
+                />
+            ) : null}
             <Select
                 value={selectedSprintId}
                 onValueChange={setSelectedSprintId}

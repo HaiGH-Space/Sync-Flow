@@ -15,6 +15,10 @@ const validation = {
   issue: {
     title_required: "Tiêu đề issue là bắt buộc",
   },
+  sprint: {
+    name_required: 'Tên sprint là bắt buộc',
+    end_date_after_start: 'Ngày kết thúc phải sau ngày bắt đầu',
+  },
 } as const;
 
 export default validation;
