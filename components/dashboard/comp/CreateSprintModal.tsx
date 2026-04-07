@@ -68,6 +68,11 @@ export default function CreateSprintModal({ projectId, onCreated }: CreateSprint
   const schema = createSprintSchema(tValidation)
   const { mutate: createSprint, isPending } = useCreateSprint(projectId)
 
+  const toIsoDateTime = (value?: string) => {
+    if (!value?.trim()) return null
+    return new Date(`${value}T00:00:00.000Z`).toISOString()
+  }
+
   const form = useForm({
     defaultValues,
     validators: {
@@ -82,8 +87,8 @@ export default function CreateSprintModal({ projectId, onCreated }: CreateSprint
             projectId,
             name: value.name,
             goal: value.goal?.trim() ? value.goal : null,
-            startDate: value.startDate?.trim() ? value.startDate : null,
-            endDate: value.endDate?.trim() ? value.endDate : null,
+            startDate: toIsoDateTime(value.startDate),
+            endDate: toIsoDateTime(value.endDate),
           },
         },
         {

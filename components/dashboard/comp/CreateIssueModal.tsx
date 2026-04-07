@@ -15,6 +15,8 @@ import { useParams } from "next/navigation";
 import { createWorkspaceMemberProfilesQueryOptions } from "@/queries/workspace-member";
 import { useTranslations } from "next-intl";
 import { getTailOrder } from "@/lib/ordering";
+import { createSprintsQueryOptions } from "@/queries/sprint";
+import { useDashboard } from "@/lib/store/use-dashboard";
 
 interface CreateIssueModalProps {
     columnId: string;
@@ -27,6 +29,7 @@ export default function CreateIssueModal({ columnId, projectId }: CreateIssueMod
     const queryClient = useQueryClient();
     const { data: profile } = useProfile();
     const tDashboard = useTranslations('dashboard');
+    const selectedSprintId = useDashboard((state) => state.selectedSprintId)
     const params = useParams<{ workspaceId: string }>();
     const workspaceId = params.workspaceId;
 
@@ -34,11 +37,23 @@ export default function CreateIssueModal({ columnId, projectId }: CreateIssueMod
         enabled: !!workspaceId,
     }));
 
+    const { data: sprintsResponse } = useQuery(
+        createSprintsQueryOptions({ projectId }, { enabled: !!projectId })
+    )
+
     const assigneeOptions = memberProfilesResponse?.data
         ? memberProfilesResponse.data.map((u) => ({
             value: u.id,
             label: profile?.id === u.id ? tDashboard('issue.assignee.me', { name: u.name }) : u.name,
         })) : undefined;
+
+    const sprintOptions = sprintsResponse?.data
+        ? sprintsResponse.data.map((sprint) => ({
+            value: sprint.id,
+            label: sprint.name,
+        })) : undefined
+
+    const sprintDefaultValue = selectedSprintId !== 'all' ? selectedSprintId : 'NO_SPRINT'
 
     const handleSubmit = async (value: IssueFormValues) => {
         const cachedIssues = queryClient.getQueryData<ApiResponse<Issue[]>>(issueKeys.list(projectId));
@@ -60,6 +75,7 @@ export default function CreateIssueModal({ columnId, projectId }: CreateIssueMod
             priority: value.priority,
             description: value.description,
             assigneeId: value.assigneeId,
+            sprintId: value.sprintId,
         }
         createIssue({ projectId, issueData }, {
             onSuccess: () => {
@@ -82,6 +98,8 @@ export default function CreateIssueModal({ columnId, projectId }: CreateIssueMod
             submittingLabel={tDashboard('issue.create.submitting')}
             isSubmitting={isPending}
             assigneeOptions={assigneeOptions}
+            sprintOptions={sprintOptions}
+            defaultValues={{ sprintId: sprintDefaultValue }}
             onSubmit={handleSubmit}
         >
             <DialogTrigger asChild>

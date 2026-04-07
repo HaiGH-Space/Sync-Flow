@@ -32,11 +32,13 @@ export type CreateIssue = {
     priority: Priority
     assigneeId?: string | null
     description?: string
+    sprintId?: string | null
     order: number
 }
 
 type UpdateIssue = Partial<CreateIssue> & {
     order?: number
+    sprintId?: string | null
 }
 
 async function getIssuesByProjectId(projectId: string) {

@@ -22,6 +22,7 @@ const createIssueFormSchema = (tValidation: ReturnType<typeof useTranslations<'v
     priority: z.enum(Priority),
     description: z.string().optional(),
     assigneeId: z.string().optional(),
+    sprintId: z.string().optional(),
   })
 
 export type IssueFormValues = z.infer<ReturnType<typeof createIssueFormSchema>>
@@ -31,9 +32,11 @@ const baseDefaultValues: IssueFormValues = {
   priority: 'MEDIUM',
   description: '',
   assigneeId: 'UNASSIGNED',
+  sprintId: 'NO_SPRINT',
 }
 
 export type AssigneeOption = { value: string; label: string }
+export type SprintOption = { value: string; label: string }
 
 type IssueFormDialogProps = {
   open: boolean
@@ -42,6 +45,7 @@ type IssueFormDialogProps = {
   dialogDescription?: string
   children?: ReactNode
   assigneeOptions?: AssigneeOption[]
+  sprintOptions?: SprintOption[]
   submitLabel: string
   submittingLabel?: string
   isSubmitting?: boolean
@@ -56,6 +60,7 @@ export default function IssueFormDialog({
   dialogDescription,
   children,
   assigneeOptions,
+  sprintOptions,
   submitLabel,
   submittingLabel = 'Saving...',
   isSubmitting = false,
@@ -82,6 +87,7 @@ export default function IssueFormDialog({
       const normalized: IssueFormValues = {
         ...value,
         assigneeId: value.assigneeId === 'UNASSIGNED' ? undefined : value.assigneeId,
+        sprintId: value.sprintId === 'NO_SPRINT' ? undefined : value.sprintId,
       }
       await onSubmit(normalized)
     },
@@ -103,6 +109,10 @@ export default function IssueFormDialog({
 
   const normalizedAssigneeOptions = assigneeOptions
     ? [{ value: 'UNASSIGNED', label: tDashboard('issue.assignee.unassigned') }, ...assigneeOptions]
+    : undefined
+
+  const normalizedSprintOptions = sprintOptions
+    ? [{ value: 'NO_SPRINT', label: tDashboard('issue.form.sprintNone') }, ...sprintOptions]
     : undefined
 
   return (
@@ -139,6 +149,15 @@ export default function IssueFormDialog({
               placeholder={tDashboard('issue.form.assigneePlaceholder')}
               fieldLabel={tDashboard('issue.form.assigneeLabel')}
               data={normalizedAssigneeOptions}
+            />
+          ) : null}
+          {normalizedSprintOptions ? (
+            <SelectAnimation
+              form={form}
+              name="sprintId"
+              placeholder={tDashboard('issue.form.sprintPlaceholder')}
+              fieldLabel={tDashboard('issue.form.sprintLabel')}
+              data={normalizedSprintOptions}
             />
           ) : null}
           <SelectAnimation
