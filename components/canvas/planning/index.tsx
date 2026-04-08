@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { DragDropProvider } from '@dnd-kit/react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslations } from 'next-intl'
 import { toast } from 'sonner'
 
@@ -22,6 +23,7 @@ export default function PlanningCanvas({ projectId }: PlanningCanvasProps) {
   const selectedSprintId = useDashboard((state) => state.selectedSprintId)
   const { mutate: updateIssue, isPending } = useUpdateIssue(projectId)
   const [pendingIssueId, setPendingIssueId] = useState<string | null>(null)
+  const queryClient = useQueryClient()
 
   const { data: issuesResponse, isLoading, error } = useQuery(
     createIssuesQueryOptions({ projectId })
@@ -53,16 +55,27 @@ export default function PlanningCanvas({ projectId }: PlanningCanvasProps) {
     return tDashboard('issue.priority.low')
   }
 
-  const handleAssignToSprint = (issue: Issue) => {
-    if (!isSprintSelected) return
-    setPendingIssueId(issue.id)
+  const handleMoveIssue = (issueId: string, sprintId: string | null) => {
+    setPendingIssueId(issueId)
+    const previousIssues = queryClient.getQueryData<{ data: Issue[] }>(['issues', projectId])
+    if (previousIssues) {
+      queryClient.setQueryData<{ data: Issue[] }>(['issues', projectId], {
+        ...previousIssues,
+        data: previousIssues.data.map((issue) =>
+          issue.id === issueId ? { ...issue, sprintId } : issue
+        ),
+      })
+    }
     updateIssue(
-      { projectId, issueId: issue.id, issueData: { sprintId: selectedSprintId } },
+      { projectId, issueId, issueData: { sprintId } },
       {
         onSuccess: () => {
           toast.success(tDashboard('issue.toast.updated'))
         },
         onError: () => {
+          if (previousIssues) {
+            queryClient.setQueryData(['issues', projectId], previousIssues)
+          }
           toast.error(tDashboard('issue.toast.updateFailed'))
         },
         onSettled: () => {
@@ -72,22 +85,33 @@ export default function PlanningCanvas({ projectId }: PlanningCanvasProps) {
     )
   }
 
+  const handleAssignToSprint = (issue: Issue) => {
+    if (!isSprintSelected) return
+    handleMoveIssue(issue.id, selectedSprintId)
+  }
+
   const handleRemoveFromSprint = (issue: Issue) => {
-    setPendingIssueId(issue.id)
-    updateIssue(
-      { projectId, issueId: issue.id, issueData: { sprintId: null } },
-      {
-        onSuccess: () => {
-          toast.success(tDashboard('issue.toast.updated'))
-        },
-        onError: () => {
-          toast.error(tDashboard('issue.toast.updateFailed'))
-        },
-        onSettled: () => {
-          setPendingIssueId(null)
-        },
-      }
-    )
+    handleMoveIssue(issue.id, null)
+  }
+
+  const handleDragEnd: React.ComponentProps<typeof DragDropProvider>['onDragEnd'] = (event) => {
+    const { operation, canceled } = event
+    if (canceled) return
+
+    const { source, target } = operation
+    if (!source || !target) return
+
+    if (source.data?.type !== 'planning-issue') return
+    if (target.data?.type !== 'planning-column') return
+
+    const issue = source.data?.issue as Issue | undefined
+    if (!issue) return
+
+    const targetSprintId = target.data?.sprintId ?? null
+    if (issue.sprintId === targetSprintId) return
+
+    if (targetSprintId && !isSprintSelected) return
+    handleMoveIssue(issue.id, targetSprintId)
   }
 
   if (isLoading) {
@@ -99,38 +123,45 @@ export default function PlanningCanvas({ projectId }: PlanningCanvasProps) {
   }
 
   return (
-    <div className="grid h-full grid-cols-1 gap-6 lg:grid-cols-2">
-      <PlanningIssuesColumn
-        title={tDashboard('planning.unassignedTitle')}
-        subtitle={tDashboard('planning.unassignedHint')}
-        count={unassignedIssues.length}
-        emptyText={tDashboard('planning.emptyUnassigned')}
-        issues={unassignedIssues}
-        actionLabel={tDashboard('planning.moveToSprint')}
-        onAction={handleAssignToSprint}
-        getPriorityLabel={getPriorityLabel}
-        disabled={!isSprintSelected}
-        pendingIssueId={isPending ? pendingIssueId : null}
-        footer={!isSprintSelected ? (
-          <div className="rounded-lg border border-border/60 bg-muted/30 p-4 text-xs text-muted-foreground">
-            {tDashboard('planning.selectSprintHint')}
-          </div>
-        ) : null}
-      />
+    <DragDropProvider onDragEnd={handleDragEnd}>
+      <div className="grid h-full grid-cols-1 gap-6 lg:grid-cols-2">
+        <PlanningIssuesColumn
+          title={tDashboard('planning.unassignedTitle')}
+          subtitle={tDashboard('planning.unassignedHint')}
+          count={unassignedIssues.length}
+          emptyText={tDashboard('planning.emptyUnassigned')}
+          issues={unassignedIssues}
+          actionLabel={tDashboard('planning.moveToSprint')}
+          onAction={handleAssignToSprint}
+          getPriorityLabel={getPriorityLabel}
+          droppableId="planning-unassigned"
+          dropData={{ type: 'planning-column', sprintId: null }}
+          disabled={!isSprintSelected}
+          pendingIssueId={isPending ? pendingIssueId : null}
+          footer={!isSprintSelected ? (
+            <div className="rounded-lg border border-border/60 bg-muted/30 p-4 text-xs text-muted-foreground">
+              {tDashboard('planning.selectSprintHint')}
+            </div>
+          ) : null}
+        />
 
-      <PlanningIssuesColumn
-        title={tDashboard('planning.sprintTitle')}
-        subtitle={isSprintSelected ? selectedSprint?.name ?? '' : tDashboard('planning.sprintNotSelected')}
-        subtitleTone={isSprintSelected ? 'default' : 'warning'}
-        count={selectedSprintIssues.length}
-        emptyText={tDashboard('planning.emptySprint')}
-        issues={selectedSprintIssues}
-        actionLabel={tDashboard('planning.removeFromSprint')}
-        onAction={handleRemoveFromSprint}
-        getPriorityLabel={getPriorityLabel}
-        disabled={!isSprintSelected}
-        pendingIssueId={isPending ? pendingIssueId : null}
-      />
-    </div>
+        <PlanningIssuesColumn
+          title={tDashboard('planning.sprintTitle')}
+          subtitle={isSprintSelected ? selectedSprint?.name ?? '' : tDashboard('planning.sprintNotSelected')}
+          subtitleTone={isSprintSelected ? 'default' : 'warning'}
+          count={selectedSprintIssues.length}
+          emptyText={tDashboard('planning.emptySprint')}
+          issues={selectedSprintIssues}
+          actionLabel={tDashboard('planning.removeFromSprint')}
+          onAction={handleRemoveFromSprint}
+          getPriorityLabel={getPriorityLabel}
+          droppableId="planning-sprint"
+          dropData={{ type: 'planning-column', sprintId: isSprintSelected ? selectedSprintId : null }}
+          dropDisabled={!isSprintSelected}
+          disabled={!isSprintSelected}
+          pendingIssueId={isPending ? pendingIssueId : null}
+        />
+      </div>
+    </DragDropProvider>
   )
 }

@@ -1,8 +1,11 @@
 'use client'
 
+import { useDraggable } from '@dnd-kit/react'
+
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import type { Issue } from '@/lib/api/issue'
+import { cn } from '@/lib/utils'
 
 type PlanningIssueCardProps = {
   issue: Issue
@@ -21,8 +24,19 @@ const PlanningIssueCard = function PlanningIssueCard({
   disabled,
   isPending,
 }: PlanningIssueCardProps) {
+  const { ref, isDragging } = useDraggable({
+    id: issue.id,
+    data: { type: 'planning-issue', issue },
+  })
+
   return (
-    <div className="rounded-lg border border-border/70 bg-background p-3 shadow-sm">
+    <div
+      ref={ref}
+      className={cn(
+        'rounded-lg border border-border/70 bg-background p-3 shadow-sm cursor-grab transition-opacity',
+        isDragging && 'opacity-70 border-dashed'
+      )}
+    >
       <div className="flex items-start justify-between gap-3">
         <div className="space-y-1">
           <div className="text-xs text-muted-foreground">#{issue.number}</div>

@@ -1,6 +1,8 @@
+
 'use client'
 
 import type { ReactNode } from 'react'
+import { useDroppable } from '@dnd-kit/react'
 
 import { cn } from '@/lib/utils'
 import type { Issue } from '@/lib/api/issue'
@@ -15,6 +17,9 @@ type PlanningIssuesColumnProps = {
   actionLabel: string
   onAction: (issue: Issue) => void
   getPriorityLabel: (priority: Issue['priority']) => string
+  droppableId: string
+  dropData: { type: 'planning-column'; sprintId: string | null }
+  dropDisabled?: boolean
   disabled?: boolean
   pendingIssueId?: string | null
   footer?: ReactNode
@@ -30,13 +35,28 @@ const PlanningIssuesColumn = function PlanningIssuesColumn({
   actionLabel,
   onAction,
   getPriorityLabel,
+  droppableId,
+  dropData,
+  dropDisabled,
   disabled,
   pendingIssueId,
   footer,
   subtitleTone = 'default',
 }: PlanningIssuesColumnProps) {
+  const { ref: dropRef, isDropTarget } = useDroppable({
+    id: droppableId,
+    data: dropData,
+    disabled: dropDisabled,
+  })
+
   return (
-    <section className="space-y-4">
+    <section
+      ref={dropRef}
+      className={cn(
+        'space-y-4 rounded-lg border border-transparent p-2 transition-colors',
+        isDropTarget && 'border-primary/40 bg-muted/30'
+      )}
+    >
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-base font-semibold">{title}</h2>
