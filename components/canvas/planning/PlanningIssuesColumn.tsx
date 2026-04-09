@@ -9,6 +9,7 @@ import type { Issue } from '@/lib/api/issue'
 import PlanningIssueCard from './PlanningIssueCard'
 
 type PlanningIssuesColumnProps = {
+  projectId: string
   title: string
   subtitle: string
   count: number
@@ -27,6 +28,7 @@ type PlanningIssuesColumnProps = {
 }
 
 const PlanningIssuesColumn = function PlanningIssuesColumn({
+  projectId,
   title,
   subtitle,
   count,
@@ -76,6 +78,7 @@ const PlanningIssuesColumn = function PlanningIssuesColumn({
           {issues.map((issue) => (
             <PlanningIssueCard
               key={issue.id}
+              projectId={projectId}
               issue={issue}
               priorityLabel={getPriorityLabel(issue.priority)}
               actionLabel={actionLabel}

@@ -126,6 +126,7 @@ export default function PlanningCanvas({ projectId }: PlanningCanvasProps) {
     <DragDropProvider onDragEnd={handleDragEnd}>
       <div className="grid h-full grid-cols-1 gap-6 lg:grid-cols-2">
         <PlanningIssuesColumn
+          projectId={projectId}
           title={tDashboard('planning.unassignedTitle')}
           subtitle={tDashboard('planning.unassignedHint')}
           count={unassignedIssues.length}
@@ -146,6 +147,7 @@ export default function PlanningCanvas({ projectId }: PlanningCanvasProps) {
         />
 
         <PlanningIssuesColumn
+          projectId={projectId}
           title={tDashboard('planning.sprintTitle')}
           subtitle={isSprintSelected ? selectedSprint?.name ?? '' : tDashboard('planning.sprintNotSelected')}
           subtitleTone={isSprintSelected ? 'default' : 'warning'}
