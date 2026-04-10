@@ -1,296 +1,336 @@
 const dashboard = {
-  otherView: 'Other view',
+  otherView: "Other view",
   selectWorkspace: {
-    title: 'Select a workspace to start working.'
+    title: "Select a workspace to start working.",
   },
   selectProject: {
-    title: 'Select a project to start working.'
+    title: "Select a project to start working.",
   },
   toast: {
-    loadWorkspaceFailed: 'Failed to load workspace list.'
+    loadWorkspaceFailed: "Failed to load workspace list.",
   },
   sidebar: {
-    noWorkspaceSelected: 'No Workspace Selected',
-    loadingProjects: 'Loading projects...',
-    noProjects: 'No projects yet',
-    noSearchResults: 'No matching projects found',
-    loadingSprints: 'Loading sprints...',
-    errorLoadingSprints: 'Error loading sprints',
-    noSprints: 'No sprints yet',
-    searchPlaceholder: 'Search...',
+    noWorkspaceSelected: "No Workspace Selected",
+    loadingProjects: "Loading projects...",
+    noProjects: "No projects yet",
+    noSearchResults: "No matching projects found",
+    loadingSprints: "Loading sprints...",
+    errorLoadingSprints: "Error loading sprints",
+    noSprints: "No sprints yet",
+    searchPlaceholder: "Search...",
     role: {
-      owner: 'Workspace owner',
-      admin: 'Administrator',
-      member: 'Member'
-    }
+      owner: "Workspace owner",
+      admin: "Administrator",
+      member: "Member",
+    },
   },
   navigation: {
-    board: 'Board',
-    backlog: 'Backlog',
-    planning: 'Planning',
-    timeline: 'Timeline'
+    board: "Board",
+    backlog: "Backlog",
+    planning: "Planning",
+    timeline: "Timeline",
+  },
+  timeline: {
+    title: "Project timeline",
+    subtitle:
+      "Track sprint windows, progress, and how issues are distributed across the roadmap.",
+    loading: "Loading timeline data...",
+    error: "Failed to load timeline data.",
+    retry: "Retry",
+    emptyTitle: "No sprint timeline yet",
+    emptyHint: "Create at least one sprint to visualize the project schedule.",
+    summary: {
+      totalSprints: "Total sprints",
+      scheduledIssues: "Scheduled issues",
+      unscheduledIssues: "Unscheduled issues",
+      activeSprints: "Active sprints",
+    },
+    phase: {
+      upcoming: "Upcoming",
+      active: "Active",
+      completed: "Completed",
+      unscheduled: "Unscheduled",
+    },
+    status: {
+      active: "Active",
+      completed: "Completed",
+      planned: "Planned",
+    },
+    card: {
+      noDate: "No schedule yet",
+      durationLabel: "Progress",
+      issueCount: "{count} issues",
+      overflow: "+{count} more",
+      noIssues: "No issues assigned to this sprint yet.",
+      statusLabel: "Phase",
+    },
   },
   header: {
-    sprintLabel: 'Sprint',
-    sprintAll: 'All sprints',
-    sprintNoProject: 'No project',
-    sprintLoading: 'Loading sprints...',
-    sprintEmpty: 'No sprints'
+    sprintLabel: "Sprint",
+    sprintAll: "All sprints",
+    sprintNoProject: "No project",
+    sprintLoading: "Loading sprints...",
+    sprintEmpty: "No sprints",
   },
   sprint: {
     create: {
-      action: 'Create sprint',
-      title: 'Create Sprint',
-      description: 'Create a sprint for this project.',
-      namePlaceholder: 'Sprint name',
-      goalPlaceholder: 'Sprint goal (optional)',
-      startDateLabel: 'Start date',
-      endDateLabel: 'End date',
-      submit: 'Create sprint'
+      action: "Create sprint",
+      title: "Create Sprint",
+      description: "Create a sprint for this project.",
+      namePlaceholder: "Sprint name",
+      goalPlaceholder: "Sprint goal (optional)",
+      startDateLabel: "Start date",
+      endDateLabel: "End date",
+      submit: "Create sprint",
     },
     toast: {
-      created: 'Sprint created successfully',
-      createFailed: 'Failed to create sprint'
-    }
+      created: "Sprint created successfully",
+      createFailed: "Failed to create sprint",
+    },
   },
   board: {
-    errorLoadingColumns: 'Error loading columns',
-    errorHint: 'Please check your connection and try again.',
-    empty: 'No columns or issues found',
+    errorLoadingColumns: "Error loading columns",
+    errorHint: "Please check your connection and try again.",
+    empty: "No columns or issues found",
     column: {
       edit: {
-        title: 'Edit column',
-        description: 'Rename this column.',
-        nameLabel: 'Column name',
-        namePlaceholder: 'Enter a new column name',
-        success: 'Column updated successfully'
+        title: "Edit column",
+        description: "Rename this column.",
+        nameLabel: "Column name",
+        namePlaceholder: "Enter a new column name",
+        success: "Column updated successfully",
       },
       delete: {
         title: 'Delete column "{name}"?',
-        description: 'Are you sure you want to delete this column?',
-        success: 'Column deleted successfully'
-      }
-    }
+        description: "Are you sure you want to delete this column?",
+        success: "Column deleted successfully",
+      },
+    },
   },
   project: {
     create: {
-      title: 'Create New Project',
-      description: 'Create a new project in {workspaceName}.',
-      namePlaceholder: 'Project Name',
-      keyPlaceholder: 'Project Key',
-      descriptionPlaceholder: 'Project Description (optional)',
-      submit: 'Create Project',
-      submitting: 'Creating...'
+      title: "Create New Project",
+      description: "Create a new project in {workspaceName}.",
+      namePlaceholder: "Project Name",
+      keyPlaceholder: "Project Key",
+      descriptionPlaceholder: "Project Description (optional)",
+      submit: "Create Project",
+      submitting: "Creating...",
     },
     toast: {
-      created: 'Project created successfully',
-      createFailed: 'Failed to create project',
-      deleted: 'Project deleted successfully',
-      deleteFailed: 'Failed to delete project'
+      created: "Project created successfully",
+      createFailed: "Failed to create project",
+      deleted: "Project deleted successfully",
+      deleteFailed: "Failed to delete project",
     },
     delete: {
       title: 'Delete project "{name}"?',
-      description: 'Are you sure you want to delete this project?',
-      action: 'Delete project {name}'
+      description: "Are you sure you want to delete this project?",
+      action: "Delete project {name}",
     },
     settings: {
-      title: 'Project Settings',
-      description: 'View and manage project settings.',
-      action: 'Settings for {name}',
-      nameLabel: 'Project name',
-      keyLabel: 'Project key',
-      idLabel: 'Project ID',
-      descriptionLabel: 'Description',
-      manageHint: 'You can add project management options here later.',
-      dangerTitle: 'Danger Zone',
-      dangerDescription: 'Actions here are irreversible. Please proceed with caution.',
-      deleteWarning: 'This action is permanent and cannot be undone. All data will be lost.',
+      title: "Project Settings",
+      description: "View and manage project settings.",
+      action: "Settings for {name}",
+      nameLabel: "Project name",
+      keyLabel: "Project key",
+      idLabel: "Project ID",
+      descriptionLabel: "Description",
+      manageHint: "You can add project management options here later.",
+      dangerTitle: "Danger Zone",
+      dangerDescription:
+        "Actions here are irreversible. Please proceed with caution.",
+      deleteWarning:
+        "This action is permanent and cannot be undone. All data will be lost.",
       tabs: {
-        general: 'General',
-        generalDescription: 'Basic project info',
-        dangerZone: 'Danger Zone',
-        dangerZoneDescription: 'Irreversible actions'
-      }
-    }
+        general: "General",
+        generalDescription: "Basic project info",
+        dangerZone: "Danger Zone",
+        dangerZoneDescription: "Irreversible actions",
+      },
+    },
   },
   workspace: {
     create: {
-      title: 'Create New Workspace',
-      description: 'Create a workspace to organize your projects.',
-      nameLabel: 'Workspace name',
-      namePlaceholder: 'My Workspace',
-      submit: 'Create Workspace'
+      title: "Create New Workspace",
+      description: "Create a workspace to organize your projects.",
+      nameLabel: "Workspace name",
+      namePlaceholder: "My Workspace",
+      submit: "Create Workspace",
     },
     menu: {
-      title: 'Workspace settings',
-      openSettings: 'Open settings',
-      copyId: 'Copy workspace ID'
+      title: "Workspace settings",
+      openSettings: "Open settings",
+      copyId: "Copy workspace ID",
     },
     tabs: {
-      general: 'General',
-      generalDescription: 'Basic workspace info',
+      general: "General",
+      generalDescription: "Basic workspace info",
       members: {
-        title: 'Members',
-        description: 'People in this workspace'
+        title: "Members",
+        description: "People in this workspace",
       },
       permissions: {
-        title: 'Permissions',
-        description: 'Roles and access'
-      }
+        title: "Permissions",
+        description: "Roles and access",
+      },
     },
     settings: {
-      title: 'Workspace settings',
-      description: 'This is where workspace settings can be shown and managed.',
-      name: 'Workspace name',
-      id: 'Workspace ID',
-      slug: 'URL slug',
-      manageHint: 'You can add workspace management options here later.',
-      memberHint: 'You are currently a member. Some settings may be limited.',
-      membersDescription: 'A list of members currently in this workspace.',
-      noMembers: 'No members yet.',
-      permissionsAdminHint: 'You can manage some important workspace settings.',
-      permissionsMemberHint: 'Some administrative permissions are not available for your role.',
-      dangerTitle: 'Danger Zone',
-      dangerDescription: 'Actions here are irreversible. Please proceed with caution.',
-      deleteWarning: 'This action is permanent and cannot be undone. All data will be lost.',
+      title: "Workspace settings",
+      description: "This is where workspace settings can be shown and managed.",
+      name: "Workspace name",
+      id: "Workspace ID",
+      slug: "URL slug",
+      manageHint: "You can add workspace management options here later.",
+      memberHint: "You are currently a member. Some settings may be limited.",
+      membersDescription: "A list of members currently in this workspace.",
+      noMembers: "No members yet.",
+      permissionsAdminHint: "You can manage some important workspace settings.",
+      permissionsMemberHint:
+        "Some administrative permissions are not available for your role.",
+      dangerTitle: "Danger Zone",
+      dangerDescription:
+        "Actions here are irreversible. Please proceed with caution.",
+      deleteWarning:
+        "This action is permanent and cannot be undone. All data will be lost.",
       permissionAllowed: {
-        label: 'Allowed'
+        label: "Allowed",
       },
       permissionRestricted: {
-        label: 'Restricted'
+        label: "Restricted",
       },
       permissionItem: {
-        manageProjects: 'Manage projects',
-        manageMembers: 'Manage members'
+        manageProjects: "Manage projects",
+        manageMembers: "Manage members",
       },
       tabs: {
-        dangerZone: 'Danger Zone',
-        dangerZoneDescription: 'Irreversible actions'
+        dangerZone: "Danger Zone",
+        dangerZoneDescription: "Irreversible actions",
       },
-      copied: 'Workspace ID copied',
-      copyFailed: 'Failed to copy workspace ID'
+      copied: "Workspace ID copied",
+      copyFailed: "Failed to copy workspace ID",
     },
     toast: {
-      created: 'Workspace created successfully',
-      createFailed: 'Failed to create workspace',
-      deleted: 'Workspace deleted successfully',
-      deleteFailed: 'Failed to delete workspace'
+      created: "Workspace created successfully",
+      createFailed: "Failed to create workspace",
+      deleted: "Workspace deleted successfully",
+      deleteFailed: "Failed to delete workspace",
     },
     delete: {
-      title: 'Delete workspace "{name}"?'
-    }
+      title: 'Delete workspace "{name}"?',
+    },
   },
   backlog: {
-    empty: 'No backlog issues yet.',
-    searchPlaceholder: 'Search backlog...',
-    countLabel: 'issues',
+    empty: "No backlog issues yet.",
+    searchPlaceholder: "Search backlog...",
+    countLabel: "issues",
     filters: {
-      all: 'All',
-      priority: 'Priority',
-      status: 'Status',
-      reset: 'Reset'
+      all: "All",
+      priority: "Priority",
+      status: "Status",
+      reset: "Reset",
     },
     columns: {
-      id: 'ID',
-      title: 'Title',
-      priority: 'Priority',
-      assignee: 'Assignee',
-      status: 'Status',
-      updatedAt: 'Updated'
-    }
+      id: "ID",
+      title: "Title",
+      priority: "Priority",
+      assignee: "Assignee",
+      status: "Status",
+      updatedAt: "Updated",
+    },
   },
   planning: {
-    loading: 'Loading planning data...',
-    error: 'Failed to load planning data.',
-    unassignedTitle: 'Unassigned issues',
-    unassignedHint: 'Issues not yet assigned to a sprint',
-    emptyUnassigned: 'No unassigned issues.',
-    sprintTitle: 'Selected sprint',
-    sprintNotSelected: 'Select a sprint to plan',
-    selectSprintHint: 'Pick a sprint from the header to move issues into it.',
-    emptySprint: 'No issues in this sprint yet.',
-    moveToSprint: 'Add to sprint',
-    removeFromSprint: 'Remove from sprint'
+    loading: "Loading planning data...",
+    error: "Failed to load planning data.",
+    unassignedTitle: "Unassigned issues",
+    unassignedHint: "Issues not yet assigned to a sprint",
+    emptyUnassigned: "No unassigned issues.",
+    sprintTitle: "Selected sprint",
+    sprintNotSelected: "Select a sprint to plan",
+    selectSprintHint: "Pick a sprint from the header to move issues into it.",
+    emptySprint: "No issues in this sprint yet.",
+    moveToSprint: "Add to sprint",
+    removeFromSprint: "Remove from sprint",
   },
   issue: {
     assignee: {
-      me: 'Me ({name})',
-      unassigned: 'Unassigned'
+      me: "Me ({name})",
+      unassigned: "Unassigned",
     },
     priority: {
-      low: 'Low',
-      medium: 'Medium',
-      high: 'High'
+      low: "Low",
+      medium: "Medium",
+      high: "High",
     },
     form: {
-      titlePlaceholder: 'Issue Title',
-      descriptionPlaceholder: 'Issue Description (optional)',
-      assigneePlaceholder: 'Assignee',
-      assigneeLabel: 'Assignee',
-      sprintPlaceholder: 'Sprint',
-      sprintLabel: 'Sprint',
-      sprintNone: 'No sprint',
-      priorityPlaceholder: 'Issue Priority',
-      priorityLabel: 'Priority'
+      titlePlaceholder: "Issue Title",
+      descriptionPlaceholder: "Issue Description (optional)",
+      assigneePlaceholder: "Assignee",
+      assigneeLabel: "Assignee",
+      sprintPlaceholder: "Sprint",
+      sprintLabel: "Sprint",
+      sprintNone: "No sprint",
+      priorityPlaceholder: "Issue Priority",
+      priorityLabel: "Priority",
     },
     create: {
-      title: 'Create New Issue',
-      description: 'Create a new issue.',
-      submit: 'Create Issue',
-      submitting: 'Creating...'
+      title: "Create New Issue",
+      description: "Create a new issue.",
+      submit: "Create Issue",
+      submitting: "Creating...",
     },
     update: {
-      title: 'Update Issue',
-      description: 'Update issue details.',
-      submit: 'Update Issue',
-      submitting: 'Updating...'
+      title: "Update Issue",
+      description: "Update issue details.",
+      submit: "Update Issue",
+      submitting: "Updating...",
     },
     detail: {
-      loadingTitle: 'Loading issue details',
-      errorTitle: 'Failed to load issue details',
-      errorDescription: 'An error occurred while loading issue details.',
-      dialogTitle: 'ISSUE {number} - {title}',
-      descriptionLabel: 'Description',
-      descriptionPlaceholder: 'No description.',
-      commentsLabel: 'Comments',
-      commentPlaceholder: 'Write a comment...',
-      commentSubmit: 'Add comment',
-      commentSubmitting: 'Adding...',
-      commentUpdate: 'Save changes',
-      commentCancel: 'Cancel',
-      commentEditing: 'Editing',
-      commentDelete: 'Delete comment',
-      commentDeleting: 'Deleting...',
-      commentUpdating: 'Updating...',
-      noComments: 'No comments yet.',
-      statusLabel: 'Status',
-      saveChanges: 'Save changes',
-      cancel: 'Cancel',
-      deleteIssue: 'Delete issue',
-      deletingIssue: 'Deleting issue...',
-      reporterLabel: 'Reporter:',
-      createdAtLabel: 'Created:',
-      updatedAtLabel: 'Updated:'
+      loadingTitle: "Loading issue details",
+      errorTitle: "Failed to load issue details",
+      errorDescription: "An error occurred while loading issue details.",
+      dialogTitle: "ISSUE {number} - {title}",
+      descriptionLabel: "Description",
+      descriptionPlaceholder: "No description.",
+      commentsLabel: "Comments",
+      commentPlaceholder: "Write a comment...",
+      commentSubmit: "Add comment",
+      commentSubmitting: "Adding...",
+      commentUpdate: "Save changes",
+      commentCancel: "Cancel",
+      commentEditing: "Editing",
+      commentDelete: "Delete comment",
+      commentDeleting: "Deleting...",
+      commentUpdating: "Updating...",
+      noComments: "No comments yet.",
+      statusLabel: "Status",
+      saveChanges: "Save changes",
+      cancel: "Cancel",
+      deleteIssue: "Delete issue",
+      deletingIssue: "Deleting issue...",
+      reporterLabel: "Reporter:",
+      createdAtLabel: "Created:",
+      updatedAtLabel: "Updated:",
     },
     toast: {
-      created: 'Issue created successfully',
-      createFailed: 'Failed to create issue',
-      updated: 'Issue updated successfully',
-      updateFailed: 'Failed to update issue',
-      commentCreated: 'Comment added successfully',
-      commentCreateFailed: 'Failed to add comment',
-      commentUpdated: 'Comment updated successfully',
-      commentUpdateFailed: 'Failed to update comment',
-      commentDeleted: 'Comment deleted successfully',
-      commentDeleteFailed: 'Failed to delete comment',
-      deleted: 'Issue deleted',
-      deleteFailed: 'Failed to delete issue'
+      created: "Issue created successfully",
+      createFailed: "Failed to create issue",
+      updated: "Issue updated successfully",
+      updateFailed: "Failed to update issue",
+      commentCreated: "Comment added successfully",
+      commentCreateFailed: "Failed to add comment",
+      commentUpdated: "Comment updated successfully",
+      commentUpdateFailed: "Failed to update comment",
+      commentDeleted: "Comment deleted successfully",
+      commentDeleteFailed: "Failed to delete comment",
+      deleted: "Issue deleted",
+      deleteFailed: "Failed to delete issue",
     },
     delete: {
       title: 'Delete "{title}"?',
-      description: 'Are you sure you want to delete this issue?'
-    }
-  }
+      description: "Are you sure you want to delete this issue?",
+    },
+  },
 } as const;
 
 export default dashboard;

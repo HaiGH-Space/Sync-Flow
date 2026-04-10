@@ -1,296 +1,339 @@
 const dashboard = {
-  otherView: 'Chế độ xem khác',
+  otherView: "Chế độ xem khác",
   selectWorkspace: {
-    title: 'Hãy chọn workspace để bắt đầu làm việc.'
+    title: "Hãy chọn workspace để bắt đầu làm việc.",
   },
   selectProject: {
-    title: 'Hãy chọn dự án để bắt đầu làm việc.'
+    title: "Hãy chọn dự án để bắt đầu làm việc.",
   },
   toast: {
-    loadWorkspaceFailed: 'Không thể tải danh sách workspace.'
+    loadWorkspaceFailed: "Không thể tải danh sách workspace.",
   },
   sidebar: {
-    noWorkspaceSelected: 'Chưa chọn workspace',
-    loadingProjects: 'Đang tải dự án...',
-    noProjects: 'Chưa có dự án',
-    noSearchResults: 'Không tìm thấy dự án phù hợp',
-    loadingSprints: 'Đang tải sprint...',
-    errorLoadingSprints: 'Lỗi tải sprint',
-    noSprints: 'Chưa có sprint',
-    searchPlaceholder: 'Tìm kiếm...',
+    noWorkspaceSelected: "Chưa chọn workspace",
+    loadingProjects: "Đang tải dự án...",
+    noProjects: "Chưa có dự án",
+    noSearchResults: "Không tìm thấy dự án phù hợp",
+    loadingSprints: "Đang tải sprint...",
+    errorLoadingSprints: "Lỗi tải sprint",
+    noSprints: "Chưa có sprint",
+    searchPlaceholder: "Tìm kiếm...",
     role: {
-      owner: 'Chủ workspace',
-      admin: 'Quản trị viên',
-      member: 'Thành viên'
-    }
+      owner: "Chủ workspace",
+      admin: "Quản trị viên",
+      member: "Thành viên",
+    },
   },
   navigation: {
-    board: 'Bảng',
-    backlog: 'Backlog',
-    planning: 'Lập kế hoạch',
-    timeline: 'Dòng thời gian'
+    board: "Bảng",
+    backlog: "Backlog",
+    planning: "Lập kế hoạch",
+    timeline: "Dòng thời gian",
+  },
+  timeline: {
+    title: "Dòng thời gian dự án",
+    subtitle:
+      "Theo dõi các sprint, tiến độ và cách issue được phân bổ trên lộ trình.",
+    loading: "Đang tải dữ liệu dòng thời gian...",
+    error: "Không thể tải dữ liệu dòng thời gian.",
+    retry: "Thử lại",
+    emptyTitle: "Chưa có dòng thời gian sprint",
+    emptyHint: "Tạo ít nhất một sprint để trực quan hóa lịch trình dự án.",
+    summary: {
+      totalSprints: "Tổng sprint",
+      scheduledIssues: "Issue đã lên lịch",
+      unscheduledIssues: "Issue chưa lên lịch",
+      activeSprints: "Sprint đang chạy",
+    },
+    phase: {
+      upcoming: "Sắp tới",
+      active: "Đang chạy",
+      completed: "Hoàn tất",
+      unscheduled: "Chưa lên lịch",
+    },
+    status: {
+      active: "Đang chạy",
+      completed: "Hoàn tất",
+      planned: "Dự kiến",
+    },
+    card: {
+      noDate: "Chưa có lịch",
+      durationLabel: "Tiến độ",
+      issueCount: "{count} issue",
+      overflow: "+{count} nữa",
+      noIssues: "Chưa có issue nào được gán cho sprint này.",
+      statusLabel: "Giai đoạn",
+    },
   },
   header: {
-    sprintLabel: 'Sprint',
-    sprintAll: 'Tất cả sprint',
-    sprintNoProject: 'Chưa chọn dự án',
-    sprintLoading: 'Đang tải sprint...',
-    sprintEmpty: 'Chưa có sprint'
+    sprintLabel: "Sprint",
+    sprintAll: "Tất cả sprint",
+    sprintNoProject: "Chưa chọn dự án",
+    sprintLoading: "Đang tải sprint...",
+    sprintEmpty: "Chưa có sprint",
   },
   sprint: {
     create: {
-      action: 'Tạo sprint',
-      title: 'Tạo sprint',
-      description: 'Tạo sprint cho dự án này.',
-      namePlaceholder: 'Tên sprint',
-      goalPlaceholder: 'Mục tiêu sprint (tùy chọn)',
-      startDateLabel: 'Ngày bắt đầu',
-      endDateLabel: 'Ngày kết thúc',
-      submit: 'Tạo sprint'
+      action: "Tạo sprint",
+      title: "Tạo sprint",
+      description: "Tạo sprint cho dự án này.",
+      namePlaceholder: "Tên sprint",
+      goalPlaceholder: "Mục tiêu sprint (tùy chọn)",
+      startDateLabel: "Ngày bắt đầu",
+      endDateLabel: "Ngày kết thúc",
+      submit: "Tạo sprint",
     },
     toast: {
-      created: 'Tạo sprint thành công',
-      createFailed: 'Tạo sprint thất bại'
-    }
+      created: "Tạo sprint thành công",
+      createFailed: "Tạo sprint thất bại",
+    },
   },
   board: {
-    errorLoadingColumns: 'Lỗi tải cột',
-    errorHint: 'Vui lòng kiểm tra kết nối và thử lại.',
-    empty: 'Chưa có cột hoặc issue nào',
+    errorLoadingColumns: "Lỗi tải cột",
+    errorHint: "Vui lòng kiểm tra kết nối và thử lại.",
+    empty: "Chưa có cột hoặc issue nào",
     column: {
       edit: {
-        title: 'Sửa cột',
-        description: 'Đổi tên cột này.',
-        nameLabel: 'Tên cột',
-        namePlaceholder: 'Nhập tên cột mới',
-        success: 'Cập nhật cột thành công'
+        title: "Sửa cột",
+        description: "Đổi tên cột này.",
+        nameLabel: "Tên cột",
+        namePlaceholder: "Nhập tên cột mới",
+        success: "Cập nhật cột thành công",
       },
       delete: {
         title: 'Xóa cột "{name}"?',
-        description: 'Bạn có chắc muốn xóa cột này không?',
-        success: 'Xóa cột thành công'
-      }
-    }
+        description: "Bạn có chắc muốn xóa cột này không?",
+        success: "Xóa cột thành công",
+      },
+    },
   },
   project: {
     create: {
-      title: 'Tạo dự án mới',
-      description: 'Tạo dự án mới trong {workspaceName}.',
-      namePlaceholder: 'Tên dự án',
-      keyPlaceholder: 'Mã dự án',
-      descriptionPlaceholder: 'Mô tả dự án (tùy chọn)',
-      submit: 'Tạo dự án',
-      submitting: 'Đang tạo...'
+      title: "Tạo dự án mới",
+      description: "Tạo dự án mới trong {workspaceName}.",
+      namePlaceholder: "Tên dự án",
+      keyPlaceholder: "Mã dự án",
+      descriptionPlaceholder: "Mô tả dự án (tùy chọn)",
+      submit: "Tạo dự án",
+      submitting: "Đang tạo...",
     },
     toast: {
-      created: 'Tạo dự án thành công',
-      createFailed: 'Tạo dự án thất bại',
-      deleted: 'Xóa dự án thành công',
-      deleteFailed: 'Xóa dự án thất bại'
+      created: "Tạo dự án thành công",
+      createFailed: "Tạo dự án thất bại",
+      deleted: "Xóa dự án thành công",
+      deleteFailed: "Xóa dự án thất bại",
     },
     delete: {
       title: 'Xóa dự án "{name}"?',
-      description: 'Bạn có chắc chắn muốn xóa dự án này không?',
-      action: 'Xóa dự án {name}'
+      description: "Bạn có chắc chắn muốn xóa dự án này không?",
+      action: "Xóa dự án {name}",
     },
     settings: {
-      title: 'Cài đặt dự án',
-      description: 'Xem và quản lý cài đặt dự án.',
-      action: 'Cài đặt {name}',
-      nameLabel: 'Tên dự án',
-      keyLabel: 'Mã dự án',
-      idLabel: 'ID dự án',
-      descriptionLabel: 'Mô tả',
-      manageHint: 'Bạn có thể thêm các tùy chọn quản lý dự án tại đây sau này.',
-      dangerTitle: 'Khu vực nguy hiểm',
-      dangerDescription: 'Các hành động ở đây không thể hoàn tác. Vui lòng cẩn thận.',
-      deleteWarning: 'Hành động này là vĩnh viễn và không thể hoàn tác. Tất cả dữ liệu sẽ bị mất.',
+      title: "Cài đặt dự án",
+      description: "Xem và quản lý cài đặt dự án.",
+      action: "Cài đặt {name}",
+      nameLabel: "Tên dự án",
+      keyLabel: "Mã dự án",
+      idLabel: "ID dự án",
+      descriptionLabel: "Mô tả",
+      manageHint: "Bạn có thể thêm các tùy chọn quản lý dự án tại đây sau này.",
+      dangerTitle: "Khu vực nguy hiểm",
+      dangerDescription:
+        "Các hành động ở đây không thể hoàn tác. Vui lòng cẩn thận.",
+      deleteWarning:
+        "Hành động này là vĩnh viễn và không thể hoàn tác. Tất cả dữ liệu sẽ bị mất.",
       tabs: {
-        general: 'Tổng quan',
-        generalDescription: 'Thông tin cơ bản',
-        dangerZone: 'Khu vực nguy hiểm',
-        dangerZoneDescription: 'Hành động không thể hoàn tác'
-      }
-    }
+        general: "Tổng quan",
+        generalDescription: "Thông tin cơ bản",
+        dangerZone: "Khu vực nguy hiểm",
+        dangerZoneDescription: "Hành động không thể hoàn tác",
+      },
+    },
   },
   workspace: {
     create: {
-      title: 'Tạo workspace mới',
-      description: 'Tạo workspace để tổ chức các dự án của bạn.',
-      nameLabel: 'Tên workspace',
-      namePlaceholder: 'Workspace của tôi',
-      submit: 'Tạo workspace'
+      title: "Tạo workspace mới",
+      description: "Tạo workspace để tổ chức các dự án của bạn.",
+      nameLabel: "Tên workspace",
+      namePlaceholder: "Workspace của tôi",
+      submit: "Tạo workspace",
     },
     menu: {
-      title: 'Cài đặt workspace',
-      openSettings: 'Mở cài đặt',
-      copyId: 'Sao chép ID workspace'
+      title: "Cài đặt workspace",
+      openSettings: "Mở cài đặt",
+      copyId: "Sao chép ID workspace",
     },
     tabs: {
-      general: 'Tổng quan',
-      generalDescription: 'Thông tin cơ bản',
+      general: "Tổng quan",
+      generalDescription: "Thông tin cơ bản",
       members: {
-        title: 'Thành viên',
-        description: 'Người trong workspace'
+        title: "Thành viên",
+        description: "Người trong workspace",
       },
       permissions: {
-        title: 'Phân quyền',
-        description: 'Quyền và vai trò'
-      }
+        title: "Phân quyền",
+        description: "Quyền và vai trò",
+      },
     },
     settings: {
-      title: 'Cài đặt workspace',
-      description: 'Nơi hiển thị và quản lý các cài đặt của workspace.',
-      name: 'Tên workspace',
-      id: 'ID workspace',
-      slug: 'URL slug',
-      manageHint: 'Bạn có thể thêm các tùy chọn quản lý workspace tại đây sau này.',
-      memberHint: 'Bạn đang ở vai trò thành viên. Một số cài đặt có thể bị giới hạn.',
-      membersDescription: 'Danh sách thành viên đang tham gia workspace này.',
-      noMembers: 'Chưa có thành viên nào.',
-      permissionsAdminHint: 'Bạn có thể quản lý một số cài đặt quan trọng của workspace.',
-      permissionsMemberHint: 'Một số quyền quản trị hiện không khả dụng với vai trò của bạn.',
-      dangerTitle: 'Khu vực nguy hiểm',
-      dangerDescription: 'Các hành động ở đây không thể hoàn tác. Vui lòng cẩn thận.',
-      deleteWarning: 'Hành động này là vĩnh viễn và không thể hoàn tác. Tất cả dữ liệu sẽ bị mất.',
+      title: "Cài đặt workspace",
+      description: "Nơi hiển thị và quản lý các cài đặt của workspace.",
+      name: "Tên workspace",
+      id: "ID workspace",
+      slug: "URL slug",
+      manageHint:
+        "Bạn có thể thêm các tùy chọn quản lý workspace tại đây sau này.",
+      memberHint:
+        "Bạn đang ở vai trò thành viên. Một số cài đặt có thể bị giới hạn.",
+      membersDescription: "Danh sách thành viên đang tham gia workspace này.",
+      noMembers: "Chưa có thành viên nào.",
+      permissionsAdminHint:
+        "Bạn có thể quản lý một số cài đặt quan trọng của workspace.",
+      permissionsMemberHint:
+        "Một số quyền quản trị hiện không khả dụng với vai trò của bạn.",
+      dangerTitle: "Khu vực nguy hiểm",
+      dangerDescription:
+        "Các hành động ở đây không thể hoàn tác. Vui lòng cẩn thận.",
+      deleteWarning:
+        "Hành động này là vĩnh viễn và không thể hoàn tác. Tất cả dữ liệu sẽ bị mất.",
       permissionAllowed: {
-        label: 'Được phép'
+        label: "Được phép",
       },
       permissionRestricted: {
-        label: 'Bị giới hạn'
+        label: "Bị giới hạn",
       },
       permissionItem: {
-        manageProjects: 'Quản lý dự án',
-        manageMembers: 'Quản lý thành viên'
+        manageProjects: "Quản lý dự án",
+        manageMembers: "Quản lý thành viên",
       },
       tabs: {
-        dangerZone: 'Khu vực nguy hiểm',
-        dangerZoneDescription: 'Hành động không thể hoàn tác'
+        dangerZone: "Khu vực nguy hiểm",
+        dangerZoneDescription: "Hành động không thể hoàn tác",
       },
-      copied: 'Đã sao chép ID workspace',
-      copyFailed: 'Không thể sao chép ID workspace'
+      copied: "Đã sao chép ID workspace",
+      copyFailed: "Không thể sao chép ID workspace",
     },
     toast: {
-      created: 'Tạo workspace thành công',
-      createFailed: 'Tạo workspace thất bại',
-      deleted: 'Xóa workspace thành công',
-      deleteFailed: 'Xóa workspace thất bại'
+      created: "Tạo workspace thành công",
+      createFailed: "Tạo workspace thất bại",
+      deleted: "Xóa workspace thành công",
+      deleteFailed: "Xóa workspace thất bại",
     },
     delete: {
-      title: 'Xóa workspace "{name}"?'
-    }
+      title: 'Xóa workspace "{name}"?',
+    },
   },
   backlog: {
-    empty: 'Chưa có issue trong backlog.',
-    searchPlaceholder: 'Tìm trong backlog...',
-    countLabel: 'issue',
+    empty: "Chưa có issue trong backlog.",
+    searchPlaceholder: "Tìm trong backlog...",
+    countLabel: "issue",
     filters: {
-      all: 'Tất cả',
-      priority: 'Ưu tiên',
-      status: 'Trạng thái',
-      reset: 'Đặt lại'
+      all: "Tất cả",
+      priority: "Ưu tiên",
+      status: "Trạng thái",
+      reset: "Đặt lại",
     },
     columns: {
-      id: 'ID',
-      title: 'Tiêu đề',
-      priority: 'Ưu tiên',
-      assignee: 'Người phụ trách',
-      status: 'Trạng thái',
-      updatedAt: 'Cập nhật'
-    }
+      id: "ID",
+      title: "Tiêu đề",
+      priority: "Ưu tiên",
+      assignee: "Người phụ trách",
+      status: "Trạng thái",
+      updatedAt: "Cập nhật",
+    },
   },
   planning: {
-    loading: 'Đang tải dữ liệu lập kế hoạch...',
-    error: 'Không thể tải dữ liệu lập kế hoạch.',
-    unassignedTitle: 'Issue chưa vào sprint',
-    unassignedHint: 'Các issue chưa được gán vào sprint',
-    emptyUnassigned: 'Không có issue chưa gán.',
-    sprintTitle: 'Sprint đã chọn',
-    sprintNotSelected: 'Hãy chọn sprint để lập kế hoạch',
-    selectSprintHint: 'Chọn sprint ở thanh tiêu đề để chuyển issue vào sprint.',
-    emptySprint: 'Sprint này chưa có issue nào.',
-    moveToSprint: 'Thêm vào sprint',
-    removeFromSprint: 'Bỏ khỏi sprint'
+    loading: "Đang tải dữ liệu lập kế hoạch...",
+    error: "Không thể tải dữ liệu lập kế hoạch.",
+    unassignedTitle: "Issue chưa vào sprint",
+    unassignedHint: "Các issue chưa được gán vào sprint",
+    emptyUnassigned: "Không có issue chưa gán.",
+    sprintTitle: "Sprint đã chọn",
+    sprintNotSelected: "Hãy chọn sprint để lập kế hoạch",
+    selectSprintHint: "Chọn sprint ở thanh tiêu đề để chuyển issue vào sprint.",
+    emptySprint: "Sprint này chưa có issue nào.",
+    moveToSprint: "Thêm vào sprint",
+    removeFromSprint: "Bỏ khỏi sprint",
   },
   issue: {
     assignee: {
-      me: 'Tôi ({name})',
-      unassigned: 'Chưa gán'
+      me: "Tôi ({name})",
+      unassigned: "Chưa gán",
     },
     priority: {
-      low: 'Thấp',
-      medium: 'Trung bình',
-      high: 'Cao'
+      low: "Thấp",
+      medium: "Trung bình",
+      high: "Cao",
     },
     form: {
-      titlePlaceholder: 'Tiêu đề issue',
-      descriptionPlaceholder: 'Mô tả issue (tùy chọn)',
-      assigneePlaceholder: 'Người phụ trách',
-      assigneeLabel: 'Người phụ trách',
-      sprintPlaceholder: 'Sprint',
-      sprintLabel: 'Sprint',
-      sprintNone: 'Chưa vào sprint',
-      priorityPlaceholder: 'Độ ưu tiên',
-      priorityLabel: 'Ưu tiên'
+      titlePlaceholder: "Tiêu đề issue",
+      descriptionPlaceholder: "Mô tả issue (tùy chọn)",
+      assigneePlaceholder: "Người phụ trách",
+      assigneeLabel: "Người phụ trách",
+      sprintPlaceholder: "Sprint",
+      sprintLabel: "Sprint",
+      sprintNone: "Chưa vào sprint",
+      priorityPlaceholder: "Độ ưu tiên",
+      priorityLabel: "Ưu tiên",
     },
     create: {
-      title: 'Tạo issue mới',
-      description: 'Tạo issue mới.',
-      submit: 'Tạo issue',
-      submitting: 'Đang tạo...'
+      title: "Tạo issue mới",
+      description: "Tạo issue mới.",
+      submit: "Tạo issue",
+      submitting: "Đang tạo...",
     },
     update: {
-      title: 'Cập nhật issue',
-      description: 'Cập nhật thông tin issue.',
-      submit: 'Cập nhật issue',
-      submitting: 'Đang cập nhật...'
+      title: "Cập nhật issue",
+      description: "Cập nhật thông tin issue.",
+      submit: "Cập nhật issue",
+      submitting: "Đang cập nhật...",
     },
     detail: {
-      loadingTitle: 'Đang tải chi tiết công việc',
-      errorTitle: 'Lỗi tải dữ liệu',
-      errorDescription: 'Đã xảy ra lỗi khi tải chi tiết công việc.',
-      dialogTitle: 'ISSUE {number} - {title}',
-      descriptionLabel: 'Mô tả',
-      descriptionPlaceholder: 'Không có mô tả.',
-      commentsLabel: 'Bình luận',
-      commentPlaceholder: 'Viết bình luận...',
-      commentSubmit: 'Thêm bình luận',
-      commentSubmitting: 'Đang thêm...',
-      commentUpdate: 'Lưu thay đổi',
-      commentCancel: 'Hủy',
-      commentEditing: 'Đang chỉnh sửa',
-      commentDelete: 'Xóa bình luận',
-      commentDeleting: 'Đang xóa...',
-      commentUpdating: 'Đang cập nhật...',
-      noComments: 'Chưa có bình luận nào.',
-      statusLabel: 'Trạng thái',
-      saveChanges: 'Lưu thay đổi',
-      cancel: 'Hủy',
-      deleteIssue: 'Xóa issue',
-      deletingIssue: 'Đang xóa issue...',
-      reporterLabel: 'Người tạo:',
-      createdAtLabel: 'Ngày tạo:',
-      updatedAtLabel: 'Cập nhật:'
+      loadingTitle: "Đang tải chi tiết công việc",
+      errorTitle: "Lỗi tải dữ liệu",
+      errorDescription: "Đã xảy ra lỗi khi tải chi tiết công việc.",
+      dialogTitle: "ISSUE {number} - {title}",
+      descriptionLabel: "Mô tả",
+      descriptionPlaceholder: "Không có mô tả.",
+      commentsLabel: "Bình luận",
+      commentPlaceholder: "Viết bình luận...",
+      commentSubmit: "Thêm bình luận",
+      commentSubmitting: "Đang thêm...",
+      commentUpdate: "Lưu thay đổi",
+      commentCancel: "Hủy",
+      commentEditing: "Đang chỉnh sửa",
+      commentDelete: "Xóa bình luận",
+      commentDeleting: "Đang xóa...",
+      commentUpdating: "Đang cập nhật...",
+      noComments: "Chưa có bình luận nào.",
+      statusLabel: "Trạng thái",
+      saveChanges: "Lưu thay đổi",
+      cancel: "Hủy",
+      deleteIssue: "Xóa issue",
+      deletingIssue: "Đang xóa issue...",
+      reporterLabel: "Người tạo:",
+      createdAtLabel: "Ngày tạo:",
+      updatedAtLabel: "Cập nhật:",
     },
     toast: {
-      created: 'Tạo issue thành công',
-      createFailed: 'Tạo issue thất bại',
-      updated: 'Cập nhật issue thành công',
-      updateFailed: 'Cập nhật issue thất bại',
-      commentCreated: 'Thêm bình luận thành công',
-      commentCreateFailed: 'Thêm bình luận thất bại',
-      commentUpdated: 'Cập nhật bình luận thành công',
-      commentUpdateFailed: 'Cập nhật bình luận thất bại',
-      commentDeleted: 'Xóa bình luận thành công',
-      commentDeleteFailed: 'Xóa bình luận thất bại',
-      deleted: 'Đã xóa issue',
-      deleteFailed: 'Xóa issue thất bại'
+      created: "Tạo issue thành công",
+      createFailed: "Tạo issue thất bại",
+      updated: "Cập nhật issue thành công",
+      updateFailed: "Cập nhật issue thất bại",
+      commentCreated: "Thêm bình luận thành công",
+      commentCreateFailed: "Thêm bình luận thất bại",
+      commentUpdated: "Cập nhật bình luận thành công",
+      commentUpdateFailed: "Cập nhật bình luận thất bại",
+      commentDeleted: "Xóa bình luận thành công",
+      commentDeleteFailed: "Xóa bình luận thất bại",
+      deleted: "Đã xóa issue",
+      deleteFailed: "Xóa issue thất bại",
     },
     delete: {
       title: 'Xóa "{title}"?',
-      description: 'Bạn có chắc muốn xóa issue này không?'
-    }
-  }
+      description: "Bạn có chắc muốn xóa issue này không?",
+    },
+  },
 } as const;
 
 export default dashboard;
