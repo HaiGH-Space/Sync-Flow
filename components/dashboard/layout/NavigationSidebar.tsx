@@ -1,30 +1,30 @@
 "use client";
+
 import { Workspace } from "@/lib/api/workspace";
 import { useDashboard } from "@/lib/store/use-dashboard";
-import { AnimatePresence, motion, Variants } from "motion/react";
-import { AvatarWithBadge } from "@/components/shared/AvatarWithBadge";
-import { Search } from "@/components/shared/Search";
 import { useQuery } from "@tanstack/react-query";
 import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import CreateProjectModal from "../comp/CreateProjectModal";
-import { Link, useRouter } from "@/i18n/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { useParams } from "next/navigation";
-import { cn } from "@/lib/utils";
-import { ChevronRight, Loader2, Settings2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useProfile } from "@/hooks/use-profile";
 import ProjectSettingsDialog from "../comp/ProjectSettingsDialog";
-import { Button } from "@/components/ui/button";
 import { createWorkspaceDetailQueryOptions } from "@/queries/workspace";
 import { createProjectsQueryOptions } from "@/queries/project";
 import { createSprintsQueryOptions } from "@/queries/sprint";
 import { useDeleteProject } from "@/hooks/mutations/project";
-import WorkspaceSettingsMenu from "../comp/WorkspaceSettingsMenu";
+import type { Project } from "@/lib/api/project";
 import type { Sprint } from "@/lib/api/sprint";
 import EditSprintModal from "@/components/dashboard/comp/EditSprintModal";
-
-type WorkspaceRole = "OWNER" | "ADMIN" | "MEMBER";
+import { Search } from "@/components/shared/Search";
+import { AnimatePresence, motion, Variants } from "motion/react";
+import {
+  NavigationSidebarFooter,
+  NavigationSidebarHeader,
+  NavigationSidebarProjectList,
+  type WorkspaceRole,
+} from "./navigation-sidebar";
 
 const sidebarContainerVariants: Variants = {
   hidden: {
@@ -66,15 +66,7 @@ export const NavigationSidebar = memo(function NavigationSidebar({
     () => projectId ?? null,
   );
   const [searchQuery, setSearchQuery] = useState("");
-  const [settingsProject, setSettingsProject] = useState<{
-    id: string;
-    name: string;
-    key: string;
-    description?: string;
-    workspaceId: string;
-    createdAt: string;
-    updatedAt: string;
-  } | null>(null);
+  const [settingsProject, setSettingsProject] = useState<Project | null>(null);
   const [editingSprint, setEditingSprint] = useState<Sprint | null>(null);
   const canLoadProjects = !!workspaceDetail?.id && isOpenSidebarLeft;
 
@@ -108,7 +100,7 @@ export const NavigationSidebar = memo(function NavigationSidebar({
     currentWorkspaceRole === "OWNER" || currentWorkspaceRole === "ADMIN";
 
   const {
-    data: projects,
+    data: projectsResponse,
     error,
     isFetching,
   } = useQuery(
@@ -119,13 +111,14 @@ export const NavigationSidebar = memo(function NavigationSidebar({
       },
     ),
   );
-  const isProjectsLoading = canLoadProjects && (isFetching || !projects);
+  const isProjectsLoading =
+    canLoadProjects && (isFetching || !projectsResponse);
 
   const { mutate: deleteProject, isPending: isDeletingProject } =
     useDeleteProject(workspaceDetail?.id ?? "");
 
   const {
-    data: sprints,
+    data: sprintsResponse,
     error: sprintsError,
     isFetching: isSprintsFetching,
   } = useQuery(
@@ -147,7 +140,7 @@ export const NavigationSidebar = memo(function NavigationSidebar({
   }, [error, sprintsError]);
 
   const filteredProjects = useMemo(() => {
-    const projectList = projects?.data ?? [];
+    const projectList = projectsResponse?.data ?? [];
     const normalizedQuery = searchQuery.trim().toLowerCase();
 
     if (!normalizedQuery) {
@@ -157,7 +150,7 @@ export const NavigationSidebar = memo(function NavigationSidebar({
     return projectList.filter((project) =>
       project.name.toLowerCase().includes(normalizedQuery),
     );
-  }, [projects?.data, searchQuery]);
+  }, [projectsResponse?.data, searchQuery]);
 
   const searchHandle = useCallback(async (query: string) => {
     setSearchQuery(query);
@@ -178,27 +171,16 @@ export const NavigationSidebar = memo(function NavigationSidebar({
             className="border-r border-border/70 whitespace-nowrap bg-background text-foreground h-full overflow-hidden"
             variants={sidebarContainerVariants}
             initial="hidden"
-            animate={"visible"}
+            animate="visible"
             exit="hidden"
           >
             <div className="h-full flex flex-col w-62.5">
-              {/* Header */}
-              <div className="h-14 px-4 flex flex-row justify-between items-center gap-2 border-b border-border/70 bg-background/90 backdrop-blur overflow-hidden min-w-0">
-                {workspaceDetail ? (
-                  <>
-                    <WorkspaceSettingsMenu role={currentWorkspaceRole} />
-                    {canManageProject && (
-                      <CreateProjectModal workspaceDetail={workspaceDetail} />
-                    )}
-                  </>
-                ) : (
-                  <h2 className="text-lg font-semibold truncate">
-                    {t("sidebar.noWorkspaceSelected")}
-                  </h2>
-                )}
-              </div>
+              <NavigationSidebarHeader
+                workspaceDetail={workspaceDetail}
+                role={currentWorkspaceRole}
+                canManageProject={canManageProject}
+              />
 
-              {/* Scrollable Content */}
               <div className="p-4 flex-1 flex flex-col mt-4 overflow-y-auto">
                 <div className="mb-4">
                   <Search
@@ -206,191 +188,34 @@ export const NavigationSidebar = memo(function NavigationSidebar({
                     onSearch={searchHandle}
                   />
                 </div>
+
                 <div className="flex-1 overflow-y-auto">
-                  <nav className="space-y-1">
-                    {isProjectsLoading && (
-                      <div className="flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground">
-                        <Loader2 className="size-4 animate-spin" />
-                        <span>{t("sidebar.loadingProjects")}</span>
-                      </div>
-                    )}
-
-                    {canLoadProjects &&
-                      !isProjectsLoading &&
-                      (projects?.data?.length ?? 0) === 0 && (
-                        <div className="px-3 py-2 text-sm text-muted-foreground">
-                          {t("sidebar.noProjects")}
-                        </div>
-                      )}
-                    {canLoadProjects &&
-                      !isProjectsLoading &&
-                      (projects?.data?.length ?? 0) > 0 &&
-                      filteredProjects.length === 0 && (
-                        <div className="px-3 py-2 text-sm text-muted-foreground">
-                          {t("sidebar.noSearchResults")}
-                        </div>
-                      )}
-                    {filteredProjects.map((project) => {
-                      const isExpanded = expandedProjectId === project.id;
-
-                      return (
-                        <div key={project.id} className="rounded-md my-2">
-                          <div className="flex items-center gap-1">
-                            <Link
-                              href={`/dashboard/${workspaceDetail?.id}/${project.id}`}
-                              aria-label={`Switch to ${project.name}`}
-                              aria-current={isExpanded ? "page" : undefined}
-                              onClick={(e) => {
-                                // Toggle when clicking the currently active project (collapse/expand)
-                                // but still navigate when selecting a different project.
-                                if (isExpanded) {
-                                  e.preventDefault();
-                                  if (expandedProjectId !== project.id) {
-                                    setExpandedProjectId(project.id);
-                                    return;
-                                  }
-                                }
-                                setExpandedProjectId(project.id);
-                              }}
-                              className={cn(
-                                "w-full flex items-center justify-between gap-2 px-3 py-2 rounded-md text-sm font-medium overflow-hidden",
-                                isExpanded
-                                  ? "bg-primary text-primary-foreground"
-                                  : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground",
-                              )}
-                            >
-                              <span className="truncate text-left">
-                                {project.name}
-                              </span>
-                              <ChevronRight
-                                className={cn(
-                                  "size-4 shrink-0 transition-transform duration-200",
-                                  isExpanded ? "rotate-90" : "rotate-0",
-                                )}
-                              />
-                            </Link>
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="icon-sm"
-                              className="text-muted-foreground hover:text-foreground"
-                              aria-label={t("project.settings.action", {
-                                name: project.name,
-                              })}
-                              onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                setSettingsProject(project);
-                              }}
-                            >
-                              <Settings2 className="size-4" />
-                            </Button>
-                          </div>
-                          <AnimatePresence initial={false}>
-                            {isExpanded && (
-                              <motion.div
-                                key={`sprints-${project.id}`}
-                                initial={{ height: 0, opacity: 0 }}
-                                animate={{ height: "auto", opacity: 1 }}
-                                exit={{ height: 0, opacity: 0 }}
-                                transition={{ duration: 0.2, ease: "easeOut" }}
-                                className="overflow-hidden"
-                              >
-                                <div className="mt-2 pl-3">
-                                  <div className="border-l border-border pl-3 space-y-1">
-                                    {isSprintsFetching && (
-                                      <div className="flex items-center gap-2 py-1 text-xs text-muted-foreground">
-                                        <Loader2 className="size-3.5 animate-spin" />
-                                        <span>
-                                          {t("sidebar.loadingSprints")}
-                                        </span>
-                                      </div>
-                                    )}
-                                    {sprintsError && (
-                                      <div className="text-xs text-destructive">
-                                        {t("sidebar.errorLoadingSprints")}
-                                      </div>
-                                    )}
-                                    {!isSprintsFetching &&
-                                      !sprintsError &&
-                                      (sprints?.data?.length ?? 0) === 0 && (
-                                        <div className="cursor-default text-sm text-muted-foreground">
-                                          {t("sidebar.noSprints")}
-                                        </div>
-                                      )}
-                                    {sprints?.data.map((sprint) => {
-                                      const isSprintSelected =
-                                        selectedSprintId === sprint.id;
-
-                                      return (
-                                        <div
-                                          key={sprint.id}
-                                          className={cn(
-                                            "flex items-center gap-2 rounded-md px-2 py-1.5 transition-colors",
-                                            isSprintSelected
-                                              ? "bg-primary/10"
-                                              : "hover:bg-accent/60",
-                                          )}
-                                        >
-                                          <button
-                                            type="button"
-                                            className={cn(
-                                              "min-w-0 flex-1 truncate text-left text-sm",
-                                              isSprintSelected
-                                                ? "text-foreground font-medium"
-                                                : "text-muted-foreground hover:text-foreground",
-                                            )}
-                                            onClick={() =>
-                                              handleSprintSelect(sprint.id)
-                                            }
-                                          >
-                                            {sprint.name}
-                                          </button>
-                                          <Button
-                                            type="button"
-                                            variant="ghost"
-                                            size="icon-sm"
-                                            className="shrink-0 text-muted-foreground hover:text-foreground"
-                                            aria-label={t("sprint.edit.action")}
-                                            onClick={(e) => {
-                                              e.preventDefault();
-                                              e.stopPropagation();
-                                              handleSprintSelect(sprint.id);
-                                              setEditingSprint(sprint);
-                                            }}
-                                          >
-                                            <Settings2 className="size-4" />
-                                          </Button>
-                                        </div>
-                                      );
-                                    })}
-                                  </div>
-                                </div>
-                              </motion.div>
-                            )}
-                          </AnimatePresence>
-                        </div>
-                      );
-                    })}
-                  </nav>
+                  <NavigationSidebarProjectList
+                    canLoadProjects={canLoadProjects}
+                    isProjectsLoading={isProjectsLoading}
+                    projects={projectsResponse?.data ?? []}
+                    filteredProjects={filteredProjects}
+                    workspaceId={workspaceDetail?.id ?? ""}
+                    expandedProjectId={expandedProjectId}
+                    onExpandProjectAction={setExpandedProjectId}
+                    onOpenProjectSettingsAction={setSettingsProject}
+                    sprints={sprintsResponse?.data}
+                    isSprintsFetching={isSprintsFetching}
+                    sprintsError={sprintsError}
+                    selectedSprintId={selectedSprintId}
+                    onSelectSprintAction={handleSprintSelect}
+                    onEditSprintAction={setEditingSprint}
+                  />
                 </div>
               </div>
-              {/* User profile */}
 
-              <div className="p-4 border-t border-border">
-                <AvatarWithBadge
-                  alt="user avatar"
-                  src="https://github.com/shadcn.png"
-                  avtFallback="CN"
-                  status="online"
-                />
-              </div>
+              <NavigationSidebarFooter />
             </div>
           </motion.aside>
         )}
       </AnimatePresence>
 
-      {settingsProject && (
+      {settingsProject && workspaceDetail?.id && (
         <ProjectSettingsDialog
           project={settingsProject}
           canManage={canManageProject}
