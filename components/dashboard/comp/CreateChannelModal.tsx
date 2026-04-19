@@ -90,9 +90,7 @@ export default function CreateChannelModal({
           toast.success(tDashboard("channel.toast.created"));
           onCreatedAction?.(response.data.id);
           handleOpenChange(false);
-          router.push(
-            `/dashboard/${workspaceId}/${projectId}/channels/${response.data.id}`,
-          );
+          router.push(`/dashboard/${workspaceId}/${projectId}/${response.data.id}`);
         },
         onError: () => {
           toast.error(tDashboard("channel.toast.createFailed"));
