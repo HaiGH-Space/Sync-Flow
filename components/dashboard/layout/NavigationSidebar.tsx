@@ -13,6 +13,7 @@ import ProjectSettingsDialog from "../comp/ProjectSettingsDialog";
 import { createWorkspaceDetailQueryOptions } from "@/queries/workspace";
 import { createProjectsQueryOptions } from "@/queries/project";
 import { createSprintsQueryOptions } from "@/queries/sprint";
+import { createChannelsQueryOptions } from "@/queries/channel";
 import { useDeleteProject } from "@/hooks/mutations/project";
 import type { Project } from "@/lib/api/project";
 import type { Sprint } from "@/lib/api/sprint";
@@ -56,6 +57,10 @@ export const NavigationSidebar = memo(function NavigationSidebar({
   const selectedSprintId = useDashboard((state) => state.selectedSprintId);
   const setSelectedSprintId = useDashboard(
     (state) => state.setSelectedSprintId,
+  );
+  const selectedChannelId = useDashboard((state) => state.selectedChannelId);
+  const setSelectedChannelId = useDashboard(
+    (state) => state.setSelectedChannelId,
   );
   const { projectId }: { projectId: string | undefined } = useParams();
   const t = useTranslations("dashboard");
@@ -130,6 +135,19 @@ export const NavigationSidebar = memo(function NavigationSidebar({
     ),
   );
 
+  const {
+    data: channelsResponse,
+    error: channelsError,
+    isFetching: isChannelsFetching,
+  } = useQuery(
+    createChannelsQueryOptions(
+      { projectId: expandedProjectId ?? "" },
+      {
+        enabled: !!expandedProjectId && isOpenSidebarLeft,
+      },
+    ),
+  );
+
   useEffect(() => {
     if (error) {
       toast.error(error.message);
@@ -137,7 +155,14 @@ export const NavigationSidebar = memo(function NavigationSidebar({
     if (sprintsError) {
       toast.error(sprintsError.message);
     }
-  }, [error, sprintsError]);
+    if (channelsError) {
+      toast.error(channelsError.message);
+    }
+  }, [error, sprintsError, channelsError]);
+
+  useEffect(() => {
+    setSelectedChannelId("");
+  }, [expandedProjectId, setSelectedChannelId]);
 
   const filteredProjects = useMemo(() => {
     const projectList = projectsResponse?.data ?? [];
@@ -161,6 +186,13 @@ export const NavigationSidebar = memo(function NavigationSidebar({
       setSelectedSprintId(sprintId);
     },
     [setSelectedSprintId],
+  );
+
+  const handleChannelSelect = useCallback(
+    (channelId: string) => {
+      setSelectedChannelId(channelId);
+    },
+    [setSelectedChannelId],
   );
 
   return (
@@ -205,6 +237,11 @@ export const NavigationSidebar = memo(function NavigationSidebar({
                     selectedSprintId={selectedSprintId}
                     onSelectSprintAction={handleSprintSelect}
                     onEditSprintAction={setEditingSprint}
+                    channels={channelsResponse?.data}
+                    isChannelsFetching={isChannelsFetching}
+                    channelsError={channelsError}
+                    selectedChannelId={selectedChannelId}
+                    onSelectChannelAction={handleChannelSelect}
                   />
                 </div>
               </div>

@@ -1,13 +1,17 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Link } from "@/i18n/navigation";
+import type { Channel } from "@/lib/api/channel";
 import type { Project } from "@/lib/api/project";
 import type { Sprint } from "@/lib/api/sprint";
 import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "motion/react";
 import { ChevronRight, Settings2 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useState } from "react";
+import { NavigationSidebarChannelList } from "./NavigationSidebarChannelList";
 import { NavigationSidebarSprintList } from "./NavigationSidebarSprintList";
 
 type NavigationSidebarProjectItemProps = {
@@ -22,6 +26,11 @@ type NavigationSidebarProjectItemProps = {
   selectedSprintId: string;
   onSelectSprintAction: (sprintId: string) => void;
   onEditSprintAction: (sprint: Sprint) => void;
+  channels?: Channel[];
+  isChannelsFetching: boolean;
+  channelsError?: Error | null;
+  selectedChannelId: string;
+  onSelectChannelAction: (channelId: string) => void;
 };
 
 export function NavigationSidebarProjectItem({
@@ -36,8 +45,14 @@ export function NavigationSidebarProjectItem({
   selectedSprintId,
   onSelectSprintAction,
   onEditSprintAction,
+  channels,
+  isChannelsFetching,
+  channelsError,
+  selectedChannelId,
+  onSelectChannelAction,
 }: NavigationSidebarProjectItemProps) {
   const t = useTranslations("dashboard");
+  const [activeTab, setActiveTab] = useState("sprints");
 
   return (
     <div className="rounded-md my-2">
@@ -93,14 +108,38 @@ export function NavigationSidebarProjectItem({
             transition={{ duration: 0.2, ease: "easeOut" }}
             className="overflow-hidden"
           >
-            <NavigationSidebarSprintList
-              sprints={sprints}
-              isFetching={isSprintsFetching}
-              error={sprintsError}
-              selectedSprintId={selectedSprintId}
-              onSelectSprintAction={onSelectSprintAction}
-              onEditSprintAction={onEditSprintAction}
-            />
+            <Tabs value={activeTab} onValueChange={setActiveTab}>
+              <TabsList variant="line" className="mx-3 mt-2">
+                <TabsTrigger value="sprints">
+                  {t("sidebar.sprintsTab")}
+                </TabsTrigger>
+                <TabsTrigger value="channels">
+                  {t("sidebar.channelsTab")}
+                </TabsTrigger>
+              </TabsList>
+              <TabsContent value="sprints">
+                <NavigationSidebarSprintList
+                  projectId={project.id}
+                  sprints={sprints}
+                  isFetching={isSprintsFetching}
+                  error={sprintsError}
+                  selectedSprintId={selectedSprintId}
+                  onSelectSprintAction={onSelectSprintAction}
+                  onEditSprintAction={onEditSprintAction}
+                />
+              </TabsContent>
+              <TabsContent value="channels">
+                <NavigationSidebarChannelList
+                  channels={channels}
+                  isFetching={isChannelsFetching}
+                  error={channelsError}
+                  selectedChannelId={selectedChannelId}
+                  onSelectChannelAction={onSelectChannelAction}
+                  workspaceId={workspaceId}
+                  projectId={project.id}
+                />
+              </TabsContent>
+            </Tabs>
           </motion.div>
         )}
       </AnimatePresence>

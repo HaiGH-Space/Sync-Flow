@@ -1,5 +1,6 @@
 "use client";
 
+import type { Channel } from "@/lib/api/channel";
 import type { Project } from "@/lib/api/project";
 import type { Sprint } from "@/lib/api/sprint";
 import { Loader2 } from "lucide-react";
@@ -21,6 +22,11 @@ type NavigationSidebarProjectListProps = {
   selectedSprintId: string;
   onSelectSprintAction: (sprintId: string) => void;
   onEditSprintAction: (sprint: Sprint) => void;
+  channels?: Channel[];
+  isChannelsFetching: boolean;
+  channelsError?: Error | null;
+  selectedChannelId: string;
+  onSelectChannelAction: (channelId: string) => void;
 };
 
 export function NavigationSidebarProjectList({
@@ -38,6 +44,11 @@ export function NavigationSidebarProjectList({
   selectedSprintId,
   onSelectSprintAction,
   onEditSprintAction,
+  channels,
+  isChannelsFetching,
+  channelsError,
+  selectedChannelId,
+  onSelectChannelAction,
 }: NavigationSidebarProjectListProps) {
   const t = useTranslations("dashboard");
 
@@ -79,6 +90,11 @@ export function NavigationSidebarProjectList({
           selectedSprintId={selectedSprintId}
           onSelectSprintAction={onSelectSprintAction}
           onEditSprintAction={onEditSprintAction}
+          channels={channels}
+          isChannelsFetching={isChannelsFetching}
+          channelsError={channelsError}
+          selectedChannelId={selectedChannelId}
+          onSelectChannelAction={onSelectChannelAction}
         />
       ))}
     </nav>

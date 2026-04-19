@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { useForm } from "@tanstack/react-form";
 import { useTranslations } from "next-intl";
 import { PlusIcon, Loader2Icon } from "lucide-react";
@@ -23,6 +23,7 @@ import DatePickerField from "@/components/shared/DatePickerField";
 type CreateSprintModalProps = {
   projectId: string;
   onCreated?: (sprintId: string) => void;
+  trigger?: ReactNode;
 };
 
 const createSprintSchema = (
@@ -60,6 +61,7 @@ const defaultValues: FormSchema = {
 export default function CreateSprintModal({
   projectId,
   onCreated,
+  trigger,
 }: CreateSprintModalProps) {
   const [isOpen, setIsOpen] = useState(false);
   const tDashboard = useTranslations("dashboard");
@@ -117,14 +119,16 @@ export default function CreateSprintModal({
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button
-          type="button"
-          variant="outline"
-          size="icon-sm"
-          aria-label={tDashboard("sprint.create.action")}
-        >
-          <PlusIcon className="size-4" />
-        </Button>
+        {trigger ?? (
+          <Button
+            type="button"
+            variant="outline"
+            size="icon-sm"
+            aria-label={tDashboard("sprint.create.action")}
+          >
+            <PlusIcon className="size-4" />
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

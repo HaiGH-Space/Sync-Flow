@@ -1,12 +1,14 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import CreateSprintModal from "@/components/dashboard/comp/CreateSprintModal";
 import type { Sprint } from "@/lib/api/sprint";
 import { cn } from "@/lib/utils";
-import { Loader2, Settings2 } from "lucide-react";
+import { Loader2, PlusIcon, Settings2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 type NavigationSidebarSprintListProps = {
+  projectId: string;
   sprints?: Sprint[];
   isFetching: boolean;
   error?: Error | null;
@@ -16,6 +18,7 @@ type NavigationSidebarSprintListProps = {
 };
 
 export function NavigationSidebarSprintList({
+  projectId,
   sprints,
   isFetching,
   error,
@@ -28,6 +31,22 @@ export function NavigationSidebarSprintList({
   return (
     <div className="mt-2 pl-3">
       <div className="border-l border-border pl-3 space-y-1">
+        <div className="sticky top-0 z-10 -ml-3 border-b border-border/60 bg-background/95 px-3 pb-2 pt-2 backdrop-blur">
+          <CreateSprintModal
+            projectId={projectId}
+            trigger={
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="h-8 w-full justify-start gap-2 px-2 py-1.5 text-muted-foreground hover:text-foreground"
+              >
+                <PlusIcon className="size-3.5" />
+                {t("sprint.create.action")}
+              </Button>
+            }
+          />
+        </div>
         {isFetching && (
           <div className="flex items-center gap-2 py-1 text-xs text-muted-foreground">
             <Loader2 className="size-3.5 animate-spin" />

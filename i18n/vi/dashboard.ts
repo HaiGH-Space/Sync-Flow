@@ -17,6 +17,12 @@ const dashboard = {
     loadingSprints: "Đang tải sprint...",
     errorLoadingSprints: "Lỗi tải sprint",
     noSprints: "Chưa có sprint",
+    loadingChannels: "Đang tải kênh...",
+    errorLoadingChannels: "Lỗi tải kênh",
+    noChannels: "Chưa có kênh",
+    sprintsTab: "Sprint",
+    channelsTab: "Kênh",
+    untitledChannel: "Kênh chưa đặt tên",
     searchPlaceholder: "Tìm kiếm...",
     role: {
       owner: "Chủ workspace",
@@ -98,6 +104,25 @@ const dashboard = {
       startDateLabel: "Ngày bắt đầu",
       endDateLabel: "Ngày kết thúc",
       submit: "Lưu sprint",
+    },
+  },
+  channel: {
+    create: {
+      action: "Tạo kênh",
+      title: "Tạo kênh",
+      description: "Tạo kênh cho dự án này.",
+      namePlaceholder: "Tên kênh (tùy chọn)",
+      typeLabel: "Loại kênh",
+      typeGroup: "Nhóm",
+      typeDirect: "Trực tiếp",
+      membersLabel: "Thành viên",
+      membersLoading: "Đang tải thành viên...",
+      noMembers: "Chưa có thành viên",
+      submit: "Tạo kênh",
+    },
+    toast: {
+      created: "Tạo kênh thành công",
+      createFailed: "Tạo kênh thất bại",
     },
   },
   board: {

@@ -16,8 +16,11 @@ const validation = {
     title_required: "Issue title is required",
   },
   sprint: {
-    name_required: 'Sprint name is required',
-    end_date_after_start: 'End date must be after start date',
+    name_required: "Sprint name is required",
+    end_date_after_start: "End date must be after start date",
+  },
+  channel: {
+    members_required: "Please select at least one member",
   },
 } as const;
 

@@ -16,8 +16,11 @@ const validation = {
     title_required: "Tiêu đề issue là bắt buộc",
   },
   sprint: {
-    name_required: 'Tên sprint là bắt buộc',
-    end_date_after_start: 'Ngày kết thúc phải sau ngày bắt đầu',
+    name_required: "Tên sprint là bắt buộc",
+    end_date_after_start: "Ngày kết thúc phải sau ngày bắt đầu",
+  },
+  channel: {
+    members_required: "Vui lòng chọn ít nhất một thành viên",
   },
 } as const;
 
