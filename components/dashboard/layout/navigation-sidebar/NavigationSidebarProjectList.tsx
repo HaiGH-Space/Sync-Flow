@@ -26,7 +26,7 @@ type NavigationSidebarProjectListProps = {
   isChannelsFetching: boolean;
   channelsError?: Error | null;
   selectedChannelId: string;
-  onSelectChannelAction: (channelId: string) => void;
+  onSelectChannelAction: (channelId: string, projectId: string) => void;
 };
 
 export function NavigationSidebarProjectList({

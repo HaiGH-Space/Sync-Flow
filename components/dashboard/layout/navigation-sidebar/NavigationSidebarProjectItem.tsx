@@ -30,7 +30,7 @@ type NavigationSidebarProjectItemProps = {
   isChannelsFetching: boolean;
   channelsError?: Error | null;
   selectedChannelId: string;
-  onSelectChannelAction: (channelId: string) => void;
+  onSelectChannelAction: (channelId: string, projectId: string) => void;
 };
 
 export function NavigationSidebarProjectItem({
@@ -119,6 +119,7 @@ export function NavigationSidebarProjectItem({
               </TabsList>
               <TabsContent value="sprints">
                 <NavigationSidebarSprintList
+                  workspaceId={workspaceId}
                   projectId={project.id}
                   sprints={sprints}
                   isFetching={isSprintsFetching}

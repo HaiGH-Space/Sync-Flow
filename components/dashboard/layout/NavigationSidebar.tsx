@@ -62,6 +62,15 @@ export const NavigationSidebar = memo(function NavigationSidebar({
   const setSelectedChannelId = useDashboard(
     (state) => state.setSelectedChannelId,
   );
+  const lastActiveChannelByProject = useDashboard(
+    (state) => state.lastActiveChannelByProject,
+  );
+  const setLastActiveChannel = useDashboard(
+    (state) => state.setLastActiveChannel,
+  );
+  const setOpenSidebarRight = useDashboard(
+    (state) => state.setOpenSidebarRight,
+  );
   const { projectId }: { projectId: string | undefined } = useParams();
   const t = useTranslations("dashboard");
   const router = useRouter();
@@ -161,8 +170,14 @@ export const NavigationSidebar = memo(function NavigationSidebar({
   }, [error, sprintsError, channelsError]);
 
   useEffect(() => {
-    setSelectedChannelId("");
-  }, [expandedProjectId, setSelectedChannelId]);
+    if (!expandedProjectId) {
+      setSelectedChannelId("");
+      return;
+    }
+
+    const lastChannel = lastActiveChannelByProject[expandedProjectId] ?? "";
+    setSelectedChannelId(lastChannel);
+  }, [expandedProjectId, lastActiveChannelByProject, setSelectedChannelId]);
 
   const filteredProjects = useMemo(() => {
     const projectList = projectsResponse?.data ?? [];
@@ -189,10 +204,12 @@ export const NavigationSidebar = memo(function NavigationSidebar({
   );
 
   const handleChannelSelect = useCallback(
-    (channelId: string) => {
+    (channelId: string, projectId: string) => {
       setSelectedChannelId(channelId);
+      setLastActiveChannel(projectId, channelId);
+      setOpenSidebarRight(true);
     },
-    [setSelectedChannelId],
+    [setSelectedChannelId, setLastActiveChannel, setOpenSidebarRight],
   );
 
   return (

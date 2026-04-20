@@ -2,12 +2,14 @@
 
 import { Button } from "@/components/ui/button";
 import CreateSprintModal from "@/components/dashboard/comp/CreateSprintModal";
+import { useRouter } from "@/i18n/navigation";
 import type { Sprint } from "@/lib/api/sprint";
 import { cn } from "@/lib/utils";
 import { Loader2, PlusIcon, Settings2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 type NavigationSidebarSprintListProps = {
+  workspaceId: string;
   projectId: string;
   sprints?: Sprint[];
   isFetching: boolean;
@@ -18,6 +20,7 @@ type NavigationSidebarSprintListProps = {
 };
 
 export function NavigationSidebarSprintList({
+  workspaceId,
   projectId,
   sprints,
   isFetching,
@@ -27,6 +30,7 @@ export function NavigationSidebarSprintList({
   onEditSprintAction,
 }: NavigationSidebarSprintListProps) {
   const t = useTranslations("dashboard");
+  const router = useRouter();
 
   return (
     <div className="mt-2 pl-3">
@@ -82,7 +86,10 @@ export function NavigationSidebarSprintList({
                     ? "font-medium text-foreground"
                     : "text-muted-foreground group-hover:text-foreground",
                 )}
-                onClick={() => onSelectSprintAction(sprint.id)}
+                onClick={() => {
+                  onSelectSprintAction(sprint.id);
+                  router.push(`/dashboard/${workspaceId}/${projectId}`);
+                }}
                 aria-pressed={isSprintSelected}
               >
                 <span

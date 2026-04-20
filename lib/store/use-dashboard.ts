@@ -27,14 +27,17 @@ type DashboardState = {
   activeNavigate: NavigateItem;
   selectedSprintId: string;
   selectedChannelId: string;
+  lastActiveChannelByProject: Record<string, string>;
 };
 
 type DashboardAction = {
   toggleSidebarLeft: () => void;
   toggleSidebarRight: () => void;
+  setOpenSidebarRight: (open: boolean) => void;
   setActiveNavigate: (navigateType: NavigateType) => void;
   setSelectedSprintId: (sprintId: string) => void;
   setSelectedChannelId: (channelId: string) => void;
+  setLastActiveChannel: (projectId: string, channelId: string) => void;
   reset: () => void;
 };
 
@@ -44,6 +47,7 @@ const initialState: DashboardState = {
   activeNavigate: navigateItems[0],
   selectedSprintId: "all",
   selectedChannelId: "",
+  lastActiveChannelByProject: {},
 };
 
 type DashboardStore = DashboardState & DashboardAction;
@@ -56,6 +60,7 @@ export const useDashboard = create<DashboardStore>()(
         set((state) => ({ isOpenSidebarLeft: !state.isOpenSidebarLeft })),
       toggleSidebarRight: () =>
         set((state) => ({ isOpenSidebarRight: !state.isOpenSidebarRight })),
+      setOpenSidebarRight: (open: boolean) => set({ isOpenSidebarRight: open }),
       setActiveNavigate: (navigateType: NavigateType) =>
         set({
           activeNavigate: navigateItems.find((n) => n.value === navigateType)!,
@@ -64,6 +69,13 @@ export const useDashboard = create<DashboardStore>()(
         set({ selectedSprintId: sprintId }),
       setSelectedChannelId: (channelId: string) =>
         set({ selectedChannelId: channelId }),
+      setLastActiveChannel: (projectId: string, channelId: string) =>
+        set((state) => ({
+          lastActiveChannelByProject: {
+            ...state.lastActiveChannelByProject,
+            [projectId]: channelId,
+          },
+        })),
       reset: () => set(initialState),
     }),
     {

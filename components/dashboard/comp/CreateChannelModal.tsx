@@ -26,7 +26,6 @@ import { useCreateChannel } from "@/hooks/mutations/channel";
 import { createWorkspaceMemberProfilesQueryOptions } from "@/queries/workspace-member";
 import { ChannelType } from "@/lib/api/channel";
 import { useProfile } from "@/hooks/use-profile";
-import { useRouter } from "@/i18n/navigation";
 
 const createChannelSchema = () =>
   z.object({
@@ -55,7 +54,6 @@ export default function CreateChannelModal({
   trigger,
 }: CreateChannelModalProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const router = useRouter();
   const tDashboard = useTranslations("dashboard");
   const tCommon = useTranslations("common");
   const { data: profile } = useProfile();
@@ -90,7 +88,6 @@ export default function CreateChannelModal({
           toast.success(tDashboard("channel.toast.created"));
           onCreatedAction?.(response.data.id);
           handleOpenChange(false);
-          router.push(`/dashboard/${workspaceId}/${projectId}/${response.data.id}`);
         },
         onError: () => {
           toast.error(tDashboard("channel.toast.createFailed"));

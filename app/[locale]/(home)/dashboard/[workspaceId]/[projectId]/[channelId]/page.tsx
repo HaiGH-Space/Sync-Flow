@@ -1,19 +1,19 @@
 "use client";
 
-import { useParams } from "next/navigation";
+import { ChannelHeader } from "@/components/dashboard/chat/ChannelHeader";
+import { Composer } from "@/components/dashboard/chat/Composer";
+import { MessageList } from "@/components/dashboard/chat/MessageList";
+import { mockMessages } from "@/components/dashboard/chat/mock";
 
 export default function ChannelPage() {
-  const { channelId } = useParams<{ channelId: string }>();
+  const currentUserId = "u2";
+  const messages = mockMessages;
 
   return (
-    <div className="flex h-full flex-col gap-3">
-      <div>
-        <h1 className="text-lg font-semibold">Channel</h1>
-        <p className="text-sm text-muted-foreground">{channelId}</p>
-      </div>
-      <div className="rounded-lg border border-border/70 bg-muted/20 p-4 text-sm text-muted-foreground">
-        Messages view coming soon.
-      </div>
+    <div className="flex h-full min-h-0 flex-col">
+      <ChannelHeader />
+      <MessageList messages={messages} currentUserId={currentUserId} />
+      <Composer />
     </div>
   );
 }

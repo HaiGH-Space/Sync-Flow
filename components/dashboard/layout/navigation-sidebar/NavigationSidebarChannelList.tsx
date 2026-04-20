@@ -2,7 +2,6 @@
 
 import CreateChannelModal from "@/components/dashboard/comp/CreateChannelModal";
 import { Button } from "@/components/ui/button";
-import { Link } from "@/i18n/navigation";
 import type { Channel } from "@/lib/api/channel";
 import { ChannelType } from "@/lib/api/channel";
 import { cn } from "@/lib/utils";
@@ -14,7 +13,7 @@ type NavigationSidebarChannelListProps = {
   isFetching: boolean;
   error?: Error | null;
   selectedChannelId: string;
-  onSelectChannelAction: (channelId: string) => void;
+  onSelectChannelAction: (channelId: string, projectId: string) => void;
   workspaceId: string;
   projectId: string;
 };
@@ -37,7 +36,9 @@ export function NavigationSidebarChannelList({
           <CreateChannelModal
             workspaceId={workspaceId}
             projectId={projectId}
-            onCreatedAction={onSelectChannelAction}
+            onCreatedAction={(channelId) =>
+              onSelectChannelAction(channelId, projectId)
+            }
             trigger={
               <Button
                 type="button"
@@ -74,15 +75,17 @@ export function NavigationSidebarChannelList({
             : t("sidebar.untitledChannel");
 
           return (
-            <Link
+            <Button
               key={channel.id}
-              href={`/dashboard/${workspaceId}/${projectId}/${channel.id}`}
+              type="button"
+              variant="ghost"
+              size="sm"
               className={cn(
-                "group flex items-center gap-2 rounded-lg px-2 py-1.5 transition-colors",
+                "group h-auto w-full justify-start gap-2 rounded-lg px-2 py-1.5 text-left transition-colors",
                 isChannelSelected ? "bg-primary/10" : "hover:bg-accent/50",
               )}
-              aria-current={isChannelSelected ? "page" : undefined}
-              onClick={() => onSelectChannelAction(channel.id)}
+              aria-pressed={isChannelSelected}
+              onClick={() => onSelectChannelAction(channel.id, projectId)}
             >
               {channel.type === ChannelType.DIRECT ? (
                 <MessageCircle
@@ -113,7 +116,7 @@ export function NavigationSidebarChannelList({
               >
                 {channelName}
               </span>
-            </Link>
+            </Button>
           );
         })}
       </div>
