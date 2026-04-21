@@ -13,6 +13,15 @@ type ComposerProps = {
 export function Composer({ onSendAction }: ComposerProps) {
   const [value, setValue] = useState("");
 
+  const handleSend = () => {
+    const trimmed = value.trim();
+    if (!trimmed) {
+      return;
+    }
+    onSendAction?.(trimmed);
+    setValue("");
+  };
+
   return (
     <div className="border-t border-border/70 pt-3">
       <div className="flex flex-col gap-3 rounded-xl border border-border/70 bg-background/70 p-3 shadow-sm">
@@ -48,7 +57,8 @@ export function Composer({ onSendAction }: ComposerProps) {
           <Button
             type="button"
             className="h-10 gap-2"
-            onClick={() => onSendAction?.(value)}
+            onClick={handleSend}
+            disabled={!value.trim()}
           >
             <Send className="size-4" />
             Send

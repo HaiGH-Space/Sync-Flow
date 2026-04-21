@@ -1,11 +1,4 @@
-export type ChatSender = {
-  id: string;
-  name: string;
-};
+import type { Message } from "@/lib/api/message";
 
-export type ChatMessage = {
-  id: string;
-  content: string;
-  sender: ChatSender;
-  createdAt: string;
-};
+export type ChatSender = Message["sender"];
+export type ChatMessage = Message;

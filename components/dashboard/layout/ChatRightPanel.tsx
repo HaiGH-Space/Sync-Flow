@@ -8,7 +8,7 @@ import { useDashboard } from "@/lib/store/use-dashboard";
 import { ChannelHeader } from "@/components/dashboard/chat/ChannelHeader";
 import { MessageList } from "@/components/dashboard/chat/MessageList";
 import { Composer } from "@/components/dashboard/chat/Composer";
-import { mockMessages } from "@/components/dashboard/chat/mock";
+import { useChatChannel } from "@/hooks/chat/use-chat-channel";
 
 export function ChatRightPanel() {
   const isOpenSidebarRight = useDashboard((state) => state.isOpenSidebarRight);
@@ -16,6 +16,9 @@ export function ChatRightPanel() {
     (state) => state.setOpenSidebarRight,
   );
   const selectedChannelId = useDashboard((state) => state.selectedChannelId);
+  const { messages, error, isLoading, sendMessage } = useChatChannel(
+    selectedChannelId || undefined,
+  );
 
   if (!isOpenSidebarRight) {
     return null;
@@ -58,9 +61,19 @@ export function ChatRightPanel() {
               <div className="shrink-0">
                 <ChannelHeader title="Channel" />
               </div>
-              <MessageList messages={mockMessages} currentUserId="u2" />
+              {error ? (
+                <div className="flex-1 min-h-0 py-4 text-sm text-destructive">
+                  {error}
+                </div>
+              ) : isLoading ? (
+                <div className="flex-1 min-h-0 py-4 text-sm text-muted-foreground">
+                  Loading messages...
+                </div>
+              ) : (
+                <MessageList messages={messages} currentUserId="u2" />
+              )}
               <div className="shrink-0">
-                <Composer />
+                <Composer onSendAction={sendMessage} />
               </div>
             </div>
           ) : (

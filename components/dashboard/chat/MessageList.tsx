@@ -8,6 +8,14 @@ type MessageListProps = {
 };
 
 export function MessageList({ messages, currentUserId }: MessageListProps) {
+  if (messages.length === 0) {
+    return (
+      <div className="flex flex-1 items-center justify-center py-4 text-sm text-muted-foreground">
+        No messages yet.
+      </div>
+    );
+  }
+
   return (
     <ScrollArea className="flex-1 min-h-0 py-4">
       <div className="flex flex-col gap-4 pr-4">

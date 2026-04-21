@@ -9,6 +9,7 @@ export interface Message {
   sender: {
     id: string;
     name: string;
+    image?: string;
   };
 }
 export interface GetMessagesResponse {
@@ -21,10 +22,15 @@ async function getMessages(channelId: string, cursor: string | null) {
   if (cursor) {
     params.append("cursor", cursor);
   }
-  const response = await api.get<GetMessagesResponse>(
+
+  const response = await api.get<Message[]>(
     `/channels/${channelId}/messages?${params.toString()}`,
   );
-  return response.data;
+
+  return {
+    data: response.data ?? [],
+    nextCursor: null,
+  };
 }
 
 export const messageService = {
