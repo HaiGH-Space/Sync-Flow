@@ -1,3 +1,7 @@
+"use client";
+
+import { useEffect, useRef } from "react";
+
 import { ScrollArea } from "@/components/ui/scroll-area";
 import type { ChatMessage } from "./types";
 import { MessageBubble } from "./MessageBubble";
@@ -8,6 +12,12 @@ type MessageListProps = {
 };
 
 export function MessageList({ messages, currentUserId }: MessageListProps) {
+  const bottomRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+  }, [messages.length]);
+
   if (messages.length === 0) {
     return (
       <div className="flex flex-1 items-center justify-center py-4 text-sm text-muted-foreground">
@@ -26,6 +36,7 @@ export function MessageList({ messages, currentUserId }: MessageListProps) {
             isMine={message.sender.id === currentUserId}
           />
         ))}
+        <div ref={bottomRef} />
       </div>
     </ScrollArea>
   );

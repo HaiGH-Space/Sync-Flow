@@ -22,6 +22,15 @@ export function Composer({ onSendAction }: ComposerProps) {
     setValue("");
   };
 
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.key !== "Enter" || event.shiftKey) {
+      return;
+    }
+
+    event.preventDefault();
+    handleSend();
+  };
+
   return (
     <div className="border-t border-border/70 pt-3">
       <div className="flex flex-col gap-3 rounded-xl border border-border/70 bg-background/70 p-3 shadow-sm">
@@ -53,6 +62,7 @@ export function Composer({ onSendAction }: ComposerProps) {
             className="min-h-11 flex-1 resize-none rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground outline-none transition focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/40"
             value={value}
             onChange={(event) => setValue(event.target.value)}
+            onKeyDown={handleKeyDown}
           />
           <Button
             type="button"
