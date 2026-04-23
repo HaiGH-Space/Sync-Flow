@@ -5,6 +5,7 @@ import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useDashboard } from "@/lib/store/use-dashboard";
+import { useProfile } from "@/hooks/use-profile";
 import { ChannelHeader } from "@/components/dashboard/chat/ChannelHeader";
 import { MessageList } from "@/components/dashboard/chat/MessageList";
 import { Composer } from "@/components/dashboard/chat/Composer";
@@ -19,6 +20,8 @@ export function ChatRightPanel() {
   const { messages, error, isLoading, sendMessage } = useChatChannel(
     selectedChannelId || undefined,
   );
+  const { data: profile } = useProfile();
+  const currentUserId = profile?.id ?? "";
 
   if (!isOpenSidebarRight) {
     return null;
@@ -70,7 +73,7 @@ export function ChatRightPanel() {
                   Loading messages...
                 </div>
               ) : (
-                <MessageList messages={messages} currentUserId="u2" />
+                <MessageList messages={messages} currentUserId={currentUserId} />
               )}
               <div className="shrink-0">
                 <Composer onSendAction={sendMessage} />
