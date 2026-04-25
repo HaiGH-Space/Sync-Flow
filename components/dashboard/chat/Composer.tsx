@@ -1,8 +1,7 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useCallback } from "react";
 import { ImageIcon, Mic, Paperclip, Send, Smile, Sticker } from "lucide-react";
-import EmojiPicker, { Theme, type EmojiClickData } from "emoji-picker-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -12,6 +11,7 @@ import {
 } from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
 import { ActionIcon } from "./ActionIcon";
+import { EmojiPicker } from "./EmojiPicker";
 
 type ComposerProps = {
   onSendAction?: (value: string) => void;
@@ -25,59 +25,35 @@ export function Composer({ onSendAction }: ComposerProps) {
 
   const handleSend = () => {
     const trimmed = value.trim();
-    if (!trimmed) {
-      return;
-    }
+    if (!trimmed) return;
     onSendAction?.(trimmed);
     setValue("");
   };
 
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (event.key !== "Enter" || event.shiftKey) {
-      return;
+  const syncSelection = useCallback(() => {
+    if (textareaRef.current) {
+      selectionRef.current = {
+        start: textareaRef.current.selectionStart,
+        end: textareaRef.current.selectionEnd,
+      };
     }
-
-    event.preventDefault();
-    handleSend();
-  };
-
-  const updateSelection = () => {
-    const textarea = textareaRef.current;
-    if (!textarea) {
-      return;
-    }
-
-    selectionRef.current = {
-      start: textarea.selectionStart ?? value.length,
-      end: textarea.selectionEnd ?? value.length,
-    };
-  };
+  }, []);
 
   const insertEmoji = (emoji: string) => {
-    const textarea = textareaRef.current;
     const { start, end } = selectionRef.current;
+    const newValue = value.substring(0, start) + emoji + value.substring(end);
 
-    setValue((current) => {
-      const next = `${current.slice(0, start)}${emoji}${current.slice(end)}`;
+    setValue(newValue);
 
-      requestAnimationFrame(() => {
-        textarea?.focus();
-        const cursorPosition = start + emoji.length;
-        textarea?.setSelectionRange(cursorPosition, cursorPosition);
-        selectionRef.current = {
-          start: cursorPosition,
-          end: cursorPosition,
-        };
-      });
+    // Cập nhật vị trí con trỏ ngay lập tức
+    const nextCursor = start + emoji.length;
+    selectionRef.current = { start: nextCursor, end: nextCursor };
 
-      return next;
-    });
-
-    setIsEmojiOpen(false);
-  };
-
-  const handleEmojiClick = (emojiData: EmojiClickData) => {
-    insertEmoji(emojiData.emoji);
+    // Trả lại focus cho textarea
+    setTimeout(() => {
+      textareaRef.current?.focus();
+      textareaRef.current?.setSelectionRange(nextCursor, nextCursor);
+    }, 0);
   };
 
   return (
@@ -90,72 +66,60 @@ export function Composer({ onSendAction }: ComposerProps) {
           <ActionIcon label="Add image">
             <ImageIcon className="size-4" />
           </ActionIcon>
+
           <Popover open={isEmojiOpen} onOpenChange={setIsEmojiOpen}>
             <PopoverTrigger asChild>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon-sm"
-                aria-label="Emoji"
-                aria-expanded={isEmojiOpen}
-              >
-                <Smile className="size-4" />
+              <Button variant="ghost" size="icon" className="h-8 w-8">
+                <Smile
+                  className={`size-5 ${isEmojiOpen ? "text-primary" : ""}`}
+                />
               </Button>
             </PopoverTrigger>
-            <PopoverContent align="start" className="w-89 p-2">
-              <EmojiPicker
-                onEmojiClick={handleEmojiClick}
-                width="100%"
-                height={320}
-                lazyLoadEmojis
-                theme={Theme.DARK}
-                searchPlaceHolder="Tìm emoji"
-                skinTonesDisabled
-                previewConfig={{ showPreview: false }}
-              />
+            <PopoverContent
+              side="top"
+              align="start"
+              sideOffset={10}
+              collisionPadding={16}
+              className="w-auto p-0 border-none shadow-xl rounded-xl"
+            >
+              <EmojiPicker onSelectAction={insertEmoji} />
             </PopoverContent>
           </Popover>
+
           <ActionIcon label="Sticker">
             <Sticker className="size-4" />
           </ActionIcon>
           <ActionIcon label="Voice">
             <Mic className="size-4" />
           </ActionIcon>
-          <span className="text-xs text-muted-foreground">
-            Attachments and stickers coming soon
-          </span>
         </div>
 
         <div className="flex items-end gap-2">
           <Textarea
             ref={textareaRef}
             rows={2}
-            placeholder="Write a message..."
-            className="min-h-11 flex-1 resize-none rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground outline-none transition focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/40"
+            placeholder="Viết tin nhắn..."
+            className="min-h-11 flex-1 resize-none rounded-lg bg-background border-none focus-visible:ring-1"
             value={value}
-            onChange={(event) => {
-              setValue(event.target.value);
-              selectionRef.current = {
-                start:
-                  event.currentTarget.selectionStart ??
-                  event.target.value.length,
-                end:
-                  event.currentTarget.selectionEnd ?? event.target.value.length,
-              };
+            onChange={(e) => setValue(e.target.value)}
+            onSelect={syncSelection}
+            onClick={syncSelection}
+            onKeyUp={syncSelection}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                handleSend();
+              }
             }}
-            onSelect={updateSelection}
-            onClick={updateSelection}
-            onKeyUp={updateSelection}
-            onKeyDown={handleKeyDown}
           />
           <Button
-            type="button"
-            className="h-10 gap-2"
             onClick={handleSend}
             disabled={!value.trim()}
+            size="sm"
+            className="h-9"
           >
-            <Send className="size-4" />
-            Send
+            <Send className="size-4 mr-2" />
+            Gửi
           </Button>
         </div>
       </div>
