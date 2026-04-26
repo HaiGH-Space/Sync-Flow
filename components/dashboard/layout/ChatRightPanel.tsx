@@ -73,7 +73,10 @@ export function ChatRightPanel() {
                   Loading messages...
                 </div>
               ) : (
-                <MessageList messages={messages} currentUserId={currentUserId} />
+                <MessageList
+                  messages={messages}
+                  currentUserId={currentUserId}
+                />
               )}
               <div className="shrink-0">
                 <Composer onSendAction={sendMessage} />

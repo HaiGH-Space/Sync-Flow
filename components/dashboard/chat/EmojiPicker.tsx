@@ -1,6 +1,13 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useDeferredValue,
+  memo,
+} from "react";
 import { Search } from "lucide-react";
 import emojiLibData from "emojilib";
 
@@ -11,21 +18,71 @@ type EmojiPickerProps = {
   onSelectAction: (emoji: string) => void;
 };
 
-export function EmojiPicker({ onSelectAction }: EmojiPickerProps) {
+const ALL_EMOJIS = Object.entries(emojiLibData);
+
+const INITIAL_EMOJI_BATCH = 40;
+const EMOJI_BATCH_SIZE = 40;
+
+const EmojiButton = memo(
+  ({ emoji, onClick }: { emoji: string; onClick: (e: string) => void }) => (
+    <button
+      type="button"
+      onPointerDown={(e) => e.preventDefault()}
+      onClick={() => onClick(emoji)}
+      className="flex items-center justify-center size-11 text-2xl hover:bg-accent rounded-xl transition-all active:scale-75 hover:scale-110 will-change-transform"
+    >
+      {emoji}
+    </button>
+  ),
+);
+EmojiButton.displayName = "EmojiButton";
+
+export const EmojiPicker = memo(({ onSelectAction }: EmojiPickerProps) => {
   const [search, setSearch] = useState("");
+  const deferredSearch = useDeferredValue(search);
+
+  const [visibleCount, setVisibleCount] = useState(INITIAL_EMOJI_BATCH);
+  const scrollViewportRef = useRef<HTMLDivElement | null>(null);
+  const loadMoreSentinelRef = useRef<HTMLDivElement | null>(null);
 
   const filteredEmojis = useMemo(() => {
-    const query = search.toLowerCase();
-    const entries = Object.entries(emojiLibData);
-    if (!query) return entries.slice(0, 500);
-    return entries.filter(([, keywords]) =>
+    const query = deferredSearch.toLowerCase();
+    if (!query) return ALL_EMOJIS;
+    return ALL_EMOJIS.filter(([, keywords]) =>
       keywords.some((k) => k.includes(query)),
     );
-  }, [search]);
+  }, [deferredSearch]);
+
+  const visibleEmojis = useMemo(
+    () => filteredEmojis.slice(0, visibleCount),
+    [filteredEmojis, visibleCount],
+  );
+
+  useEffect(() => {
+    const sentinel = loadMoreSentinelRef.current;
+    if (!sentinel) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          setVisibleCount((current) =>
+            Math.min(current + EMOJI_BATCH_SIZE, filteredEmojis.length),
+          );
+        }
+      },
+      {
+        root: scrollViewportRef.current,
+        rootMargin: "250px",
+        threshold: 0,
+      },
+    );
+
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [filteredEmojis.length]);
 
   return (
     <div className="flex flex-col h-105 w-full sm:w-87.5 bg-popover text-popover-foreground rounded-xl border shadow-2xl overflow-hidden">
-      {/* Header: Search */}
       <div className="p-4 border-b border-border/50 bg-popover/95 backdrop-blur">
         <div className="relative">
           <Search className="absolute left-3 top-3 size-4 text-muted-foreground" />
@@ -38,21 +95,29 @@ export function EmojiPicker({ onSelectAction }: EmojiPickerProps) {
           />
         </div>
       </div>
+
       <div className="flex-1 min-h-0">
-        <ScrollArea className="h-full">
+        <ScrollArea className="h-full" viewportRef={scrollViewportRef}>
           <div className="p-4">
-            <div className="grid grid-cols-6 gap-2">
-              {filteredEmojis.map(([emoji, keywords]) => (
-                <button
+            <div className="grid grid-cols-6 gap-2 content-start">
+              {visibleEmojis.map(([emoji]) => (
+                <EmojiButton
                   key={emoji}
-                  title={keywords.join(", ")}
-                  onClick={() => onSelectAction(emoji)}
-                  className="flex items-center justify-center size-11 text-2xl hover:bg-accent rounded-xl transition-all active:scale-75 hover:scale-110"
-                >
-                  {emoji}
-                </button>
+                  emoji={emoji}
+                  onClick={onSelectAction}
+                />
               ))}
             </div>
+
+            {visibleCount < filteredEmojis.length && (
+              <div
+                ref={loadMoreSentinelRef}
+                className="h-10 w-full flex items-center justify-center"
+                aria-hidden="true"
+              >
+                <div className="size-1 bg-muted-foreground/20 rounded-full animate-pulse" />
+              </div>
+            )}
 
             {filteredEmojis.length === 0 && (
               <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
@@ -64,10 +129,10 @@ export function EmojiPicker({ onSelectAction }: EmojiPickerProps) {
         </ScrollArea>
       </div>
 
-      {/* Footer: Thông tin */}
       <div className="py-2 border-t border-border/40 bg-muted/5 text-[9px] text-center text-muted-foreground/50 uppercase tracking-widest font-bold">
         {filteredEmojis.length} Emojis Found
       </div>
     </div>
   );
-}
+});
+EmojiPicker.displayName = "EmojiPicker";

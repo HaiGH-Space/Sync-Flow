@@ -22,13 +22,15 @@ export function Composer({ onSendAction }: ComposerProps) {
   const [isEmojiOpen, setIsEmojiOpen] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const selectionRef = useRef({ start: 0, end: 0 });
+  const keepEmojiPickerOpenRef = useRef(false);
 
-  const handleSend = () => {
+  const handleSend = useCallback(() => {
     const trimmed = value.trim();
     if (!trimmed) return;
     onSendAction?.(trimmed);
     setValue("");
-  };
+    selectionRef.current = { start: 0, end: 0 };
+  }, [value, onSendAction]);
 
   const syncSelection = useCallback(() => {
     if (textareaRef.current) {
@@ -39,22 +41,26 @@ export function Composer({ onSendAction }: ComposerProps) {
     }
   }, []);
 
-  const insertEmoji = (emoji: string) => {
+  const insertEmoji = useCallback((emoji: string) => {
+    keepEmojiPickerOpenRef.current = true;
+
     const { start, end } = selectionRef.current;
-    const newValue = value.substring(0, start) + emoji + value.substring(end);
 
-    setValue(newValue);
+    setValue((prev) => {
+      const newValue = prev.substring(0, start) + emoji + prev.substring(end);
+      return newValue;
+    });
 
-    // Cập nhật vị trí con trỏ ngay lập tức
     const nextCursor = start + emoji.length;
     selectionRef.current = { start: nextCursor, end: nextCursor };
 
-    // Trả lại focus cho textarea
-    setTimeout(() => {
-      textareaRef.current?.focus();
-      textareaRef.current?.setSelectionRange(nextCursor, nextCursor);
-    }, 0);
-  };
+    requestAnimationFrame(() => {
+      if (textareaRef.current) {
+        textareaRef.current.focus();
+        textareaRef.current.setSelectionRange(nextCursor, nextCursor);
+      }
+    });
+  }, []);
 
   return (
     <div className="border-t border-border/70 pt-3">
@@ -69,9 +75,16 @@ export function Composer({ onSendAction }: ComposerProps) {
 
           <Popover open={isEmojiOpen} onOpenChange={setIsEmojiOpen}>
             <PopoverTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8">
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+              >
                 <Smile
-                  className={`size-5 ${isEmojiOpen ? "text-primary" : ""}`}
+                  className={`size-5 transition-colors ${
+                    isEmojiOpen ? "text-primary" : "text-muted-foreground"
+                  }`}
                 />
               </Button>
             </PopoverTrigger>
@@ -79,8 +92,15 @@ export function Composer({ onSendAction }: ComposerProps) {
               side="top"
               align="start"
               sideOffset={10}
-              collisionPadding={16}
-              className="w-auto p-0 border-none shadow-xl rounded-xl"
+              className="w-auto p-0 border-none shadow-2xl rounded-xl"
+              onOpenAutoFocus={(e) => e.preventDefault()}
+              onCloseAutoFocus={(e) => e.preventDefault()}
+              onInteractOutside={(e) => {
+                if (e.target === textareaRef.current) e.preventDefault();
+              }}
+              onFocusOutside={(e) => {
+                if (e.target === textareaRef.current) e.preventDefault();
+              }}
             >
               <EmojiPicker onSelectAction={insertEmoji} />
             </PopoverContent>
@@ -99,7 +119,7 @@ export function Composer({ onSendAction }: ComposerProps) {
             ref={textareaRef}
             rows={2}
             placeholder="Viết tin nhắn..."
-            className="min-h-11 flex-1 resize-none rounded-lg bg-background border-none focus-visible:ring-1"
+            className="min-h-11 flex-1 resize-none rounded-lg bg-background border-none focus-visible:ring-1 transition-all"
             value={value}
             onChange={(e) => setValue(e.target.value)}
             onSelect={syncSelection}
@@ -116,7 +136,7 @@ export function Composer({ onSendAction }: ComposerProps) {
             onClick={handleSend}
             disabled={!value.trim()}
             size="sm"
-            className="h-9"
+            className="h-9 px-4 active:scale-95 transition-transform"
           >
             <Send className="size-4 mr-2" />
             Gửi
