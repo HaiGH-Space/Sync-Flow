@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, useCallback } from "react";
-import { ImageIcon, Mic, Paperclip, Send, Smile, Sticker } from "lucide-react";
+import { ImageIcon, Mic, Paperclip, Send, Smile, Sticker, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -14,23 +14,29 @@ import { ActionIcon } from "./ActionIcon";
 import { EmojiPicker } from "./EmojiPicker";
 
 type ComposerProps = {
-  onSendAction?: (value: string) => void;
+  onSendAction?: (value: string, file?: File | null) => void;
 };
 
 export function Composer({ onSendAction }: ComposerProps) {
   const [value, setValue] = useState("");
   const [isEmojiOpen, setIsEmojiOpen] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const selectionRef = useRef({ start: 0, end: 0 });
   const keepEmojiPickerOpenRef = useRef(false);
 
   const handleSend = useCallback(() => {
     const trimmed = value.trim();
-    if (!trimmed) return;
-    onSendAction?.(trimmed);
+    if (!trimmed && !selectedImage) return;
+    onSendAction?.(trimmed, selectedImage);
     setValue("");
+    setSelectedImage(null);
+    setImagePreview(null);
     selectionRef.current = { start: 0, end: 0 };
-  }, [value, onSendAction]);
+  }, [value, selectedImage, onSendAction]);
 
   const syncSelection = useCallback(() => {
     if (textareaRef.current) {
@@ -62,16 +68,63 @@ export function Composer({ onSendAction }: ComposerProps) {
     });
   }, []);
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedImage(file);
+      setImagePreview(URL.createObjectURL(file));
+      e.target.value = ""; // Reset input so the same file can be selected again
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setSelectedImage(null);
+    if (imagePreview) {
+      URL.revokeObjectURL(imagePreview);
+      setImagePreview(null);
+    }
+  };
+
   return (
     <div className="border-t border-border/70 pt-3">
       <div className="flex flex-col gap-3 rounded-xl border border-border/70 bg-background/70 p-3 shadow-sm">
+        {imagePreview && (
+          <div className="relative self-start">
+            <div className="relative h-24 w-24 overflow-hidden rounded-md border border-border">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={imagePreview}
+                alt="Preview"
+                className="h-full w-full object-cover"
+              />
+            </div>
+            <button
+              type="button"
+              onClick={handleRemoveImage}
+              className="absolute -right-2 -top-2 rounded-full bg-destructive p-1 text-destructive-foreground shadow-sm hover:bg-destructive/90 transition-colors"
+            >
+              <X className="size-3" />
+            </button>
+          </div>
+        )}
+
         <div className="flex flex-wrap items-center gap-2">
           <ActionIcon label="Attach file">
             <Paperclip className="size-4" />
           </ActionIcon>
-          <ActionIcon label="Add image">
+          <ActionIcon 
+            label="Add image" 
+            onClick={() => fileInputRef.current?.click()}
+          >
             <ImageIcon className="size-4" />
           </ActionIcon>
+          <input
+            type="file"
+            accept="image/*"
+            ref={fileInputRef}
+            className="hidden"
+            onChange={handleFileChange}
+          />
 
           <Popover open={isEmojiOpen} onOpenChange={setIsEmojiOpen}>
             <PopoverTrigger asChild>
@@ -134,7 +187,7 @@ export function Composer({ onSendAction }: ComposerProps) {
           />
           <Button
             onClick={handleSend}
-            disabled={!value.trim()}
+            disabled={!value.trim() && !selectedImage}
             size="sm"
             className="h-9 px-4 active:scale-95 transition-transform"
           >
