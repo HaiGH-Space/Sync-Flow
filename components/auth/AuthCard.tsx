@@ -59,7 +59,6 @@ const createRegisterSchema = (tValidation: ReturnType<typeof useTranslations<"va
       .string()
       .min(8, tValidation("auth.password_min")),
     name: z.string().min(2, tValidation("auth.name_min")),
-    image: z.string().nullable(),
   });
 
 const toastId = "auth-toast";
@@ -73,14 +72,12 @@ type RegisterValues = {
   email: string;
   password: string;
   name: string;
-  image: string | null;
 };
 
 const defaultValues = {
   email: "",
   password: "",
   name: "",
-  image: null,
 };
 
 const AuthCard = () => {
@@ -147,7 +144,7 @@ const AuthCard = () => {
       if (mode === "login") {
         loginMutation.mutate({ email: value.email, password: value.password });
       } else {
-        registerMutation.mutate({ email: value.email, password: value.password, name: value.name, image: value.image });
+        registerMutation.mutate({ email: value.email, password: value.password, name: value.name });
       }
     }
   });
