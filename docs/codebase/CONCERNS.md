@@ -1,0 +1,61 @@
+# Codebase Concerns
+
+## Core Sections (Required)
+
+### 1) Top Risks (Prioritized)
+
+| Severity | Concern                                                                                      | Evidence                                                                                                    | Impact                                                                              | Suggested action                                                                        |
+| -------- | -------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| high     | No automated test suite or test config was found                                             | `package.json`, `docs/codebase/.codebase-scan.txt`, file search results                                     | Regressions in routing, drag-and-drop, and API wrappers are likely to slip through  | Add at least one focused test layer for query/mutation and board ordering behavior      |
+| high     | Board reorder logic relies on optimistic updates, debounced persistence, and sparse ordering | `components/canvas/board/useColumnReorder.ts`, `components/canvas/board/useIssueMove.ts`, `lib/ordering.ts` | Race conditions or backend order collisions can leave the UI and server out of sync | Add targeted tests for midpoint insertion, rebalance fallback, and rollback paths       |
+| medium   | Backend and intent docs referenced by the scan are absent from the workspace root            | `docs/codebase/.codebase-scan.txt`, file search results                                                     | Product intent and backend contract cannot be verified from this workspace alone    | Restore or link the missing docs, or mark the authoritative source elsewhere [ASK USER] |
+
+### 2) Technical Debt
+
+| Debt item                     | Why it exists                                                                                          | Where                                                                                                  | Risk if ignored                                                         | Suggested fix                                                        |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| Mixed request base URL logic  | API routing is split between `next.config.ts` rewrites and `lib/api/api.ts` server-side URL resolution | `next.config.ts`, `lib/api/api.ts`                                                                     | Environment changes can break requests in only one execution path       | Consolidate the base URL contract and document it in one place       |
+| Large dashboard feature files | High-traffic UI files accumulate state, layout, and interaction logic in one component tree            | `components/dashboard/layout/NavigationSidebar.tsx`, `components/dashboard/comp/IssueDetailDialog.tsx` | Maintenance becomes fragile as each new feature path increases coupling | Extract smaller feature units only when a concrete change demands it |
+
+### 3) Security Concerns
+
+| Risk                                                                               | OWASP category (if applicable) | Evidence                      | Current mitigation                                     | Gap                                                                                        |
+| ---------------------------------------------------------------------------------- | ------------------------------ | ----------------------------- | ------------------------------------------------------ | ------------------------------------------------------------------------------------------ |
+| Session cookie is used for auth decisions in the client-side proxy and chat socket | N/A                            | `proxy.ts`, `lib/api/chat.ts` | Route gating and socket auth both read `session_token` | No repo-local security policy, secret template, or redaction guidance was found            |
+| No security/compliance config was detected                                         | N/A                            | scan output                   | [TODO]                                                 | No documented secret-scanning, dependency-audit, or security policy files in the workspace |
+
+### 4) Performance and Scaling Concerns
+
+| Concern                                                         | Evidence                                                                                 | Current symptom                                       | Scaling risk                                                      | Suggested improvement                                                               |
+| --------------------------------------------------------------- | ---------------------------------------------------------------------------------------- | ----------------------------------------------------- | ----------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| Optimistic board reorder is sensitive to timing and cache state | `components/canvas/board/useColumnReorder.ts`, `components/canvas/board/useIssueMove.ts` | Temporary inconsistencies can appear during drag/drop | Higher interaction volume increases the chance of race conditions | Add focused tests and keep the sparse ordering helper as the single source of truth |
+| High-churn dashboard and translation files                      | scan output high-churn section                                                           | Frequent edits suggest hidden complexity              | Small changes can have wide UI impact                             | Treat these files as high-risk and change them with narrow diffs                    |
+
+### 5) Fragile/High-Churn Areas
+
+| Area                                                        | Why fragile                                              | Churn signal                     | Safe change strategy                                                     |
+| ----------------------------------------------------------- | -------------------------------------------------------- | -------------------------------- | ------------------------------------------------------------------------ |
+| `i18n/en/dashboard.ts` and `i18n/vi/dashboard.ts`           | Large translation surface for the dashboard shell        | 21 recent changes each           | Update copy together and verify both locales                             |
+| `components/dashboard/layout/NavigationSidebar.tsx`         | Mixes fetching, filtering, selection, and panel state    | 17 recent changes                | Split only when a concrete feature change requires it                    |
+| `components/canvas/board/BoardCanvas.tsx` and board helpers | Handles loading, error, and drag/drop interactions       | 14 recent changes on board files | Keep reorder behavior centralized in helper hooks                        |
+| `components/dashboard/layout/DashboardContentLayout.tsx`    | Owns tabs, sprint selection, and chat-panel toggling     | 10 recent changes                | Preserve existing state flow and invalidate only the relevant query keys |
+| `lib/api/issue.ts` and `lib/store/use-dashboard.ts`         | Shared backend and UI state used across several features | Recent churn in both files       | Avoid cross-cutting edits unless a bug justifies them                    |
+
+### 6) `[ASK USER]` Questions
+
+1. `[ASK USER]` Should the missing README, ROADMAP, and DESIGN files be treated as intentionally absent, or are they expected to exist outside this workspace?
+2. `[ASK USER]` Is the absence of a test suite intentional for this repo, or should tests be documented from a different project boundary?
+
+### 7) Evidence
+
+- `docs/codebase/.codebase-scan.txt`
+- `package.json`
+- `components/canvas/board/useColumnReorder.ts`
+- `components/canvas/board/useIssueMove.ts`
+- `lib/ordering.ts`
+- `next.config.ts`
+- `lib/api/api.ts`
+- `components/dashboard/layout/NavigationSidebar.tsx`
+- `components/dashboard/comp/IssueDetailDialog.tsx`
+- `i18n/en/dashboard.ts`
+- `i18n/vi/dashboard.ts`

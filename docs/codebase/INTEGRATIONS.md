@@ -1,0 +1,52 @@
+# External Integrations
+
+## Core Sections (Required)
+
+### 1) Integration Inventory
+
+| System                  | Type (API/DB/Queue/etc)  | Purpose                                                                  | Auth model                                                             | Criticality | Evidence                                                       |
+| ----------------------- | ------------------------ | ------------------------------------------------------------------------ | ---------------------------------------------------------------------- | ----------- | -------------------------------------------------------------- |
+| Backend app API         | API                      | Workspaces, projects, issues, columns, sprints, comments, uploads, users | Cookie-based session via `session_token`; requests include credentials | High        | `lib/api/api.ts`, `next.config.ts`, `proxy.ts`, `lib/api/*.ts` |
+| Socket.IO chat endpoint | API / realtime socket    | Channel joins and message delivery                                       | `session_token` cookie / socket auth payload                           | High        | `lib/api/chat.ts`                                              |
+| Locale message bundles  | Internal content loading | `en` and `vi` translation bundles loaded by `next-intl`                  | N/A                                                                    | Medium      | `i18n/request.ts`, `i18n/en/*`, `i18n/vi/*`                    |
+
+### 2) Data Stores
+
+| Store                             | Role                                                | Access layer                                                         | Key risk                                                           | Evidence                                                |
+| --------------------------------- | --------------------------------------------------- | -------------------------------------------------------------------- | ------------------------------------------------------------------ | ------------------------------------------------------- |
+| Browser cookie `session_token`    | Session identity for protected routes and chat auth | `proxy.ts`, `lib/api/chat.ts`                                        | If cookie handling changes, routing and socket auth can fail       | `proxy.ts`, `lib/api/chat.ts`                           |
+| React Query cache                 | Server-state cache for fetched resources            | `components/ui/query-provider.tsx`, `queries/*`, `hooks/mutations/*` | Stale cache after writes if invalidation paths drift               | `components/ui/query-provider.tsx`, `hooks/mutations/*` |
+| Zustand persisted dashboard state | Client UI state across navigations                  | `lib/store/use-dashboard.ts`                                         | Persisted UI state can become stale after route or feature changes | `lib/store/use-dashboard.ts`                            |
+| LocalStorage via Zustand persist  | Storage backend for dashboard state                 | `lib/store/use-dashboard.ts`                                         | Browser storage can be reset or blocked                            | `lib/store/use-dashboard.ts`                            |
+
+### 3) Secrets and Credentials Handling
+
+- Credential sources: `NEXT_PUBLIC_API_URL` is read from the environment; `VERCEL_URL` is used when present on the server; `session_token` is read from cookies
+- Hardcoding checks: no secret values were found in the scanned source; no `.env.example` or `.env.template` file was present [TODO]
+- Rotation or lifecycle notes: [TODO]
+
+### 4) Reliability and Failure Behavior
+
+- Retry/backoff behavior: React Query retries queries twice by default in `components/ui/query-provider.tsx`
+- Timeout policy: no explicit timeout layer was found in the client API wrapper [TODO]
+- Circuit-breaker or fallback behavior: none found [TODO]
+- Failure handling: `lib/api/api.ts` parses non-OK responses and throws `ApiRequestError`; UI layers show toasts or empty/error states
+
+### 5) Observability for Integrations
+
+- Logging around external calls: `next.config.ts` logs API rewrite targets; `lib/api/chat.ts` logs socket state in development
+- Metrics/tracing coverage: none found [TODO]
+- Missing visibility gaps: no dedicated metrics, tracing, or structured log pipeline was found in the workspace
+
+### 6) Evidence
+
+- `lib/api/api.ts`
+- `lib/api/chat.ts`
+- `lib/api/workspace.ts`
+- `lib/api/issue.ts`
+- `lib/api/channel.ts`
+- `next.config.ts`
+- `proxy.ts`
+- `components/ui/query-provider.tsx`
+- `lib/store/use-dashboard.ts`
+- `i18n/request.ts`

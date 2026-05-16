@@ -1,0 +1,72 @@
+# Technology Stack
+
+## Core Sections (Required)
+
+### 1) Runtime Summary
+
+| Area                | Value                                                     | Evidence                                                       |
+| ------------------- | --------------------------------------------------------- | -------------------------------------------------------------- |
+| Primary language    | TypeScript / TSX                                          | `package.json`, `tsconfig.json`, `app/`, `components/`         |
+| Runtime + version   | Next.js 16.1.6 and React 19.2.3; Node.js version [TODO]   | `package.json`, `next.config.ts`                               |
+| Package manager     | pnpm                                                      | `pnpm-lock.yaml`, `pnpm-workspace.yaml`                        |
+| Module/build system | Next.js App Router with TypeScript and ESLint flat config | `app/`, `next.config.ts`, `eslint.config.mjs`, `tsconfig.json` |
+
+### 2) Production Frameworks and Dependencies
+
+| Dependency              | Version    | Role in system                      | Evidence                                                                             |
+| ----------------------- | ---------- | ----------------------------------- | ------------------------------------------------------------------------------------ |
+| `next`                  | `16.1.6`   | App framework and routing           | `package.json`                                                                       |
+| `react` / `react-dom`   | `19.2.3`   | UI runtime                          | `package.json`                                                                       |
+| `next-intl`             | `^4.8.2`   | Locale routing and translations     | `package.json`, `i18n/*`, `app/[locale]/*`                                           |
+| `@tanstack/react-query` | `^5.90.20` | Server state, caching, invalidation | `package.json`, `components/ui/query-provider.tsx`, `queries/*`, `hooks/mutations/*` |
+| `@dnd-kit/react`        | `^0.3.2`   | Drag and drop interactions          | `package.json`, `components/canvas/board/*`                                          |
+| `socket.io-client`      | `^4.8.1`   | Realtime chat connection            | `package.json`, `lib/api/chat.ts`                                                    |
+| `zustand`               | `^5.0.11`  | Client UI state store               | `package.json`, `lib/store/use-dashboard.ts`                                         |
+| `sonner`                | `^2.0.7`   | Toast notifications                 | `package.json`, `components/ui/sonner.tsx`, `components/dashboard/layout/*`          |
+| `@tanstack/react-table` | `^8.21.3`  | Tabular UI data rendering           | `package.json`, `components/canvas/backlog/*`                                        |
+| `@tanstack/react-form`  | `^1.28.0`  | Form state and validation           | `package.json`, `components/dashboard/comp/*`                                        |
+| `zod`                   | `^4.3.6`   | Schema validation                   | `package.json`, `components/dashboard/comp/*`                                        |
+| `motion`                | `^12.31.0` | Animations                          | `package.json`, `components/dashboard/layout/NavigationSidebar.tsx`                  |
+| `date-fns`              | `^4.1.0`   | Date formatting and manipulation    | `package.json`, `lib/format-date.ts`                                                 |
+
+### 3) Development Toolchain
+
+| Tool                            | Purpose                      | Evidence                             |
+| ------------------------------- | ---------------------------- | ------------------------------------ |
+| `eslint`                        | Linting                      | `package.json`, `eslint.config.mjs`  |
+| `eslint-config-next`            | Next.js lint rules           | `package.json`, `eslint.config.mjs`  |
+| `typescript`                    | Type checking                | `package.json`, `tsconfig.json`      |
+| `@tanstack/eslint-plugin-query` | Query-specific lint rules    | `package.json`                       |
+| `@tailwindcss/postcss`          | Tailwind PostCSS integration | `package.json`, `postcss.config.mjs` |
+| `babel-plugin-react-compiler`   | React Compiler support       | `package.json`, `next.config.ts`     |
+
+### 4) Key Commands
+
+```bash
+pnpm dev
+pnpm build
+pnpm start
+pnpm lint
+```
+
+### 5) Environment and Config
+
+- Config sources: `next.config.ts`, `proxy.ts`, `i18n/routing.ts`, `i18n/request.ts`, `tsconfig.json`, `components.json`, `eslint.config.mjs`
+- Required env vars: `NEXT_PUBLIC_API_URL` [TODO], `VERCEL_URL` [provided by deployment environment]
+- Runtime cookies: `session_token` is read by `proxy.ts` and `lib/api/chat.ts`
+- Deployment/runtime constraints: locale-aware routing is active for `en` and `vi`; API requests are routed through `/api-proxy`
+- No `.env.example` or `.env.template` file was found in the workspace
+
+### 6) Evidence
+
+- `package.json`
+- `pnpm-lock.yaml`
+- `pnpm-workspace.yaml`
+- `next.config.ts`
+- `tsconfig.json`
+- `eslint.config.mjs`
+- `components.json`
+- `i18n/routing.ts`
+- `proxy.ts`
+- `lib/api/api.ts`
+- `lib/api/chat.ts`
