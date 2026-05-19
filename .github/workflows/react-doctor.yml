@@ -1,9 +1,10 @@
 name: React Doctor Scan
 
 on:
+  push:
+    branches: ["**"]
   pull_request:
-    branches: ["main", "master"] # Chạy khi có người tạo Pull Request vào nhánh chính
-
+    branches: ["main", "master"]
 jobs:
   diagnose:
     runs-on: ubuntu-latest
