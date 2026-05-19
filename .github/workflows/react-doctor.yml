@@ -3,11 +3,11 @@ name: React Doctor
 on:
   pull_request:
   push:
-    branches: ["main"]
+    branches: ["master"] # 1. Đổi từ main thành master để kích hoạt khi bạn push code
 
 permissions:
   contents: read
-  pull-requests: write # required to post PR comments
+  pull-requests: write
 
 jobs:
   react-doctor:
@@ -15,8 +15,8 @@ jobs:
     steps:
       - uses: actions/checkout@v5
         with:
-          fetch-depth: 0 # required for `diff`
+          fetch-depth: 0
       - uses: millionco/react-doctor@main
         with:
-          diff: main
+          diff: master # 2. Đổi từ main thành master để công cụ biết đối chiếu thay đổi với nhánh nào
           github-token: ${{ secrets.GITHUB_TOKEN }}
