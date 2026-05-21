@@ -5,7 +5,7 @@ import { Field, FieldLabel } from "../ui/field";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Calendar } from "../ui/calendar";
 import FieldErrorAnimation from "./FieldErrorAnimation";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { cn } from "@/lib/utils";
 
 export default function DatePickerField({
@@ -28,9 +28,8 @@ export default function DatePickerField({
           (field: any) => {
             const isInvalid =
               field.state.meta.isTouched && !field.state.meta.isValid;
-            const selectedDate =
-              typeof window !== "undefined" && field.state.value
-              ? new Date(field.state.value)
+            const selectedDate = field.state.value
+              ? parseISO(field.state.value)
               : undefined;
 
             return (
