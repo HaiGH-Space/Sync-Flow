@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import { useState } from "react";
 import { CreateIssue, Issue } from "@/lib/api/issue";
 import { DialogTrigger } from "@/components/ui/dialog";
@@ -19,94 +19,113 @@ import { createSprintsQueryOptions } from "@/queries/sprint";
 import { useDashboard } from "@/lib/store/use-dashboard";
 
 interface CreateIssueModalProps {
-    columnId: string;
-    projectId: string;
+  columnId: string;
+  projectId: string;
 }
 
-export default function CreateIssueModal({ columnId, projectId }: CreateIssueModalProps) {
-    const [isOpen, setIsOpen] = useState(false)
-    const { mutate: createIssue, isPending } = useCreateIssue(projectId);
-    const queryClient = useQueryClient();
-    const { data: profile } = useProfile();
-    const tDashboard = useTranslations('dashboard');
-    const selectedSprintId = useDashboard((state) => state.selectedSprintId)
-    const params = useParams<{ workspaceId: string }>();
-    const workspaceId = params.workspaceId;
+export default function CreateIssueModal({
+  columnId,
+  projectId,
+}: CreateIssueModalProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const { mutate: createIssue, isPending } = useCreateIssue(projectId);
+  const queryClient = useQueryClient();
+  const { data: profile } = useProfile();
+  const tDashboard = useTranslations("dashboard");
+  const selectedSprintId = useDashboard((state) => state.selectedSprintId);
+  const params = useParams<{ workspaceId: string }>();
+  const workspaceId = params.workspaceId;
 
-    const { data: memberProfilesResponse } = useQuery(createWorkspaceMemberProfilesQueryOptions({ workspaceId }, {
+  const { data: memberProfilesResponse } = useQuery(
+    createWorkspaceMemberProfilesQueryOptions(
+      { workspaceId },
+      {
         enabled: !!workspaceId,
-    }));
+      },
+    ),
+  );
 
-    const { data: sprintsResponse } = useQuery(
-        createSprintsQueryOptions({ projectId }, { enabled: !!projectId })
-    )
+  const { data: sprintsResponse } = useQuery(
+    createSprintsQueryOptions({ projectId }, { enabled: !!projectId }),
+  );
 
-    const assigneeOptions = memberProfilesResponse?.data
-        ? memberProfilesResponse.data.map((u) => ({
-            value: u.id,
-            label: profile?.id === u.id ? tDashboard('issue.assignee.me', { name: u.name }) : u.name,
-        })) : undefined;
+  const assigneeOptions = memberProfilesResponse?.data
+    ? memberProfilesResponse.data.map((u) => ({
+        value: u.id,
+        label:
+          profile?.id === u.id
+            ? tDashboard("issue.assignee.me", { name: u.name })
+            : u.name,
+      }))
+    : undefined;
 
-    const sprintOptions = sprintsResponse?.data
-        ? sprintsResponse.data.map((sprint) => ({
-            value: sprint.id,
-            label: sprint.name,
-        })) : undefined
+  const sprintOptions = sprintsResponse?.data
+    ? sprintsResponse.data.map((sprint) => ({
+        value: sprint.id,
+        label: sprint.name,
+      }))
+    : undefined;
 
-    const sprintDefaultValue = selectedSprintId !== 'all' ? selectedSprintId : 'NO_SPRINT'
+  const sprintDefaultValue =
+    selectedSprintId !== "all" ? selectedSprintId : "NO_SPRINT";
 
-    const handleSubmit = async (value: IssueFormValues) => {
-        const cachedIssues = queryClient.getQueryData<ApiResponse<Issue[]>>(issueKeys.list(projectId));
-        let newOrder = getTailOrder();
-        if (cachedIssues?.data) {
-            const columnIssues = cachedIssues.data
-                .filter(issue => issue.columnId === columnId)
-                .sort((a, b) => a.order - b.order);
+  const handleSubmit = async (value: IssueFormValues) => {
+    const cachedIssues = queryClient.getQueryData<ApiResponse<Issue[]>>(
+      issueKeys.list(projectId),
+    );
+    let newOrder = getTailOrder();
+    if (cachedIssues?.data) {
+      const columnIssues = cachedIssues.data
+        .filter((issue) => issue.columnId === columnId)
+        .sort((a, b) => a.order - b.order);
 
-            if (columnIssues.length > 0) {
-                const lastIssue = columnIssues[columnIssues.length - 1];
-                newOrder = getTailOrder(lastIssue.order);
-            }
-        }
-        const issueData: CreateIssue = {
-            order: newOrder,
-            columnId,
-            title: value.title,
-            priority: value.priority,
-            description: value.description,
-            assigneeId: value.assigneeId,
-            sprintId: value.sprintId,
-        }
-        createIssue({ projectId, issueData }, {
-            onSuccess: () => {
-                toast.success(tDashboard('issue.toast.created'));
-                setIsOpen(false)
-            },
-            onError: () => {
-                toast.error(tDashboard('issue.toast.createFailed'));
-            }
-        });
+      if (columnIssues.length > 0) {
+        const lastIssue = columnIssues[columnIssues.length - 1];
+        newOrder = getTailOrder(lastIssue.order);
+      }
     }
+    const issueData: CreateIssue = {
+      order: newOrder,
+      columnId,
+      title: value.title,
+      priority: value.priority,
+      description: value.description,
+      assigneeId: value.assigneeId,
+      sprintId: value.sprintId,
+    };
+    createIssue(
+      { projectId, issueData },
+      {
+        onSuccess: () => {
+          toast.success(tDashboard("issue.toast.created"));
+          setIsOpen(false);
+        },
+        onError: () => {
+          toast.error(tDashboard("issue.toast.createFailed"));
+        },
+      },
+    );
+  };
 
-    return (
-        <IssueFormDialog
-            open={isOpen}
-            onOpenChange={setIsOpen}
-            dialogTitle={tDashboard('issue.create.title')}
-            dialogDescription={tDashboard('issue.create.description')}
-            submitLabel={tDashboard('issue.create.submit')}
-            submittingLabel={tDashboard('issue.create.submitting')}
-            isSubmitting={isPending}
-            assigneeOptions={assigneeOptions}
-            sprintOptions={sprintOptions}
-            defaultValues={{ sprintId: sprintDefaultValue }}
-            onSubmit={handleSubmit}
-        >
-            <DialogTrigger asChild>
-                <Button className="cursor-pointer" variant="ghost" size="icon">
-                    <PlusIcon className="w-4 h-4" />
-                </Button>
-            </DialogTrigger>
-        </IssueFormDialog>
-    )
+  return (
+    <IssueFormDialog
+      open={isOpen}
+      onOpenChange={setIsOpen}
+      dialogTitle={tDashboard("issue.create.title")}
+      dialogDescription={tDashboard("issue.create.description")}
+      submitLabel={tDashboard("issue.create.submit")}
+      submittingLabel={tDashboard("issue.create.submitting")}
+      isSubmitting={isPending}
+      assigneeOptions={assigneeOptions}
+      sprintOptions={sprintOptions}
+      defaultValues={{ sprintId: sprintDefaultValue }}
+      onSubmit={handleSubmit}
+    >
+      <DialogTrigger asChild>
+        <Button className="cursor-pointer" variant="ghost" size="icon">
+          <PlusIcon className="size-4" />
+        </Button>
+      </DialogTrigger>
+    </IssueFormDialog>
+  );
 }

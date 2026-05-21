@@ -62,13 +62,15 @@ export const useRebalanceColumnsMutation = (projectId: string) => {
 
 	return useMutation({
 		mutationFn: async ({ updates }: RebalanceColumnsVars) => {
-			for (const update of updates) {
-				await columnService.updateColumn({
-					projectId,
-					columnId: update.id,
-					columnData: { order: update.order },
-				});
-			}
+			await Promise.all(
+				updates.map((update) =>
+					columnService.updateColumn({
+						projectId,
+						columnId: update.id,
+						columnData: { order: update.order },
+					}),
+				),
+			);
 		},
 		onMutate: async () => {
 			await queryClient.cancelQueries({ queryKey: columnKeys.list(projectId) });

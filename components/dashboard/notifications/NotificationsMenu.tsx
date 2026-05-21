@@ -66,7 +66,7 @@ export default function NotificationsMenu() {
           className="relative text-muted-foreground hover:text-foreground"
           aria-label={t("notifications.title")}
         >
-          <Bell className="h-5 w-5" />
+          <Bell className="size-5" />
           {hasUnread ? (
             <Badge className="absolute -top-1 -right-1 h-5 min-w-5 rounded-full px-1 text-[10px]">
               {unreadCount}
@@ -91,7 +91,7 @@ export default function NotificationsMenu() {
           </Button>
         </div>
         <Separator />
-        <ScrollArea className="max-h-[420px]">
+        <ScrollArea className="max-h-105">
           {isLoading ? (
             <div className="space-y-3 px-3 py-3">
               {Array.from({ length: 3 }).map((_, index) => (

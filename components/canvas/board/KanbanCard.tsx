@@ -23,9 +23,17 @@ function KanbanCard(props: KanbanCardProps) {
         id: props.id,
         data: { type: 'task', ...props }
     })
+    const openDetail = () => setIsViewDetailOpen(true);
+    const handleKeyDown: React.KeyboardEventHandler<HTMLDivElement> = (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            openDetail();
+        }
+    };
+
     return (
         <>
-            <div onClick={() => setIsViewDetailOpen(true)} ref={ref} className={cn("duration-200 hover:border-primary cursor-grab w-full min-w-48 p-3 mb-2 flex flex-col bg-card border rounded-lg", isDragging && "opacity-90 border-dashed")}>
+            <div onClick={openDetail} onKeyDown={handleKeyDown} role="button" tabIndex={0} ref={ref} className={cn("duration-200 hover:border-primary cursor-grab w-full min-w-48 p-3 mb-2 flex flex-col bg-card border rounded-lg", isDragging && "opacity-90 border-dashed")}>
                 <div className="flex justify-between">
                     <h4 className="font-medium">{props.title}</h4>
                 </div>

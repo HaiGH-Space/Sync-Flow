@@ -138,7 +138,7 @@ const SuccessState = ({ isLogin, userName }: SuccessStateProps) => {
             className="relative w-20 h-20 mb-6"
           >
             <m.div
-              initial={{ scale: 0 }}
+              initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1.2 }}
               transition={{
                 type: "spring",
@@ -200,7 +200,7 @@ const SuccessState = ({ isLogin, userName }: SuccessStateProps) => {
           className="mx-auto relative w-20 h-20 mb-2"
         >
           <m.div
-            initial={{ scale: 0 }}
+            initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1.2 }}
             transition={{
               type: "spring",

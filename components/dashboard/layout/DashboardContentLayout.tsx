@@ -90,7 +90,7 @@ function HeaderTabList() {
             key={navigate.value}
             value={navigate.value}
           >
-            <navigate.icon className="w-4 h-4" />
+            <navigate.icon className="size-4" />
             {navigate.value === NavigateType.BOARD
               ? t("navigation.board")
               : navigate.value === NavigateType.BACKLOG

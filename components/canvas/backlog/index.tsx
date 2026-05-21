@@ -61,8 +61,18 @@ export default function BacklogCanvas({ projectId }: BacklogCanvasProps) {
         const columns = columnsResponse?.data ?? []
         if (columns.length === 0) return new Set<string>()
 
-        const maxOrder = Math.max(...columns.map((column) => column.order))
-        return new Set(columns.filter((column) => column.order === maxOrder).map((column) => column.id))
+        // Single-pass: find the max order and collect ids that have that order
+        let maxOrder = -Infinity
+        let ids: string[] = []
+        for (const column of columns) {
+            if (column.order > maxOrder) {
+                maxOrder = column.order
+                ids = [column.id]
+            } else if (column.order === maxOrder) {
+                ids.push(column.id)
+            }
+        }
+        return new Set(ids)
     }, [columnsResponse?.data])
 
     const unassignedLabel = tDashboard('issue.assignee.unassigned')
