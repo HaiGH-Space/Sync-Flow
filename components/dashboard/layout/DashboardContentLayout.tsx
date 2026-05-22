@@ -108,7 +108,9 @@ function HeaderTabList() {
 function HeaderSprintSelect() {
   const t = useTranslations("dashboard");
   const { projectId } = useParams<{ projectId?: string }>();
-  const selectedSprintId = useDashboard((state) => state.selectedSprintId);
+  const selectedSprintId = useDashboard(
+    (state) => state.selectedSprintIdByProject[projectId ?? ""] ?? "all",
+  );
   const setSelectedSprintId = useDashboard(
     (state) => state.setSelectedSprintId,
   );
@@ -129,10 +131,6 @@ function HeaderSprintSelect() {
   const isDisabled = !projectId;
 
   useEffect(() => {
-    setSelectedSprintId("all");
-  }, [projectId, setSelectedSprintId]);
-
-  useEffect(() => {
     if (selectedSprintId === "all") {
       return;
     }
@@ -141,21 +139,21 @@ function HeaderSprintSelect() {
       (sprint) => sprint.id === selectedSprintId,
     );
     if (!exists) {
-      setSelectedSprintId("all");
+      setSelectedSprintId(projectId ?? "", "all");
     }
-  }, [selectedSprintId, setSelectedSprintId, sprintOptions]);
+  }, [projectId, selectedSprintId, setSelectedSprintId, sprintOptions]);
 
   return (
     <div className="flex items-center gap-2">
       {projectId ? (
         <CreateSprintModal
           projectId={projectId}
-          onCreated={(sprintId) => setSelectedSprintId(sprintId)}
+          onCreated={(sprintId) => setSelectedSprintId(projectId, sprintId)}
         />
       ) : null}
       <Select
         value={selectedSprintId}
-        onValueChange={setSelectedSprintId}
+        onValueChange={(value) => setSelectedSprintId(projectId ?? "", value)}
         disabled={isDisabled}
       >
         <SelectTrigger className="w-44" disabled={isDisabled}>

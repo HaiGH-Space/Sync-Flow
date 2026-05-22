@@ -8,8 +8,13 @@ import { useTranslations } from "next-intl";
 import { NavigationSidebarProjectItem } from "./NavigationSidebarProjectItem";
 
 type NavigationSidebarProjectListProps = {
-  canLoadProjects: boolean;
-  isProjectsLoading: boolean;
+  status: {
+    canLoadProjects: boolean;
+    isProjectsLoading: boolean;
+    isSprintsFetching: boolean;
+    isChannelsFetching: boolean;
+  };
+  projectsError?: Error | null;
   projects: Project[];
   filteredProjects: Project[];
   workspaceId: string;
@@ -17,21 +22,19 @@ type NavigationSidebarProjectListProps = {
   onExpandProjectAction: (projectId: string) => void;
   onOpenProjectSettingsAction: (project: Project) => void;
   sprints?: Sprint[];
-  isSprintsFetching: boolean;
   sprintsError?: Error | null;
   selectedSprintId: string;
-  onSelectSprintAction: (sprintId: string) => void;
+  onSelectSprintAction: (projectId: string, sprintId: string) => void;
   onEditSprintAction: (sprint: Sprint) => void;
   channels?: Channel[];
-  isChannelsFetching: boolean;
   channelsError?: Error | null;
   selectedChannelId: string;
-  onSelectChannelAction: (channelId: string, projectId: string) => void;
+  onSelectChannelAction: (projectId: string, channelId: string) => void;
 };
 
 export function NavigationSidebarProjectList({
-  canLoadProjects,
-  isProjectsLoading,
+  status,
+  projectsError,
   projects,
   filteredProjects,
   workspaceId,
@@ -39,21 +42,31 @@ export function NavigationSidebarProjectList({
   onExpandProjectAction,
   onOpenProjectSettingsAction,
   sprints,
-  isSprintsFetching,
   sprintsError,
   selectedSprintId,
   onSelectSprintAction,
   onEditSprintAction,
   channels,
-  isChannelsFetching,
   channelsError,
   selectedChannelId,
   onSelectChannelAction,
 }: NavigationSidebarProjectListProps) {
   const t = useTranslations("dashboard");
+  const {
+    canLoadProjects,
+    isProjectsLoading,
+    isSprintsFetching,
+    isChannelsFetching,
+  } = status;
 
   return (
     <nav className="space-y-1">
+      {projectsError && (
+        <div className="px-3 py-2 text-sm text-destructive">
+          {projectsError.message}
+        </div>
+      )}
+
       {isProjectsLoading && (
         <div className="flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground">
           <Loader2 className="size-4 animate-spin" />

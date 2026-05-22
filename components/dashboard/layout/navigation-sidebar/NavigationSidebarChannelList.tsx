@@ -13,7 +13,7 @@ type NavigationSidebarChannelListProps = {
   isFetching: boolean;
   error?: Error | null;
   selectedChannelId: string;
-  onSelectChannelAction: (channelId: string, projectId: string) => void;
+  onSelectChannelAction: (projectId: string, channelId: string) => void;
   workspaceId: string;
   projectId: string;
 };
@@ -37,7 +37,7 @@ export function NavigationSidebarChannelList({
             workspaceId={workspaceId}
             projectId={projectId}
             onCreatedAction={(channelId) =>
-              onSelectChannelAction(channelId, projectId)
+              onSelectChannelAction(projectId, channelId)
             }
             trigger={
               <Button
@@ -85,7 +85,7 @@ export function NavigationSidebarChannelList({
                 isChannelSelected ? "bg-primary/10" : "hover:bg-accent/50",
               )}
               aria-pressed={isChannelSelected}
-              onClick={() => onSelectChannelAction(channel.id, projectId)}
+              onClick={() => onSelectChannelAction(projectId, channel.id)}
             >
               {channel.type === ChannelType.DIRECT ? (
                 <MessageCircle

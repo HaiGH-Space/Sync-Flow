@@ -3,7 +3,7 @@
 import { Workspace } from "@/lib/api/workspace";
 import { useDashboard } from "@/lib/store/use-dashboard";
 import { useQuery } from "@tanstack/react-query";
-import { memo, useCallback, useEffect, useMemo, useState } from "react";
+import { memo, useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useRouter } from "@/i18n/navigation";
 import { useParams } from "next/navigation";
@@ -58,16 +58,17 @@ export const NavigationSidebar = memo(function NavigationSidebar({
   workspaceDetail?: Workspace;
 }) {
   const isOpenSidebarLeft = useDashboard((state) => state.isOpenSidebarLeft);
-  const selectedSprintId = useDashboard((state) => state.selectedSprintId);
+  const selectedSprintIdByProject = useDashboard(
+    (state) => state.selectedSprintIdByProject,
+  );
   const setSelectedSprintId = useDashboard(
     (state) => state.setSelectedSprintId,
   );
-  const selectedChannelId = useDashboard((state) => state.selectedChannelId);
+  const selectedChannelIdByProject = useDashboard(
+    (state) => state.selectedChannelIdByProject,
+  );
   const setSelectedChannelId = useDashboard(
     (state) => state.setSelectedChannelId,
-  );
-  const lastActiveChannelByProject = useDashboard(
-    (state) => state.lastActiveChannelByProject,
   );
   const setLastActiveChannel = useDashboard(
     (state) => state.setLastActiveChannel,
@@ -161,28 +162,6 @@ export const NavigationSidebar = memo(function NavigationSidebar({
     ),
   );
 
-  useEffect(() => {
-    if (error) {
-      toast.error(error.message);
-    }
-    if (sprintsError) {
-      toast.error(sprintsError.message);
-    }
-    if (channelsError) {
-      toast.error(channelsError.message);
-    }
-  }, [error, sprintsError, channelsError]);
-
-  useEffect(() => {
-    if (!expandedProjectId) {
-      setSelectedChannelId("");
-      return;
-    }
-
-    const lastChannel = lastActiveChannelByProject[expandedProjectId] ?? "";
-    setSelectedChannelId(lastChannel);
-  }, [expandedProjectId, lastActiveChannelByProject, setSelectedChannelId]);
-
   const filteredProjects = useMemo(() => {
     const projectList = projectsResponse?.data ?? [];
     const normalizedQuery = searchQuery.trim().toLowerCase();
@@ -201,19 +180,19 @@ export const NavigationSidebar = memo(function NavigationSidebar({
   }, []);
 
   const handleSprintSelect = useCallback(
-    (sprintId: string) => {
-      setSelectedSprintId(sprintId);
+    (projectId: string, sprintId: string) => {
+      setSelectedSprintId(projectId, sprintId);
     },
     [setSelectedSprintId],
   );
 
   const handleChannelSelect = useCallback(
-    (channelId: string, projectId: string) => {
-      setSelectedChannelId(channelId);
+    (projectId: string, channelId: string) => {
+      setSelectedChannelId(projectId, channelId);
       setLastActiveChannel(projectId, channelId);
       setOpenSidebarRight(true);
     },
-    [setSelectedChannelId, setLastActiveChannel, setOpenSidebarRight],
+    [setLastActiveChannel, setOpenSidebarRight, setSelectedChannelId],
   );
 
   return (
@@ -245,8 +224,13 @@ export const NavigationSidebar = memo(function NavigationSidebar({
 
                   <div className="flex-1 overflow-y-auto">
                     <NavigationSidebarProjectList
-                      canLoadProjects={canLoadProjects}
-                      isProjectsLoading={isProjectsLoading}
+                      status={{
+                        canLoadProjects,
+                        isProjectsLoading,
+                        isSprintsFetching,
+                        isChannelsFetching,
+                      }}
+                      projectsError={error}
                       projects={projectsResponse?.data ?? []}
                       filteredProjects={filteredProjects}
                       workspaceId={workspaceDetail?.id ?? ""}
@@ -254,15 +238,19 @@ export const NavigationSidebar = memo(function NavigationSidebar({
                       onExpandProjectAction={setExpandedProjectId}
                       onOpenProjectSettingsAction={setSettingsProject}
                       sprints={sprintsResponse?.data}
-                      isSprintsFetching={isSprintsFetching}
                       sprintsError={sprintsError}
-                      selectedSprintId={selectedSprintId}
+                      selectedSprintId={
+                        selectedSprintIdByProject[expandedProjectId ?? ""] ??
+                        "all"
+                      }
                       onSelectSprintAction={handleSprintSelect}
                       onEditSprintAction={setEditingSprint}
                       channels={channelsResponse?.data}
-                      isChannelsFetching={isChannelsFetching}
                       channelsError={channelsError}
-                      selectedChannelId={selectedChannelId}
+                      selectedChannelId={
+                        selectedChannelIdByProject[expandedProjectId ?? ""] ??
+                        ""
+                      }
                       onSelectChannelAction={handleChannelSelect}
                     />
                   </div>

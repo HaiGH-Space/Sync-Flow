@@ -15,7 +15,7 @@ type NavigationSidebarSprintListProps = {
   isFetching: boolean;
   error?: Error | null;
   selectedSprintId: string;
-  onSelectSprintAction: (sprintId: string) => void;
+  onSelectSprintAction: (projectId: string, sprintId: string) => void;
   onEditSprintAction: (sprint: Sprint) => void;
 };
 
@@ -87,7 +87,7 @@ export function NavigationSidebarSprintList({
                     : "text-muted-foreground group-hover:text-foreground",
                 )}
                 onClick={() => {
-                  onSelectSprintAction(sprint.id);
+                  onSelectSprintAction(projectId, sprint.id);
                   push(`/dashboard/${workspaceId}/${projectId}`);
                 }}
                 aria-pressed={isSprintSelected}

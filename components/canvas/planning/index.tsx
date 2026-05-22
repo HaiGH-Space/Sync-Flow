@@ -1,125 +1,140 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { DragDropProvider } from '@dnd-kit/react'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { useTranslations } from 'next-intl'
-import { toast } from 'sonner'
+import { useState } from "react";
+import { DragDropProvider } from "@dnd-kit/react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 
-import { createIssuesQueryOptions } from '@/queries/issue'
-import { createSprintsQueryOptions } from '@/queries/sprint'
-import { useDashboard } from '@/lib/store/use-dashboard'
-import { useUpdateIssue } from '@/hooks/mutations/issue'
-import type { Issue } from '@/lib/api/issue'
-import PlanningIssuesColumn from './PlanningIssuesColumn'
+import { createIssuesQueryOptions } from "@/queries/issue";
+import { createSprintsQueryOptions } from "@/queries/sprint";
+import { useDashboard } from "@/lib/store/use-dashboard";
+import { useUpdateIssue } from "@/hooks/mutations/issue";
+import type { Issue } from "@/lib/api/issue";
+import PlanningIssuesColumn from "./PlanningIssuesColumn";
 
 type PlanningCanvasProps = {
-  projectId: string
-}
-
+  projectId: string;
+};
 
 export default function PlanningCanvas({ projectId }: PlanningCanvasProps) {
-  const tDashboard = useTranslations('dashboard')
-  const selectedSprintId = useDashboard((state) => state.selectedSprintId)
-  const { mutate: updateIssue, isPending } = useUpdateIssue(projectId)
-  const [pendingIssueId, setPendingIssueId] = useState<string | null>(null)
-  const queryClient = useQueryClient()
+  const tDashboard = useTranslations("dashboard");
+  const selectedSprintId = useDashboard(
+    (state) => state.selectedSprintIdByProject[projectId] ?? "all",
+  );
+  const { mutate: updateIssue, isPending } = useUpdateIssue(projectId);
+  const [pendingIssueId, setPendingIssueId] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
-  const { data: issuesResponse, isLoading, error } = useQuery(
-    createIssuesQueryOptions({ projectId })
-  )
+  const {
+    data: issuesResponse,
+    isLoading,
+    error,
+  } = useQuery(createIssuesQueryOptions({ projectId }));
 
   const { data: sprintsResponse } = useQuery(
-    createSprintsQueryOptions(
-      { projectId },
-      { enabled: !!projectId }
-    )
-  )
+    createSprintsQueryOptions({ projectId }, { enabled: !!projectId }),
+  );
 
-  const issues = issuesResponse?.data ?? []
-  const selectedSprint = sprintsResponse?.data?.find((sprint) => sprint.id === selectedSprintId) ?? null
+  const issues = issuesResponse?.data ?? [];
+  const selectedSprint =
+    sprintsResponse?.data?.find((sprint) => sprint.id === selectedSprintId) ??
+    null;
 
-  const isSprintSelected = selectedSprintId !== 'all' && !!selectedSprint
+  const isSprintSelected = selectedSprintId !== "all" && !!selectedSprint;
 
   const unassignedIssues = issues
     .filter((issue) => !issue.sprintId)
-    .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
+    .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
 
   const selectedSprintIssues = issues
     .filter((issue) => issue.sprintId === selectedSprintId)
-    .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
+    .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
 
-  const getPriorityLabel = (priority: Issue['priority']) => {
-    if (priority === 'HIGH') return tDashboard('issue.priority.high')
-    if (priority === 'MEDIUM') return tDashboard('issue.priority.medium')
-    return tDashboard('issue.priority.low')
-  }
+  const getPriorityLabel = (priority: Issue["priority"]) => {
+    if (priority === "HIGH") return tDashboard("issue.priority.high");
+    if (priority === "MEDIUM") return tDashboard("issue.priority.medium");
+    return tDashboard("issue.priority.low");
+  };
 
   const handleMoveIssue = (issueId: string, sprintId: string | null) => {
-    setPendingIssueId(issueId)
-    const previousIssues = queryClient.getQueryData<{ data: Issue[] }>(['issues', projectId])
+    setPendingIssueId(issueId);
+    const previousIssues = queryClient.getQueryData<{ data: Issue[] }>([
+      "issues",
+      projectId,
+    ]);
     if (previousIssues) {
-      queryClient.setQueryData<{ data: Issue[] }>(['issues', projectId], {
+      queryClient.setQueryData<{ data: Issue[] }>(["issues", projectId], {
         ...previousIssues,
         data: previousIssues.data.map((issue) =>
-          issue.id === issueId ? { ...issue, sprintId } : issue
+          issue.id === issueId ? { ...issue, sprintId } : issue,
         ),
-      })
+      });
     }
     updateIssue(
       { projectId, issueId, issueData: { sprintId } },
       {
         onSuccess: () => {
-          toast.success(tDashboard('issue.toast.updated'))
+          toast.success(tDashboard("issue.toast.updated"));
         },
         onError: () => {
           if (previousIssues) {
-            queryClient.setQueryData(['issues', projectId], previousIssues)
+            queryClient.setQueryData(["issues", projectId], previousIssues);
           }
-          toast.error(tDashboard('issue.toast.updateFailed'))
+          toast.error(tDashboard("issue.toast.updateFailed"));
         },
         onSettled: () => {
-          setPendingIssueId(null)
+          setPendingIssueId(null);
         },
-      }
-    )
-  }
+      },
+    );
+  };
 
   const handleAssignToSprint = (issue: Issue) => {
-    if (!isSprintSelected) return
-    handleMoveIssue(issue.id, selectedSprintId)
-  }
+    if (!isSprintSelected) return;
+    handleMoveIssue(issue.id, selectedSprintId);
+  };
 
   const handleRemoveFromSprint = (issue: Issue) => {
-    handleMoveIssue(issue.id, null)
-  }
+    handleMoveIssue(issue.id, null);
+  };
 
-  const handleDragEnd: React.ComponentProps<typeof DragDropProvider>['onDragEnd'] = (event) => {
-    const { operation, canceled } = event
-    if (canceled) return
+  const handleDragEnd: React.ComponentProps<
+    typeof DragDropProvider
+  >["onDragEnd"] = (event) => {
+    const { operation, canceled } = event;
+    if (canceled) return;
 
-    const { source, target } = operation
-    if (!source || !target) return
+    const { source, target } = operation;
+    if (!source || !target) return;
 
-    if (source.data?.type !== 'planning-issue') return
-    if (target.data?.type !== 'planning-column') return
+    if (source.data?.type !== "planning-issue") return;
+    if (target.data?.type !== "planning-column") return;
 
-    const issue = source.data?.issue as Issue | undefined
-    if (!issue) return
+    const issue = source.data?.issue as Issue | undefined;
+    if (!issue) return;
 
-    const targetSprintId = target.data?.sprintId ?? null
-    if (issue.sprintId === targetSprintId) return
+    const targetSprintId = target.data?.sprintId ?? null;
+    if (issue.sprintId === targetSprintId) return;
 
-    if (targetSprintId && !isSprintSelected) return
-    handleMoveIssue(issue.id, targetSprintId)
-  }
+    if (targetSprintId && !isSprintSelected) return;
+    handleMoveIssue(issue.id, targetSprintId);
+  };
 
   if (isLoading) {
-    return <div className="text-sm text-muted-foreground">{tDashboard('planning.loading')}</div>
+    return (
+      <div className="text-sm text-muted-foreground">
+        {tDashboard("planning.loading")}
+      </div>
+    );
   }
 
   if (error) {
-    return <div className="text-sm text-destructive">{tDashboard('planning.error')}</div>
+    return (
+      <div className="text-sm text-destructive">
+        {tDashboard("planning.error")}
+      </div>
+    );
   }
 
   return (
@@ -127,43 +142,52 @@ export default function PlanningCanvas({ projectId }: PlanningCanvasProps) {
       <div className="grid h-full grid-cols-1 gap-6 lg:grid-cols-2">
         <PlanningIssuesColumn
           projectId={projectId}
-          title={tDashboard('planning.unassignedTitle')}
-          subtitle={tDashboard('planning.unassignedHint')}
+          title={tDashboard("planning.unassignedTitle")}
+          subtitle={tDashboard("planning.unassignedHint")}
           count={unassignedIssues.length}
-          emptyText={tDashboard('planning.emptyUnassigned')}
+          emptyText={tDashboard("planning.emptyUnassigned")}
           issues={unassignedIssues}
-          actionLabel={tDashboard('planning.moveToSprint')}
+          actionLabel={tDashboard("planning.moveToSprint")}
           onAction={handleAssignToSprint}
           getPriorityLabel={getPriorityLabel}
           droppableId="planning-unassigned"
-          dropData={{ type: 'planning-column', sprintId: null }}
+          dropData={{ type: "planning-column", sprintId: null }}
           disabled={!isSprintSelected}
           pendingIssueId={isPending ? pendingIssueId : null}
-          footer={!isSprintSelected ? (
-            <div className="rounded-lg border border-border/60 bg-muted/30 p-4 text-xs text-muted-foreground">
-              {tDashboard('planning.selectSprintHint')}
-            </div>
-          ) : null}
+          footer={
+            !isSprintSelected ? (
+              <div className="rounded-lg border border-border/60 bg-muted/30 p-4 text-xs text-muted-foreground">
+                {tDashboard("planning.selectSprintHint")}
+              </div>
+            ) : null
+          }
         />
 
         <PlanningIssuesColumn
           projectId={projectId}
-          title={tDashboard('planning.sprintTitle')}
-          subtitle={isSprintSelected ? selectedSprint?.name ?? '' : tDashboard('planning.sprintNotSelected')}
-          subtitleTone={isSprintSelected ? 'default' : 'warning'}
+          title={tDashboard("planning.sprintTitle")}
+          subtitle={
+            isSprintSelected
+              ? (selectedSprint?.name ?? "")
+              : tDashboard("planning.sprintNotSelected")
+          }
+          subtitleTone={isSprintSelected ? "default" : "warning"}
           count={selectedSprintIssues.length}
-          emptyText={tDashboard('planning.emptySprint')}
+          emptyText={tDashboard("planning.emptySprint")}
           issues={selectedSprintIssues}
-          actionLabel={tDashboard('planning.removeFromSprint')}
+          actionLabel={tDashboard("planning.removeFromSprint")}
           onAction={handleRemoveFromSprint}
           getPriorityLabel={getPriorityLabel}
           droppableId="planning-sprint"
-          dropData={{ type: 'planning-column', sprintId: isSprintSelected ? selectedSprintId : null }}
+          dropData={{
+            type: "planning-column",
+            sprintId: isSprintSelected ? selectedSprintId : null,
+          }}
           dropDisabled={!isSprintSelected}
           disabled={!isSprintSelected}
           pendingIssueId={isPending ? pendingIssueId : null}
         />
       </div>
     </DragDropProvider>
-  )
+  );
 }

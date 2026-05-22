@@ -32,7 +32,9 @@ export default function CreateIssueModal({
   const queryClient = useQueryClient();
   const { data: profile } = useProfile();
   const tDashboard = useTranslations("dashboard");
-  const selectedSprintId = useDashboard((state) => state.selectedSprintId);
+  const selectedSprintId = useDashboard(
+    (state) => state.selectedSprintIdByProject[projectId] ?? "all",
+  );
   const params = useParams<{ workspaceId: string }>();
   const workspaceId = params.workspaceId;
 

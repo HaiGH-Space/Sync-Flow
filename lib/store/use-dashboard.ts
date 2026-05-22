@@ -25,8 +25,8 @@ type DashboardState = {
   isOpenSidebarLeft: boolean;
   isOpenSidebarRight: boolean;
   activeNavigate: NavigateItem;
-  selectedSprintId: string;
-  selectedChannelId: string;
+  selectedSprintIdByProject: Record<string, string>;
+  selectedChannelIdByProject: Record<string, string>;
   lastActiveChannelByProject: Record<string, string>;
 };
 
@@ -35,8 +35,8 @@ type DashboardAction = {
   toggleSidebarRight: () => void;
   setOpenSidebarRight: (open: boolean) => void;
   setActiveNavigate: (navigateType: NavigateType) => void;
-  setSelectedSprintId: (sprintId: string) => void;
-  setSelectedChannelId: (channelId: string) => void;
+  setSelectedSprintId: (projectId: string, sprintId: string) => void;
+  setSelectedChannelId: (projectId: string, channelId: string) => void;
   setLastActiveChannel: (projectId: string, channelId: string) => void;
   reset: () => void;
 };
@@ -45,8 +45,8 @@ const initialState: DashboardState = {
   isOpenSidebarLeft: true,
   isOpenSidebarRight: false,
   activeNavigate: navigateItems[0],
-  selectedSprintId: "all",
-  selectedChannelId: "",
+  selectedSprintIdByProject: {},
+  selectedChannelIdByProject: {},
   lastActiveChannelByProject: {},
 };
 
@@ -65,10 +65,20 @@ export const useDashboard = create<DashboardStore>()(
         set({
           activeNavigate: navigateItems.find((n) => n.value === navigateType)!,
         }),
-      setSelectedSprintId: (sprintId: string) =>
-        set({ selectedSprintId: sprintId }),
-      setSelectedChannelId: (channelId: string) =>
-        set({ selectedChannelId: channelId }),
+      setSelectedSprintId: (projectId: string, sprintId: string) =>
+        set((state) => ({
+          selectedSprintIdByProject: {
+            ...state.selectedSprintIdByProject,
+            [projectId]: sprintId,
+          },
+        })),
+      setSelectedChannelId: (projectId: string, channelId: string) =>
+        set((state) => ({
+          selectedChannelIdByProject: {
+            ...state.selectedChannelIdByProject,
+            [projectId]: channelId,
+          },
+        })),
       setLastActiveChannel: (projectId: string, channelId: string) =>
         set((state) => ({
           lastActiveChannelByProject: {

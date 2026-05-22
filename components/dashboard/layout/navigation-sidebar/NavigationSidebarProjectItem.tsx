@@ -24,13 +24,13 @@ type NavigationSidebarProjectItemProps = {
   isSprintsFetching: boolean;
   sprintsError?: Error | null;
   selectedSprintId: string;
-  onSelectSprintAction: (sprintId: string) => void;
+  onSelectSprintAction: (projectId: string, sprintId: string) => void;
   onEditSprintAction: (sprint: Sprint) => void;
   channels?: Channel[];
   isChannelsFetching: boolean;
   channelsError?: Error | null;
   selectedChannelId: string;
-  onSelectChannelAction: (channelId: string, projectId: string) => void;
+  onSelectChannelAction: (projectId: string, channelId: string) => void;
 };
 
 export function NavigationSidebarProjectItem({

@@ -10,13 +10,17 @@ import { ChannelHeader } from "@/components/dashboard/chat/ChannelHeader";
 import { MessageList } from "@/components/dashboard/chat/MessageList";
 import { Composer } from "@/components/dashboard/chat/Composer";
 import { useChatChannel } from "@/hooks/chat/use-chat-channel";
+import { useParams } from "next/navigation";
 
 export function ChatRightPanel() {
   const isOpenSidebarRight = useDashboard((state) => state.isOpenSidebarRight);
   const setOpenSidebarRight = useDashboard(
     (state) => state.setOpenSidebarRight,
   );
-  const selectedChannelId = useDashboard((state) => state.selectedChannelId);
+  const { projectId } = useParams<{ projectId?: string }>();
+  const selectedChannelId = useDashboard(
+    (state) => state.selectedChannelIdByProject[projectId ?? ""] ?? "",
+  );
   const { messages, error, isLoading, sendMessage } = useChatChannel(
     selectedChannelId || undefined,
   );
