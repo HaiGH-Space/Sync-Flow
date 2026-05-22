@@ -24,12 +24,7 @@ function KanbanCard(props: KanbanCardProps) {
     data: { type: "task", ...props },
   });
   const openDetail = () => setIsViewDetailOpen(true);
-  const handleKeyDown: React.KeyboardEventHandler<HTMLDivElement> = (e) => {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      openDetail();
-    }
-  };
+  // Keyboard handled by native button element; no custom handler needed.
 
   return (
     <>
