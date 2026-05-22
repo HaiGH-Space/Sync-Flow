@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, useCallback } from "react";
+import Image from "next/image";
 import {
   ImageIcon,
   Mic,
@@ -99,11 +100,13 @@ export function Composer({ onSendAction }: ComposerProps) {
         {imagePreview && (
           <div className="relative self-start">
             <div className="relative size-24 overflow-hidden rounded-md border border-border">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <Image
                 src={imagePreview}
                 alt="Preview"
-                className="h-full w-full object-cover"
+                fill
+                unoptimized
+                sizes="96px"
+                className="object-cover"
               />
             </div>
             <button
@@ -131,6 +134,7 @@ export function Composer({ onSendAction }: ComposerProps) {
             type="file"
             accept="image/*"
             ref={fileInputRef}
+            aria-label="Attach image"
             className="hidden"
             onChange={handleFileChange}
           />

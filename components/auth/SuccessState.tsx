@@ -234,6 +234,7 @@ const SuccessState = ({ isLogin, userName, redirectTo }: SuccessStateProps) => {
                 ref={fileInputRef}
                 type="file"
                 accept="image/*"
+                aria-label="Upload avatar image"
                 className="hidden"
                 onChange={onFileChange}
               />

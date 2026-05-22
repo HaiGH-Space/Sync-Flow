@@ -61,6 +61,7 @@ export function NavigationSidebarFooter() {
         ref={fileInputRef}
         type="file"
         accept="image/*"
+        aria-label="Upload avatar image"
         className="hidden"
         onChange={onFileChange}
       />
