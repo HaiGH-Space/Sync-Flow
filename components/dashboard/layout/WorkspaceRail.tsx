@@ -59,7 +59,7 @@ function WorkspaceItem({ name, isActive, id }: WorkspaceItemProps) {
         href={`/dashboard/${id}`}
         aria-label={`Switch to ${name}`}
         className={cn(
-          "relative size-10flex items-center justify-center rounded-xl font-medium text-sm transition-all duration-200 overflow-hidden",
+          "relative size-10 flex items-center justify-center rounded-xl font-medium text-sm transition-all duration-200 overflow-hidden",
           isActive
             ? "bg-primary text-primary-foreground shadow-md scale-100"
             : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground hover:scale-105",
