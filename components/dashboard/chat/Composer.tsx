@@ -109,6 +109,7 @@ export function Composer({ onSendAction }: ComposerProps) {
             <button
               type="button"
               onClick={handleRemoveImage}
+              aria-label="Remove attached image"
               className="absolute -right-2 -top-2 rounded-full bg-destructive p-1 text-destructive-foreground shadow-sm hover:bg-destructive/90 transition-colors"
             >
               <X className="size-3" />
@@ -141,6 +142,7 @@ export function Composer({ onSendAction }: ComposerProps) {
                 variant="ghost"
                 size="icon"
                 className="size-8"
+                aria-label="Insert emoji"
               >
                 <Smile
                   className={`size-5 transition-colors ${

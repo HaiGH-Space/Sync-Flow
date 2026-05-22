@@ -490,10 +490,11 @@ function IssueDetailEditableContent({
       <ScrollArea className="min-h-0 pr-4">
         <div className="space-y-8 pb-1">
           <div>
-            <h3 className="font-medium mb-2">
+            <h3 id="issue-description-label" className="font-medium mb-2">
               {tDashboard("issue.detail.descriptionLabel")}
             </h3>
             <textarea
+              aria-labelledby="issue-description-label"
               className="w-full min-h-35 rounded-md border bg-muted/30 p-4 text-sm text-foreground/80 leading-relaxed outline-none transition-colors focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
               placeholder={tDashboard("issue.detail.descriptionPlaceholder")}
               value={state.description}
@@ -506,7 +507,7 @@ function IssueDetailEditableContent({
           <Separator />
 
           <div className="space-y-4">
-            <h3 className="font-medium">
+            <h3 id="issue-comments-label" className="font-medium">
               {tDashboard("issue.detail.commentsLabel")}
             </h3>
             <div className="flex gap-3">
@@ -518,6 +519,7 @@ function IssueDetailEditableContent({
               </Avatar>
               <div className="flex-1 space-y-2">
                 <textarea
+                  aria-labelledby="issue-comments-label"
                   className="w-full min-h-20 rounded-md border bg-muted/30 p-3 text-sm text-foreground/80 leading-relaxed outline-none transition-colors focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
                   placeholder={tDashboard("issue.detail.commentPlaceholder")}
                   value={state.newComment}
@@ -604,6 +606,7 @@ function IssueDetailEditableContent({
                         {isEditingCurrentComment ? (
                           <div className="space-y-2">
                             <textarea
+                              aria-label={`Edit comment by ${commenterName}`}
                               className="w-full min-h-20 rounded-md border bg-muted/30 p-3 text-sm text-foreground/80 leading-relaxed outline-none transition-colors focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
                               value={state.editingCommentContent}
                               onChange={(e) =>

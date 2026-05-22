@@ -43,6 +43,7 @@ export default function DropdownMenuUD({
           size="icon"
           className={cn("cursor-pointer", triggerClassName)}
           onClick={(e) => e.stopPropagation()}
+          aria-label="More actions"
         >
           <TriggerIcon className="size-4" />
         </Button>
