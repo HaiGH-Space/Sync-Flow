@@ -33,14 +33,12 @@ function KanbanCard(props: KanbanCardProps) {
 
   return (
     <>
-      <div
+      <button
+        type="button"
         onClick={openDetail}
-        onKeyDown={handleKeyDown}
-        role="button"
-        tabIndex={0}
         ref={ref}
         className={cn(
-          "duration-200 hover:border-primary cursor-grab w-full min-w-48 p-3 mb-2 flex flex-col bg-card border rounded-lg",
+          "duration-200 hover:border-primary cursor-grab w-full min-w-48 p-3 mb-2 flex flex-col bg-card border rounded-lg text-left",
           isDragging && "opacity-90 border-dashed",
         )}
       >
@@ -79,7 +77,7 @@ function KanbanCard(props: KanbanCardProps) {
             </Avatar>
           </div>
         </div>
-      </div>
+      </button>
       <IssueDetailDialog
         isOpen={isViewDetailOpen}
         openChange={setIsViewDetailOpen}

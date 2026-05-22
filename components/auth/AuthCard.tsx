@@ -293,7 +293,8 @@ const AuthCard = () => {
                   {mode === "login" ? (
                     <>
                       {tAuth("login.no_account")}{" "}
-                      <span
+                      <button
+                        type="button"
                         onClick={() => switchMode("register")}
                         onKeyDown={(e) => {
                           if (e.key === "Enter" || e.key === " ") {
@@ -301,17 +302,16 @@ const AuthCard = () => {
                             switchMode("register");
                           }
                         }}
-                        role="button"
-                        tabIndex={0}
-                        className="text-primary hover:text-primary/80 cursor-pointer mt-4"
+                        className="text-primary hover:text-primary/80 cursor-pointer mt-4 bg-transparent p-0 font-[inherit]"
                       >
                         {tAuth("login.go_to_register")}
-                      </span>
+                      </button>
                     </>
                   ) : (
                     <>
                       {tAuth("login.have_account")}{" "}
-                      <span
+                      <button
+                        type="button"
                         onClick={() => switchMode("login")}
                         onKeyDown={(e) => {
                           if (e.key === "Enter" || e.key === " ") {
@@ -319,12 +319,10 @@ const AuthCard = () => {
                             switchMode("login");
                           }
                         }}
-                        role="button"
-                        tabIndex={0}
-                        className="text-primary hover:text-primary/80 cursor-pointer mt-4"
+                        className="text-primary hover:text-primary/80 cursor-pointer mt-4 bg-transparent p-0 font-[inherit]"
                       >
                         {tAuth("login.go_to_login")}
-                      </span>
+                      </button>
                     </>
                   )}
                 </m.p>
