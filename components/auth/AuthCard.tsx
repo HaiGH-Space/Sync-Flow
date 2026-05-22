@@ -140,7 +140,8 @@ const AuthCard = () => {
 
   const registerMutation = useMutation({
     mutationFn: (data: RegisterValues) => authService.register(data),
-    onSuccess: () => {
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["userProfile"] });
       toast.success(tAuth("toast.register_success"), { id: toastId });
       setAuthState("success");
       setTimeout(() => {
