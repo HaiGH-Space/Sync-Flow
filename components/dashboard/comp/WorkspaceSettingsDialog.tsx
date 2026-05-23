@@ -235,11 +235,7 @@ export default function WorkspaceSettingsDialog({
 
                 <form
                   className="mt-3 grid gap-3 sm:grid-cols-[minmax(0,1fr)_200px_auto] sm:items-end"
-                  onSubmit={(event) => {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    inviteForm.handleSubmit();
-                  }}
+                  action={inviteForm.handleSubmit}
                 >
                   <inviteForm.Field name="email">
                     {(field) => {

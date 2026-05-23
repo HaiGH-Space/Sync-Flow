@@ -123,11 +123,7 @@ export default function CreateChannelModal({
           </DialogDescription>
         </DialogHeader>
         <form
-          onSubmit={(event) => {
-            event.preventDefault();
-            event.stopPropagation();
-            form.handleSubmit();
-          }}
+          action={form.handleSubmit}
         >
           <FieldAnimation
             form={form}

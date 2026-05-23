@@ -104,11 +104,7 @@ export default function CreateProjectModal({
         </DialogHeader>
         <form
           id="create-project-form"
-          onSubmit={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            form.handleSubmit();
-          }}
+          action={form.handleSubmit}
         >
           <FieldAnimation
             form={form}

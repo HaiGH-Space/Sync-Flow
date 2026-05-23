@@ -138,11 +138,7 @@ export default function CreateSprintModal({
           </DialogDescription>
         </DialogHeader>
         <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            form.handleSubmit();
-          }}
+          action={form.handleSubmit}
         >
           <FieldAnimation
             form={form}

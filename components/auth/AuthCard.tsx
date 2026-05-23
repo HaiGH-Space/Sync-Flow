@@ -224,10 +224,7 @@ const AuthCard = () => {
               </m.div>
               <form
                 id="auth-form"
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  form.handleSubmit();
-                }}
+                action={form.handleSubmit}
               >
                 <AnimatePresence key={"form"}>
                   {mode === "register" && (

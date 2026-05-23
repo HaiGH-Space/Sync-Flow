@@ -137,11 +137,7 @@ export default function EditSprintModal({
           </DialogDescription>
         </DialogHeader>
         <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            form.handleSubmit();
-          }}
+          action={form.handleSubmit}
         >
           <FieldAnimation
             form={form}
