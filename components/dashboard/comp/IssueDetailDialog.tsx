@@ -424,6 +424,451 @@ function issueDetailEditableReducer(
   }
 }
 
+type IssueDescriptionSectionProps = {
+  value: string;
+  onChange: (next: string) => void;
+};
+
+function IssueDescriptionSection({
+  value,
+  onChange,
+}: IssueDescriptionSectionProps) {
+  const tDashboard = useTranslations("dashboard");
+
+  return (
+    <div>
+      <h3 id="issue-description-label" className="font-medium mb-2">
+        {tDashboard("issue.detail.descriptionLabel")}
+      </h3>
+      <textarea
+        aria-labelledby="issue-description-label"
+        className="w-full min-h-35 rounded-md border bg-muted/30 p-4 text-sm text-foreground/80 leading-relaxed outline-none transition-colors focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+        placeholder={tDashboard("issue.detail.descriptionPlaceholder")}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+      />
+    </div>
+  );
+}
+
+type IssueCommentItemProps = {
+  comment: Comment;
+  memberById: Map<string, UserProfile>;
+  currentUser: UserProfile | undefined;
+  formatDate: (value: string | number | Date) => string;
+  isDeleting: boolean;
+  isUpdating: boolean;
+  isEditing: boolean;
+  editingValue: string;
+  onStartEditing: (commentId: string, content: string) => void;
+  onCancelEditing: () => void;
+  onEditingValueChange: (commentId: string, content: string) => void;
+  onDelete: (commentId: string) => void;
+  onUpdate: (commentId: string, content: string) => void;
+};
+
+function IssueCommentItem({
+  comment,
+  memberById,
+  currentUser,
+  formatDate,
+  isDeleting,
+  isUpdating,
+  isEditing,
+  editingValue,
+  onStartEditing,
+  onCancelEditing,
+  onEditingValueChange,
+  onDelete,
+  onUpdate,
+}: IssueCommentItemProps) {
+  const tDashboard = useTranslations("dashboard");
+
+  const member = memberById.get(comment.userId);
+  const isOwnComment = comment.userId === currentUser?.id;
+  const commenterName =
+    comment.userId === currentUser?.id
+      ? tDashboard("issue.assignee.me", {
+          name: currentUser?.name ?? "",
+        })
+      : (member?.name ?? comment.userId);
+
+  return (
+    <div
+      key={comment.id}
+      className="flex gap-3 rounded-lg border p-3 bg-muted/20"
+    >
+      <Avatar className="size-8">
+        <AvatarImage src={member?.image} />
+        <AvatarFallback>{commenterName.charAt(0).toUpperCase()}</AvatarFallback>
+      </Avatar>
+      <div className="flex-1 space-y-1">
+        <div className="flex items-center justify-between gap-2">
+          <p className="text-sm font-medium">{commenterName}</p>
+          <div className="flex items-center gap-1">
+            <p className="text-xs text-muted-foreground">
+              {isDeleting
+                ? tDashboard("issue.detail.commentDeleting")
+                : isUpdating
+                  ? tDashboard("issue.detail.commentUpdating")
+                  : formatDate(comment.createdAt)}
+            </p>
+            {isOwnComment && !isEditing ? (
+              <DropdownMenuUD
+                onEdit={() => onStartEditing(comment.id, comment.content)}
+                onDelete={() => onDelete(comment.id)}
+              />
+            ) : null}
+          </div>
+        </div>
+
+        {isEditing ? (
+          <div className="space-y-2">
+            <textarea
+              aria-label={`Edit comment by ${commenterName}`}
+              className="w-full min-h-20 rounded-md border bg-muted/30 p-3 text-sm text-foreground/80 leading-relaxed outline-none transition-colors focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+              value={editingValue}
+              onChange={(e) => onEditingValueChange(comment.id, e.target.value)}
+            />
+            <div className="flex justify-end gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={onCancelEditing}
+              >
+                {tDashboard("issue.detail.commentCancel")}
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                disabled={!editingValue.trim() || isUpdating}
+                onClick={() => onUpdate(comment.id, editingValue.trim())}
+              >
+                {isUpdating
+                  ? tDashboard("issue.detail.commentUpdating")
+                  : tDashboard("issue.detail.commentUpdate")}
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <p className="text-sm text-foreground/90 whitespace-pre-wrap wrap-break-word">
+            {comment.content}
+          </p>
+        )}
+
+        {isOwnComment && isEditing ? (
+          <div className="flex justify-end">
+            <span className="text-[11px] text-muted-foreground">
+              {tDashboard("issue.detail.commentEditing")}
+            </span>
+          </div>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
+type IssueCommentsSectionProps = {
+  comments: Comment[];
+  currentUser: UserProfile | undefined;
+  memberById: Map<string, UserProfile>;
+  formatDate: (value: string | number | Date) => string;
+  canSubmit: boolean;
+  newComment: string;
+  isCreating: boolean;
+  isDeleting: boolean;
+  deletingCommentId: string | null;
+  isUpdating: boolean;
+  updatingCommentId: string | null;
+  editingCommentId: string | null;
+  editingCommentContent: string;
+  onNewCommentChange: (next: string) => void;
+  onSubmit: () => void;
+  onStartEditing: (commentId: string, content: string) => void;
+  onCancelEditing: () => void;
+  onEditingValueChange: (commentId: string, content: string) => void;
+  onDelete: (commentId: string) => void;
+  onUpdate: (commentId: string, content: string) => void;
+};
+
+function IssueCommentsSection({
+  comments,
+  currentUser,
+  memberById,
+  formatDate,
+  canSubmit,
+  newComment,
+  isCreating,
+  isDeleting,
+  deletingCommentId,
+  isUpdating,
+  updatingCommentId,
+  editingCommentId,
+  editingCommentContent,
+  onNewCommentChange,
+  onSubmit,
+  onStartEditing,
+  onCancelEditing,
+  onEditingValueChange,
+  onDelete,
+  onUpdate,
+}: IssueCommentsSectionProps) {
+  const tDashboard = useTranslations("dashboard");
+
+  return (
+    <div className="space-y-4">
+      <h3 id="issue-comments-label" className="font-medium">
+        {tDashboard("issue.detail.commentsLabel")}
+      </h3>
+
+      <div className="flex gap-3">
+        <Avatar className="size-8">
+          <AvatarImage src={currentUser?.image} />
+          <AvatarFallback>
+            {(currentUser?.name ?? "U").charAt(0).toUpperCase()}
+          </AvatarFallback>
+        </Avatar>
+
+        <div className="flex-1 space-y-2">
+          <textarea
+            aria-labelledby="issue-comments-label"
+            className="w-full min-h-20 rounded-md border bg-muted/30 p-3 text-sm text-foreground/80 leading-relaxed outline-none transition-colors focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+            placeholder={tDashboard("issue.detail.commentPlaceholder")}
+            value={newComment}
+            onChange={(e) => onNewCommentChange(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                onSubmit();
+              }
+            }}
+          />
+
+          <div className="flex justify-end">
+            <Button size="sm" disabled={!canSubmit} onClick={onSubmit}>
+              {isCreating
+                ? tDashboard("issue.detail.commentSubmitting")
+                : tDashboard("issue.detail.commentSubmit")}
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {comments.length > 0 ? (
+        <div className="space-y-3">
+          {comments.map((comment) => (
+            <IssueCommentItem
+              key={comment.id}
+              comment={comment}
+              memberById={memberById}
+              currentUser={currentUser}
+              formatDate={formatDate}
+              isDeleting={isDeleting && deletingCommentId === comment.id}
+              isUpdating={isUpdating && updatingCommentId === comment.id}
+              isEditing={editingCommentId === comment.id}
+              editingValue={editingCommentContent}
+              onStartEditing={onStartEditing}
+              onCancelEditing={onCancelEditing}
+              onEditingValueChange={onEditingValueChange}
+              onDelete={onDelete}
+              onUpdate={(commentId, content) => {
+                onUpdate(commentId, content);
+                onCancelEditing();
+              }}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="flex justify-center py-8 border-dashed border-2 rounded-lg">
+          <p className="text-sm text-muted-foreground">
+            {tDashboard("issue.detail.noComments")}
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+type IssueSidebarSectionProps = {
+  statusName: string;
+  assigneeOptions: Array<{ value: string; label: string }>;
+  assigneeId: string;
+  onAssigneeChange: (value: string) => void;
+  priority: PriorityType;
+  priorityOptions: ReadonlyArray<{ value: PriorityType; label: string }>;
+  priorityLabel: string;
+  onPriorityChange: (value: PriorityType) => void;
+  isDirty: boolean;
+  isUpdating: boolean;
+  isDeletingIssue: boolean;
+  onSave: () => void;
+  onDeleteClick: () => void;
+  deleteModal: React.ReactNode;
+  reporterName: string;
+  createdAt: string | Date;
+  updatedAt: string | Date;
+  formatDate: (value: string | number | Date) => string;
+};
+
+function IssueSidebarSection({
+  statusName,
+  assigneeOptions,
+  assigneeId,
+  onAssigneeChange,
+  priority,
+  priorityOptions,
+  priorityLabel,
+  onPriorityChange,
+  isDirty,
+  isUpdating,
+  isDeletingIssue,
+  onSave,
+  onDeleteClick,
+  deleteModal,
+  reporterName,
+  createdAt,
+  updatedAt,
+  formatDate,
+}: IssueSidebarSectionProps) {
+  const tDashboard = useTranslations("dashboard");
+
+  return (
+    <div className="space-y-6">
+      <div className="space-y-4">
+        <div className="space-y-1.5">
+          <span className="text-xs font-semibold uppercase text-muted-foreground">
+            {tDashboard("issue.detail.statusLabel")}
+          </span>
+          <div>
+            <Badge variant="secondary">{statusName}</Badge>
+          </div>
+        </div>
+
+        <div className="space-y-1.5">
+          <span className="text-xs font-semibold uppercase text-muted-foreground">
+            {tDashboard("issue.form.assigneeLabel")}
+          </span>
+          <div className="space-y-2">
+            <Select value={assigneeId} onValueChange={onAssigneeChange}>
+              <SelectTrigger className="w-full">
+                <SelectValue
+                  placeholder={tDashboard("issue.form.assigneePlaceholder")}
+                />
+              </SelectTrigger>
+              <SelectContent>
+                {assigneeOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Avatar className="size-6">
+                <AvatarImage src="" />
+                <AvatarFallback>
+                  <User2 className="size-3" />
+                </AvatarFallback>
+              </Avatar>
+              <span>
+                {assigneeOptions.find((option) => option.value === assigneeId)
+                  ?.label || tDashboard("issue.assignee.unassigned")}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-1.5">
+          <span className="text-xs font-semibold uppercase text-muted-foreground">
+            {tDashboard("issue.form.priorityLabel")}
+          </span>
+          <div className="space-y-2">
+            <Select
+              value={priority}
+              onValueChange={(value) => onPriorityChange(value as PriorityType)}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue
+                  placeholder={tDashboard("issue.form.priorityPlaceholder")}
+                />
+              </SelectTrigger>
+              <SelectContent>
+                {priorityOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <div className="flex items-center gap-2">
+              <Flag
+                className={cn(
+                  "size-4",
+                  priority === "HIGH"
+                    ? "text-red-500"
+                    : priority === "MEDIUM"
+                      ? "text-yellow-500"
+                      : "text-green-500",
+                )}
+              />
+              <span className="text-sm">{priorityLabel}</span>
+            </div>
+          </div>
+        </div>
+
+        <Separator />
+
+        <Button
+          className="w-full"
+          onClick={onSave}
+          disabled={!isDirty || isUpdating}
+        >
+          {isUpdating
+            ? tDashboard("issue.update.submitting")
+            : tDashboard("issue.detail.saveChanges")}
+        </Button>
+
+        <Button
+          className="w-full"
+          variant="destructive"
+          onClick={onDeleteClick}
+          disabled={isDeletingIssue}
+        >
+          {isDeletingIssue
+            ? tDashboard("issue.detail.deletingIssue")
+            : tDashboard("issue.detail.deleteIssue")}
+        </Button>
+
+        {deleteModal}
+
+        <div className="space-y-3 text-sm">
+          <div className="flex justify-between items-center">
+            <span className="text-muted-foreground">
+              {tDashboard("issue.detail.reporterLabel")}
+            </span>
+            <span className="font-medium text-xs truncate max-w-30">
+              {reporterName}
+            </span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="text-muted-foreground">
+              {tDashboard("issue.detail.createdAtLabel")}
+            </span>
+            <span className="text-xs">{formatDate(createdAt)}</span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="text-muted-foreground">
+              {tDashboard("issue.detail.updatedAtLabel")}
+            </span>
+            <span className="text-xs">{formatDate(updatedAt)}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function IssueDetailEditableContent({
   issue,
   assigneeOptions,
@@ -439,7 +884,6 @@ function IssueDetailEditableContent({
   onDeleteComment,
   onCreateComment,
 }: IssueDetailEditableContentProps) {
-  const tDashboard = useTranslations("dashboard");
   const locale = useLocale();
   const [state, dispatch] = useReducer(
     issueDetailEditableReducer,
@@ -456,6 +900,7 @@ function IssueDetailEditableContent({
     [locale],
   );
 
+  const tDashboard = useTranslations("dashboard");
   const priorityOptions = [
     { value: Priority.LOW, label: tDashboard("issue.priority.low") },
     { value: Priority.MEDIUM, label: tDashboard("issue.priority.medium") },
@@ -478,6 +923,7 @@ function IssueDetailEditableContent({
 
   const normalizedAssigneeId =
     state.assigneeId === "UNASSIGNED" ? null : state.assigneeId;
+
   const canSubmitComment =
     !!state.newComment.trim() && !!currentUser?.id && !isCreatingComment;
 
@@ -494,321 +940,73 @@ function IssueDetailEditableContent({
 
   return (
     <div className="flex-1 min-h-0 grid grid-cols-1 md:grid-cols-[3fr_1fr] gap-8 py-4">
-      {/* Details and COMMENTS */}
       <ScrollArea className="min-h-0 pr-4">
         <div className="space-y-8 pb-1">
-          <div>
-            <h3 id="issue-description-label" className="font-medium mb-2">
-              {tDashboard("issue.detail.descriptionLabel")}
-            </h3>
-            <textarea
-              aria-labelledby="issue-description-label"
-              className="w-full min-h-35 rounded-md border bg-muted/30 p-4 text-sm text-foreground/80 leading-relaxed outline-none transition-colors focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-              placeholder={tDashboard("issue.detail.descriptionPlaceholder")}
-              value={state.description}
-              onChange={(e) =>
-                dispatch({ type: "descriptionChanged", value: e.target.value })
-              }
-            />
-          </div>
+          <IssueDescriptionSection
+            value={state.description}
+            onChange={(next) =>
+              dispatch({ type: "descriptionChanged", value: next })
+            }
+          />
 
           <Separator />
 
-          <div className="space-y-4">
-            <h3 id="issue-comments-label" className="font-medium">
-              {tDashboard("issue.detail.commentsLabel")}
-            </h3>
-            <div className="flex gap-3">
-              <Avatar className="size-8">
-                <AvatarImage src={currentUser?.image} />
-                <AvatarFallback>
-                  {(currentUser?.name ?? "U").charAt(0).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex-1 space-y-2">
-                <textarea
-                  aria-labelledby="issue-comments-label"
-                  className="w-full min-h-20 rounded-md border bg-muted/30 p-3 text-sm text-foreground/80 leading-relaxed outline-none transition-colors focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-                  placeholder={tDashboard("issue.detail.commentPlaceholder")}
-                  value={state.newComment}
-                  onChange={(e) =>
-                    dispatch({
-                      type: "newCommentChanged",
-                      value: e.target.value,
-                    })
-                  }
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && !e.shiftKey) {
-                      e.preventDefault();
-                      submitComment();
-                    }
-                  }}
-                />
-                <div className="flex justify-end">
-                  <Button
-                    size="sm"
-                    disabled={!canSubmitComment}
-                    onClick={submitComment}
-                  >
-                    {isCreatingComment
-                      ? tDashboard("issue.detail.commentSubmitting")
-                      : tDashboard("issue.detail.commentSubmit")}
-                  </Button>
-                </div>
-              </div>
-            </div>
-            {comments.length > 0 ? (
-              <div className="space-y-3">
-                {comments.map((comment) => {
-                  const member = memberById.get(comment.userId);
-                  const isOwnComment = comment.userId === currentUser?.id;
-                  const isDeletingCurrentComment =
-                    isDeletingComment && deletingCommentId === comment.id;
-                  const isUpdatingCurrentComment =
-                    isUpdatingComment && updatingCommentId === comment.id;
-                  const isEditingCurrentComment =
-                    state.editingCommentId === comment.id;
-                  const commenterName =
-                    comment.userId === currentUser?.id
-                      ? tDashboard("issue.assignee.me", {
-                          name: currentUser.name,
-                        })
-                      : (member?.name ?? comment.userId);
-
-                  return (
-                    <div
-                      key={comment.id}
-                      className="flex gap-3 rounded-lg border p-3 bg-muted/20"
-                    >
-                      <Avatar className="size-8">
-                        <AvatarImage src={member?.image} />
-                        <AvatarFallback>
-                          {commenterName.charAt(0).toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1 space-y-1">
-                        <div className="flex items-center justify-between gap-2">
-                          <p className="text-sm font-medium">{commenterName}</p>
-                          <div className="flex items-center gap-1">
-                            <p className="text-xs text-muted-foreground">
-                              {isDeletingCurrentComment
-                                ? tDashboard("issue.detail.commentDeleting")
-                                : isUpdatingCurrentComment
-                                  ? tDashboard("issue.detail.commentUpdating")
-                                  : formatDate(comment.createdAt)}
-                            </p>
-                            {isOwnComment && !isEditingCurrentComment ? (
-                              <DropdownMenuUD
-                                onEdit={() => {
-                                  dispatch({
-                                    type: "startEditingComment",
-                                    commentId: comment.id,
-                                    content: comment.content,
-                                  });
-                                }}
-                                onDelete={() => onDeleteComment(comment.id)}
-                              />
-                            ) : null}
-                          </div>
-                        </div>
-                        {isEditingCurrentComment ? (
-                          <div className="space-y-2">
-                            <textarea
-                              aria-label={`Edit comment by ${commenterName}`}
-                              className="w-full min-h-20 rounded-md border bg-muted/30 p-3 text-sm text-foreground/80 leading-relaxed outline-none transition-colors focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-                              value={state.editingCommentContent}
-                              onChange={(e) =>
-                                dispatch({
-                                  type: "startEditingComment",
-                                  commentId: comment.id,
-                                  content: e.target.value,
-                                })
-                              }
-                            />
-                            <div className="flex justify-end gap-2">
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                onClick={() => {
-                                  dispatch({ type: "cancelEditingComment" });
-                                }}
-                              >
-                                {tDashboard("issue.detail.commentCancel")}
-                              </Button>
-                              <Button
-                                type="button"
-                                size="sm"
-                                disabled={
-                                  !state.editingCommentContent.trim() ||
-                                  isUpdatingCurrentComment
-                                }
-                                onClick={() => {
-                                  onUpdateComment(
-                                    comment.id,
-                                    state.editingCommentContent.trim(),
-                                  );
-                                  dispatch({ type: "cancelEditingComment" });
-                                }}
-                              >
-                                {isUpdatingCurrentComment
-                                  ? tDashboard("issue.detail.commentUpdating")
-                                  : tDashboard("issue.detail.commentUpdate")}
-                              </Button>
-                            </div>
-                          </div>
-                        ) : (
-                          <p className="text-sm text-foreground/90 whitespace-pre-wrap wrap-break-word">
-                            {comment.content}
-                          </p>
-                        )}
-                        {isOwnComment && isEditingCurrentComment ? (
-                          <div className="flex justify-end">
-                            <span className="text-[11px] text-muted-foreground">
-                              {tDashboard("issue.detail.commentEditing")}
-                            </span>
-                          </div>
-                        ) : null}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="flex justify-center py-8 border-dashed border-2 rounded-lg">
-                <p className="text-sm text-muted-foreground">
-                  {tDashboard("issue.detail.noComments")}
-                </p>
-              </div>
-            )}
-          </div>
+          <IssueCommentsSection
+            comments={comments}
+            currentUser={currentUser}
+            memberById={memberById}
+            formatDate={formatDate}
+            canSubmit={canSubmitComment}
+            newComment={state.newComment}
+            isCreating={isCreatingComment}
+            isDeleting={isDeletingComment}
+            deletingCommentId={deletingCommentId}
+            isUpdating={isUpdatingComment}
+            updatingCommentId={updatingCommentId}
+            editingCommentId={state.editingCommentId}
+            editingCommentContent={state.editingCommentContent}
+            onNewCommentChange={(next) =>
+              dispatch({ type: "newCommentChanged", value: next })
+            }
+            onSubmit={submitComment}
+            onStartEditing={(commentId, content) =>
+              dispatch({ type: "startEditingComment", commentId, content })
+            }
+            onCancelEditing={() => dispatch({ type: "cancelEditingComment" })}
+            onEditingValueChange={(commentId, content) =>
+              dispatch({ type: "startEditingComment", commentId, content })
+            }
+            onDelete={onDeleteComment}
+            onUpdate={onUpdateComment}
+          />
         </div>
       </ScrollArea>
 
-      {/* SIDEBAR */}
-      <div className="space-y-6">
-        <div className="space-y-4">
-          <div className="space-y-1.5">
-            <span className="text-xs font-semibold uppercase text-muted-foreground">
-              {tDashboard("issue.detail.statusLabel")}
-            </span>
-            <div>
-              <Badge variant="secondary">{statusName}</Badge>
-            </div>
-          </div>
-
-          <div className="space-y-1.5">
-            <span className="text-xs font-semibold uppercase text-muted-foreground">
-              {tDashboard("issue.form.assigneeLabel")}
-            </span>
-            <div className="space-y-2">
-              <Select
-                value={state.assigneeId}
-                onValueChange={(value) =>
-                  dispatch({ type: "assigneeChanged", value })
-                }
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue
-                    placeholder={tDashboard("issue.form.assigneePlaceholder")}
-                  />
-                </SelectTrigger>
-                <SelectContent>
-                  {assigneeOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Avatar className="size-6">
-                  <AvatarImage src="" />
-                  <AvatarFallback>
-                    <User2 className="size-3" />
-                  </AvatarFallback>
-                </Avatar>
-                <span>
-                  {assigneeOptions.find(
-                    (option) => option.value === state.assigneeId,
-                  )?.label || tDashboard("issue.assignee.unassigned")}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-1.5">
-            <span className="text-xs font-semibold uppercase text-muted-foreground">
-              {tDashboard("issue.form.priorityLabel")}
-            </span>
-            <div className="space-y-2">
-              <Select
-                value={state.priority}
-                onValueChange={(value) =>
-                  dispatch({
-                    type: "priorityChanged",
-                    value: value as PriorityType,
-                  })
-                }
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue
-                    placeholder={tDashboard("issue.form.priorityPlaceholder")}
-                  />
-                </SelectTrigger>
-                <SelectContent>
-                  {priorityOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <div className="flex items-center gap-2">
-                <Flag
-                  className={cn(
-                    "size-4",
-                    state.priority === "HIGH"
-                      ? "text-red-500"
-                      : state.priority === "MEDIUM"
-                        ? "text-yellow-500"
-                        : "text-green-500",
-                  )}
-                />
-                <span className="text-sm">{priorityLabel}</span>
-              </div>
-            </div>
-          </div>
-
-          <Separator />
-
-          <Button
-            className="w-full"
-            onClick={() =>
-              onSave({
-                description: state.description,
-                assigneeId: normalizedAssigneeId,
-                priority: state.priority,
-              })
-            }
-            disabled={!isDirty || isUpdating}
-          >
-            {isUpdating
-              ? tDashboard("issue.update.submitting")
-              : tDashboard("issue.detail.saveChanges")}
-          </Button>
-
-          <Button
-            className="w-full"
-            variant="destructive"
-            onClick={() => dispatch({ type: "deleteIssueDialogOpened" })}
-            disabled={isDeletingIssue}
-          >
-            {isDeletingIssue
-              ? tDashboard("issue.detail.deletingIssue")
-              : tDashboard("issue.detail.deleteIssue")}
-          </Button>
-
+      <IssueSidebarSection
+        statusName={statusName}
+        assigneeOptions={assigneeOptions}
+        assigneeId={state.assigneeId}
+        onAssigneeChange={(value) =>
+          dispatch({ type: "assigneeChanged", value })
+        }
+        priority={state.priority}
+        priorityOptions={priorityOptions}
+        priorityLabel={priorityLabel}
+        onPriorityChange={(value) =>
+          dispatch({ type: "priorityChanged", value })
+        }
+        isDirty={isDirty}
+        isUpdating={isUpdating}
+        isDeletingIssue={isDeletingIssue}
+        onSave={() =>
+          onSave({
+            description: state.description,
+            assigneeId: normalizedAssigneeId,
+            priority: state.priority,
+          })
+        }
+        onDeleteClick={() => dispatch({ type: "deleteIssueDialogOpened" })}
+        deleteModal={
           <DeleteConfirmModal
             isOpen={state.isDeleteIssueDialogOpen}
             isLoading={isDeletingIssue}
@@ -826,31 +1024,12 @@ function IssueDetailEditableContent({
               dispatch({ type: "deleteIssueDialogClosed" });
             }}
           />
-
-          <div className="space-y-3 text-sm">
-            <div className="flex justify-between items-center">
-              <span className="text-muted-foreground">
-                {tDashboard("issue.detail.reporterLabel")}
-              </span>
-              <span className="font-medium text-xs truncate max-w-30">
-                {reporterName}
-              </span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-muted-foreground">
-                {tDashboard("issue.detail.createdAtLabel")}
-              </span>
-              <span className="text-xs">{formatDate(issue.createdAt)}</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-muted-foreground">
-                {tDashboard("issue.detail.updatedAtLabel")}
-              </span>
-              <span className="text-xs">{formatDate(issue.updatedAt)}</span>
-            </div>
-          </div>
-        </div>
-      </div>
+        }
+        reporterName={reporterName}
+        createdAt={issue.createdAt}
+        updatedAt={issue.updatedAt}
+        formatDate={formatDate}
+      />
     </div>
   );
 }
