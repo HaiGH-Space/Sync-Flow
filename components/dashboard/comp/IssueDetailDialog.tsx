@@ -574,13 +574,15 @@ type IssueCommentsSectionProps = {
   currentUser: UserProfile | undefined;
   memberById: Map<string, UserProfile>;
   formatDate: (value: string | number | Date) => string;
-  canSubmit: boolean;
   newComment: string;
-  isCreating: boolean;
-  isDeleting: boolean;
-  deletingCommentId: string | null;
-  isUpdating: boolean;
-  updatingCommentId: string | null;
+  commentState: {
+    canSubmit: boolean;
+    isCreating: boolean;
+    isDeleting: boolean;
+    deletingCommentId: string | null;
+    isUpdating: boolean;
+    updatingCommentId: string | null;
+  };
   editingCommentId: string | null;
   editingCommentContent: string;
   onNewCommentChange: (next: string) => void;
@@ -597,13 +599,8 @@ function IssueCommentsSection({
   currentUser,
   memberById,
   formatDate,
-  canSubmit,
   newComment,
-  isCreating,
-  isDeleting,
-  deletingCommentId,
-  isUpdating,
-  updatingCommentId,
+  commentState,
   editingCommentId,
   editingCommentContent,
   onNewCommentChange,
@@ -646,8 +643,12 @@ function IssueCommentsSection({
           />
 
           <div className="flex justify-end">
-            <Button size="sm" disabled={!canSubmit} onClick={onSubmit}>
-              {isCreating
+            <Button
+              size="sm"
+              disabled={!commentState.canSubmit}
+              onClick={onSubmit}
+            >
+              {commentState.isCreating
                 ? tDashboard("issue.detail.commentSubmitting")
                 : tDashboard("issue.detail.commentSubmit")}
             </Button>
@@ -664,8 +665,14 @@ function IssueCommentsSection({
               memberById={memberById}
               currentUser={currentUser}
               formatDate={formatDate}
-              isDeleting={isDeleting && deletingCommentId === comment.id}
-              isUpdating={isUpdating && updatingCommentId === comment.id}
+              isDeleting={
+                commentState.isDeleting &&
+                commentState.deletingCommentId === comment.id
+              }
+              isUpdating={
+                commentState.isUpdating &&
+                commentState.updatingCommentId === comment.id
+              }
               isEditing={editingCommentId === comment.id}
               editingValue={editingCommentContent}
               onStartEditing={onStartEditing}
@@ -956,13 +963,15 @@ function IssueDetailEditableContent({
             currentUser={currentUser}
             memberById={memberById}
             formatDate={formatDate}
-            canSubmit={canSubmitComment}
             newComment={state.newComment}
-            isCreating={isCreatingComment}
-            isDeleting={isDeletingComment}
-            deletingCommentId={deletingCommentId}
-            isUpdating={isUpdatingComment}
-            updatingCommentId={updatingCommentId}
+            commentState={{
+              canSubmit: canSubmitComment,
+              isCreating: isCreatingComment,
+              isDeleting: isDeletingComment,
+              deletingCommentId,
+              isUpdating: isUpdatingComment,
+              updatingCommentId,
+            }}
             editingCommentId={state.editingCommentId}
             editingCommentContent={state.editingCommentContent}
             onNewCommentChange={(next) =>
