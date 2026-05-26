@@ -34,6 +34,10 @@ export default function DashboardContentLayout({
   const isOpenSidebarRight = useDashboard((state) => state.isOpenSidebarRight);
   const toggleSidebarRight = useDashboard((state) => state.toggleSidebarRight);
 
+  useEffect(() => {
+    void useDashboard.persist.rehydrate();
+  }, []);
+
   return (
     <div className="flex flex-col flex-1 h-full overflow-hidden bg-background">
       <header className="text-lg flex items-center h-14 border-b border-border/70 bg-background/90 backdrop-blur">

@@ -90,6 +90,7 @@ export const useDashboard = create<DashboardStore>()(
     }),
     {
       name: "dashboard-storage",
+      skipHydration: true,
     },
   ),
 );

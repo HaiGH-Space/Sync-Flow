@@ -1,4 +1,5 @@
 ---
+name: fix-nextjs-hydration-error-text-content-mismatch
 description: Systematically debug and fix 'Text content does not match server-rendered HTML' errors
 ---
 
