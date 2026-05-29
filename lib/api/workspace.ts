@@ -62,10 +62,19 @@ async function createWorkspaceInvitation({
   });
 }
 
+async function acceptWorkspace({
+  token,
+}: {
+  token: string;
+}): Promise<ApiResponse<unknown>> {
+  return api.post(`${WORKSPACE_BASE_URL}/invitations/accept`, { token });
+}
+
 export const workspaceService = {
   getMyWorkspace,
   getWorkspaceById,
   createWorkspace,
+  acceptWorkspace,
   deleteWorkspace,
   createWorkspaceInvitation,
 };
