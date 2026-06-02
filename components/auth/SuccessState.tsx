@@ -51,6 +51,7 @@ function SuccessAvatarPrompt({
   onContinue,
   onSkipAvatar,
 }: SuccessAvatarPromptProps) {
+  const tAuth = useTranslations("auth");
   return (
     <>
       <m.div

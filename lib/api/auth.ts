@@ -2,7 +2,6 @@ import { api } from "./api";
 import { UserProfile } from "./user";
 
 const AUTH_BASE_URL = "/auth";
-const SESSION_COOKIE_NAME = "session_token";
 
 interface LoginRequest {
   email: string;
@@ -30,14 +29,8 @@ async function register({ email, password, name }: RegisterRequest) {
   });
 }
 
-function clearSessionCookie() {
-  if (typeof document === "undefined") return;
-
-  document.cookie = `${SESSION_COOKIE_NAME}=; Max-Age=0; path=/`;
-}
-
 async function logout() {
-  clearSessionCookie();
+  return await api.post<boolean>(`${AUTH_BASE_URL}/logout`, {});
 }
 
 export const authService = {
