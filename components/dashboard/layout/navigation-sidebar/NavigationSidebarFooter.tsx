@@ -77,7 +77,7 @@ export function NavigationSidebarFooter() {
   };
 
   return (
-    <div className="p-4 border-t border-slate-200/80 dark:border-slate-800/80">
+    <div className="p-4 border-t border-zinc-200/80 dark:border-zinc-800/80">
       <input
         ref={fileInputRef}
         type="file"
