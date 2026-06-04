@@ -101,7 +101,11 @@ export function NavigationSidebarFooter() {
             />
           </button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" sideOffset={12}>
+        <DropdownMenuContent
+          align="start"
+          sideOffset={12}
+          className="w-48 min-w-48"
+        >
           <DropdownMenuLabel className="max-w-56 truncate">
             {userProfile?.name ?? "Your account"}
           </DropdownMenuLabel>
