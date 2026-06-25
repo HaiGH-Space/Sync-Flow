@@ -32,7 +32,7 @@ export function NavigationSidebarChannelList({
   return (
     <div className="mt-2 pl-3">
       <div className="border-l border-border pl-3 space-y-1">
-        <div className="sticky top-0 z-10 -ml-3 border-b border-border/60 bg-background/95 px-3 pb-2 pt-2 backdrop-blur">
+        <div className="sticky top-0 z-10 -ml-3 border-b border-sidebar-border/60 bg-sidebar/95 px-3 pb-2 pt-2 backdrop-blur">
           <CreateChannelModal
             workspaceId={workspaceId}
             projectId={projectId}
@@ -81,8 +81,10 @@ export function NavigationSidebarChannelList({
               variant="ghost"
               size="sm"
               className={cn(
-                "group h-auto w-full justify-start gap-2 rounded-lg px-2 py-1.5 text-left transition-colors",
-                isChannelSelected ? "bg-primary/10" : "hover:bg-accent/50",
+                "group h-auto w-full justify-start gap-2 text-left transition-all",
+                isChannelSelected
+                  ? "bg-primary/10 text-foreground font-medium border-l-2 border-primary rounded-r-md px-2 py-1.5"
+                  : "hover:bg-sidebar-accent/50 text-sidebar-foreground/75 progress-left-pad px-2 py-1.5",
               )}
               aria-pressed={isChannelSelected}
               onClick={() => onSelectChannelAction(projectId, channel.id)}

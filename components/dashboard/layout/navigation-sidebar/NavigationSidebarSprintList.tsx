@@ -35,7 +35,7 @@ export function NavigationSidebarSprintList({
   return (
     <div className="mt-2 pl-3">
       <div className="border-l border-border pl-3 space-y-1">
-        <div className="sticky top-0 z-10 -ml-3 border-b border-border/60 bg-background/95 px-3 pb-2 pt-2 backdrop-blur">
+        <div className="sticky top-0 z-10 -ml-3 border-b border-sidebar-border/60 bg-sidebar/95 px-3 pb-2 pt-2 backdrop-blur">
           <CreateSprintModal
             projectId={projectId}
             trigger={
@@ -74,8 +74,10 @@ export function NavigationSidebarSprintList({
             <div
               key={sprint.id}
               className={cn(
-                "group flex items-center gap-2 rounded-lg px-2 py-1.5 transition-colors",
-                isSprintSelected ? "bg-primary/10" : "hover:bg-accent/50",
+                "group flex items-center gap-2 transition-all",
+                isSprintSelected
+                  ? "bg-primary/10 text-foreground font-medium border-l-2 border-primary rounded-r-md"
+                  : "hover:bg-sidebar-accent/50 text-sidebar-foreground/75 progress-left-pad px-2 py-1.5",
               )}
             >
               <button
@@ -97,7 +99,7 @@ export function NavigationSidebarSprintList({
                     "size-1.5 shrink-0 rounded-full transition-colors",
                     isSprintSelected
                       ? "bg-primary"
-                      : "bg-muted-foreground/35 group-hover:bg-foreground/60",
+                      : "bg-sidebar-foreground/30 group-hover:bg-sidebar-foreground/60",
                   )}
                 />
                 {sprint.name}
