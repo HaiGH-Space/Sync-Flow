@@ -83,7 +83,7 @@ export function NavigationSidebarSprintList({
               <button
                 type="button"
                 className={cn(
-                  "min-w-0 flex flex-1 items-center gap-2 truncate rounded-md px-2 py-1 text-left text-sm transition-colors",
+                  "min-w-0 flex flex-1 items-center gap-2 truncate text-left text-sm transition-colors",
                   isSprintSelected
                     ? "font-medium text-foreground"
                     : "text-muted-foreground group-hover:text-foreground",
