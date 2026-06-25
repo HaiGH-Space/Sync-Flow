@@ -58,7 +58,7 @@ function TimelineSprintItem({ step, item }: TimelineSprintItemProps) {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-border/70 bg-card/80 p-4 shadow-sm">
+        <div className="rounded-2xl border border-border/70 bg-card p-4 shadow-sm">
           <div className="flex items-start justify-between gap-2">
             <Badge variant={item.statusVariant}>{item.statusLabel}</Badge>
             <Badge
